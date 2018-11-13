@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BoatTracker</string>
+    <string name="helloText">Hello, world</string>
+</resources>
