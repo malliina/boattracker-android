@@ -14,7 +14,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         def mapboxAccessToken = System.getenv("MapboxAccessToken") ?: MapboxAccessToken
-        buildConfigField("String", "MapboxAccessToken", "${mapboxAccessToken}")
+        buildConfigField("String", "MapboxAccessToken", "\"${mapboxAccessToken}\"")
     }
     buildTypes {
         release {
