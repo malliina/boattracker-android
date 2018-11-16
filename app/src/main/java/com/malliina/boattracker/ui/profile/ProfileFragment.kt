@@ -1,4 +1,4 @@
-package com.malliina.boattracker.ui.main
+package com.malliina.boattracker.ui.profile
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -10,13 +10,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.malliina.boattracker.R
 
-class MainFragment : Fragment() {
+class ProfileFragment : Fragment() {
 
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance() = ProfileFragment()
     }
 
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: ProfileViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,7 +27,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
         viewModel.getTracks().observe(this, Observer<List<String>> { tracks ->
             val first = tracks?.first() ?: "no tracks"
             activity?.findViewById<TextView>(R.id.message)?.text = first

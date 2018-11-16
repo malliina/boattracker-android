@@ -1,10 +1,10 @@
-package com.malliina.boattracker.ui.main
+package com.malliina.boattracker.ui.profile
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 
-class MainViewModel : ViewModel() {
+class ProfileViewModel : ViewModel() {
     private lateinit var tracks: MutableLiveData<List<String>>
 
     fun getTracks(): LiveData<List<String>> {

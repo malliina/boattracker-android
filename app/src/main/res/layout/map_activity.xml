@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,4 +14,19 @@
         mapbox:mapbox_cameraTargetLng="24.9"
         mapbox:mapbox_styleUrl="mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
         mapbox:mapbox_cameraZoom="10" />
+
+    <Button
+        style="@style/IconButtonStyle"
+        android:id="@+id/profile"
+        android:text="@string/sliders"
+        android:onClick="profileClicked"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        style="@style/IconButtonStyle"
+        android:id="@+id/center"
+        android:text="@string/location"
+        android:onClick="locationClicked"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile" />
 </android.support.constraint.ConstraintLayout>

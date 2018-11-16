@@ -8,4 +8,15 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="IconButtonStyle" parent="android:Widget.Button">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/fa_solid_900</item>
+        <item name="android:background">@color/iconBackground</item>
+        <item name="android:alpha">0.6</item>
+    </style>
+
 </resources>
