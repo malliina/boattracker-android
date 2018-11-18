@@ -3,6 +3,9 @@
     <string name="helloText">Hello, world</string>
     <string name="profile">Profile</string>
     <string name="center">Center</string>
+    <string name="tracks">Tracks</string>
+    <string name="signedInAs">Signed in as %1$s</string>
+    <string name="logout">Logout</string>
     <string name="sliders">\uf1de</string>
     <string name="location">\uf124</string>
 </resources>

@@ -16,6 +16,7 @@
         <item name="android:textSize">22sp</item>
         <item name="android:fontFamily">@font/fa_solid_900</item>
         <item name="android:background">@color/iconBackground</item>
+        <!-- Should be 0.3 for the follow button when the map is in follow mode -->
         <item name="android:alpha">0.6</item>
     </style>
 
