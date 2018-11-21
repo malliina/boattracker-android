@@ -20,6 +20,7 @@
         android:id="@+id/profile"
         android:text="@string/sliders"
         android:onClick="profileClicked"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <Button
@@ -27,6 +28,7 @@
         android:id="@+id/center"
         android:text="@string/location"
         android:onClick="locationClicked"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profile" />
 </android.support.constraint.ConstraintLayout>

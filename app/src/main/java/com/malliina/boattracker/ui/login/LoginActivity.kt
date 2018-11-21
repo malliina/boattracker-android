@@ -16,7 +16,6 @@ import com.malliina.boattracker.R
 import com.malliina.boattracker.UserInfo
 import com.malliina.boattracker.auth.Google
 
-
 /**
  * See [Google's documentation](https://developers.google.com/identity/sign-in/android/start-integrating)
  */
@@ -34,9 +33,7 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        val user = account?.let { a -> Google.readUser(a) }
-        updateUI(user)
+        updateUI(null)
     }
 
     override fun onClick(button: View?) {
@@ -44,14 +41,14 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
     }
 
     private fun signIn() {
-        Log.i(localClassName, "Signing in...")
+        info("Signing in...")
         val signInIntent = client.signInIntent
         startActivityForResult(signInIntent, requestCodeSignIn)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.i(localClassName, "Got activity result with $requestCode")
+        info("Got activity result with $requestCode")
         if (requestCode == requestCodeSignIn) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
@@ -62,19 +59,28 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
         try {
             val account = completedTask.getResult(ApiException::class.java)
             val user = account?.let { a -> Google.readUser(a) }
-            Log.i(localClassName, "Sign in success")
+            info("Sign in success")
             updateUI(user)
         } catch (e: ApiException) {
             Log.w(localClassName, "Sign in failed. Code ${e.statusCode}", e)
+            updateFeedback("Sign in failed.")
         }
     }
 
     private fun updateUI(user: UserInfo?) {
         val msg = if (user != null) "Signed in as ${user.email}." else "Not signed in."
-        findViewById<TextView>(R.id.userStatus).text = msg
+        updateFeedback(msg)
         user?.let {
-            Log.i(localClassName, "Updating UI with ${user.email} then finishing")
+            info("Updating UI with ${user.email} then finishing")
             finish()
         }
+    }
+
+    private fun updateFeedback(text: String) {
+        findViewById<TextView>(R.id.userStatus).text = text
+    }
+
+    private fun info(msg: String) {
+        Log.i(localClassName, msg)
     }
 }
