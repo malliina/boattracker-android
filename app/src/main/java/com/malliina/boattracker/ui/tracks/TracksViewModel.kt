@@ -5,19 +5,23 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.malliina.boattracker.FullUrl
+import com.malliina.boattracker.HttpClient
 import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.TrackName
+import com.malliina.boattracker.TrackRef
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class TracksViewModel(val app: Application): AndroidViewModel(app) {
     private val tag = "TracksViewModel"
-    private lateinit var tracks: MutableLiveData<List<TrackName>>
-    private val queue = Volley.newRequestQueue(app)
+    private val baseUrl = FullUrl.https("www.boat-tracker.com", "")
+    private val viewModelJob = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private lateinit var tracks: MutableLiveData<List<TrackRef>>
 
-    fun getTracks(token: IdToken): LiveData<List<TrackName>> {
+    fun getTracks(token: IdToken): LiveData<List<TrackRef>> {
         if (!::tracks.isInitialized) {
             tracks = MutableLiveData()
             loadTracks(token)
@@ -26,25 +30,15 @@ class TracksViewModel(val app: Application): AndroidViewModel(app) {
     }
 
     private fun loadTracks(token: IdToken) {
-        val req = object : JsonObjectRequest(Request.Method.GET, "https://www.boat-tracker.com/tracks", null,
-            Response.Listener { response ->
-                val list = ArrayList<TrackName>()
-                val arr = response.getJSONArray("tracks")
-                for(i in 0..(arr.length() -1)) {
-                    val item = arr.getJSONObject(i)
-                    val track = item.getJSONObject("track")
-                    list.add(TrackName(track.getString("trackName")))
-                }
-                tracks.value = list
-            },
-            Response.ErrorListener { error ->
-                Log.w(tag, "Failed to load tracks. Token was $token", error)
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                return hashMapOf("Authorization" to "bearer $token")
+        val http = HttpClient.getInstance(app)
+        http.token = token
+        uiScope.launch {
+            try {
+                val response = http.getData(baseUrl.append("/tracks"))
+                tracks.value = TrackRef.parseList(response)
+            } catch(e: Exception) {
+                Log.e(tag, "Failed to load tracks. Token was $token")
             }
         }
-        queue.add(req)
     }
 }
