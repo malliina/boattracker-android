@@ -3,6 +3,8 @@ package com.malliina.boattracker
 import com.android.volley.NetworkResponse
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.geometry.LatLng
 import org.json.JSONObject
 import java.nio.charset.Charset
 import java.util.regex.Pattern
@@ -21,15 +23,32 @@ data class TrackName(val name: String) {
     override fun toString(): String = name
 }
 
+data class Speed(val knots: Double) {
+    companion object {
+        fun format(s: Speed): String = "%.2f kn".format(s.knots)
+    }
+
+    fun formatted(): String = format(this)
+
+    override fun toString() = formatted()
+}
+
+data class Distance(val mm: Double) {
+    override fun toString() = "$mm"
+}
+
+data class Temperature(val celsius: Double) {
+    override fun toString() = "$celsius"
+}
+
 data class TrackRef(val trackName: TrackName,
                     val boatName: String,
                     val start: String,
-                    val distance: Double,
-                    val topSpeed: Double,
-                    val durationSeconds: Long) {
-    fun formatDistance() = "%.2f km".format(distance / 1000000)
-
-    fun formatTopSpeed() = "%.2f kn".format(topSpeed)
+                    val distance: Distance,
+                    val topSpeed: Speed,
+                    val durationSeconds: Long,
+                    val topPoint: CoordBody) {
+    fun formatDistance() = "%.2f km".format(distance.mm / 1000000)
 
     fun formatDuration() = formatSeconds(durationSeconds)
 
@@ -47,9 +66,10 @@ data class TrackRef(val trackName: TrackName,
             TrackName(json.getString("trackName")),
             json.getString("boatName"),
             json.getString("start"),
-            json.getDouble("distance"),
-            json.getDouble("topSpeed"),
-            json.getLong("duration")
+            Distance(json.getDouble("distance")),
+            Speed(json.getDouble("topSpeed")),
+            json.getLong("duration"),
+            CoordBody.parse(json.getJSONObject("topPoint"))
         )
 
         fun parseList(json: JSONObject): List<TrackRef> {
@@ -60,6 +80,50 @@ data class TrackRef(val trackName: TrackName,
                 list.add(parse(item.getJSONObject("track")))
             }
             return list
+        }
+    }
+}
+
+data class CoordBody(val coord: Coord,
+                     val boatTime: String,
+                     val boatTimeMillis: Long,
+                     val speed: Speed,
+                     val depth: Distance,
+                     val waterTemp: Temperature) {
+    companion object {
+        fun parse(json: JSONObject): CoordBody = CoordBody(
+            Coord.parse(json.getJSONObject("coord")),
+            json.getString("boatTime"),
+            json.getLong("boatTimeMillis"),
+            Speed(json.getDouble("speed")),
+            Distance(json.getDouble("depth")),
+            Temperature(json.getDouble("waterTemp"))
+        )
+    }
+}
+
+data class Coord(val lat: Double, val lng: Double) {
+    fun latLng(): LatLng = LatLng(lat, lng)
+    fun point(): Point = Point.fromLngLat(lng, lat)
+    companion object {
+        fun parse(json: JSONObject): Coord =
+            Coord(json.getDouble("lat"), json.getDouble("lng"))
+    }
+}
+
+data class CoordsData(val from: TrackRef, val coords: List<CoordBody>) {
+    companion object {
+        fun parse(json: JSONObject): CoordsData {
+            val coordsArray = json.getJSONArray("coords")
+            val coords = mutableListOf<CoordBody>()
+            for(i in 0..(coordsArray.length()-1)) {
+                val item = coordsArray.getJSONObject(i)
+                coords.add(CoordBody.parse(item))
+            }
+            return CoordsData(
+                TrackRef.parse(json.getJSONObject("from")),
+                coords
+            )
         }
     }
 }
@@ -77,6 +141,8 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) 
         private val pattern = Pattern.compile("(.+)://([^/]+)(/?.*)")
 
         fun https(domain: String, uri: String): FullUrl = FullUrl("https", dropHttps(domain), uri)
+
+        fun http(domain: String, uri: String): FullUrl = FullUrl("http", dropHttps(domain), uri)
 
         fun host(domain: String): FullUrl = FullUrl("https", dropHttps(domain), "")
 

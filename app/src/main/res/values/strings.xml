@@ -8,4 +8,7 @@
     <string name="logout">Logout</string>
     <string name="sliders">\uf1de</string>
     <string name="location">\uf124</string>
+    <string name="top">Top</string>
+    <string name="duration">Duration</string>
+    <string name="distance">Distance</string>
 </resources>

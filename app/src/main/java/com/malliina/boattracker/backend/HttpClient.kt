@@ -1,4 +1,4 @@
-package com.malliina.boattracker
+package com.malliina.boattracker.backend
 
 import android.content.Context
 import com.android.volley.Request
@@ -6,6 +6,9 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.malliina.boattracker.FullUrl
+import com.malliina.boattracker.IdToken
+import com.malliina.boattracker.ResponseException
 import com.malliina.boattracker.auth.Google
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -19,7 +22,8 @@ class HttpClient(ctx: Context) {
         private var INSTANCE: HttpClient? = null
         fun getInstance(context: Context) =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: HttpClient(context).also {
+                INSTANCE
+                    ?: HttpClient(context).also {
                     INSTANCE = it
                 }
             }
@@ -35,7 +39,7 @@ class HttpClient(ctx: Context) {
             readData(url)
         } catch(re: ResponseException) {
             if (re.isTokenExpired()) {
-                val userInfo = Google.instance.refreshUserInfo(google)
+                val userInfo = Google.instance.signInSilently(google)
                 token = userInfo.idToken
                 readData(url)
             } else {

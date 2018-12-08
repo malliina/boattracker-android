@@ -5,9 +5,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.malliina.boattracker.IdToken
@@ -15,6 +15,7 @@ import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
 import kotlinx.android.synthetic.main.labeled_stat.view.*
 import kotlinx.android.synthetic.main.track_item.view.*
+import timber.log.Timber
 
 class TracksActivity: AppCompatActivity() {
     companion object {
@@ -28,6 +29,7 @@ class TracksActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Timber.tag(localClassName)
         setContentView(R.layout.tracks_activity)
 
         viewManager = LinearLayoutManager(this)
@@ -36,12 +38,12 @@ class TracksActivity: AppCompatActivity() {
             setHasFixedSize(false)
             layoutManager = viewManager
             adapter = viewAdapter
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
-        Log.i(localClassName, "Loading tracks...")
+        Timber.i("Loading tracks...")
         val token = IdToken(intent.getStringExtra(tokenExtra))
         viewModel = ViewModelProviders.of(this).get(TracksViewModel::class.java)
         viewModel.getTracks(token).observe(this, Observer<List<TrackRef>> { tracks ->
-            Log.i(localClassName, "$tracks")
             viewAdapter.tracks = tracks ?: emptyList()
             viewAdapter.notifyDataSetChanged()
         })
@@ -57,15 +59,16 @@ class TracksAdapter(var tracks: List<TrackRef>): RecyclerView.Adapter<TracksAdap
     }
 
     override fun onBindViewHolder(th: TrackHolder, position: Int) {
+        val ctx = th.itemView.context
         val track = tracks[position]
         val layout = th.layout
         layout.date_text.text = track.formatStart()
-        layout.first.stat_label.text = "Distance"
+        layout.first.stat_label.text = ctx.getString(R.string.distance)
         layout.first.stat_value.text = track.formatDistance()
-        layout.second.stat_label.text = "Duration"
+        layout.second.stat_label.text = ctx.getString(R.string.duration)
         layout.second.stat_value.text = track.formatDuration()
-        layout.third.stat_label.text = "Top"
-        layout.third.stat_value.text = track.formatTopSpeed()
+        layout.third.stat_label.text = ctx.getString(R.string.top)
+        layout.third.stat_value.text = track.topSpeed.formatted()
     }
 
     override fun getItemCount(): Int = tracks.size

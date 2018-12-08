@@ -4,22 +4,26 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import com.malliina.boattracker.FullUrl
-import com.malliina.boattracker.HttpClient
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.backend.Env
+import com.malliina.boattracker.backend.HttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class TracksViewModel(val app: Application): AndroidViewModel(app) {
-    private val tag = "TracksViewModel"
-    private val baseUrl = FullUrl.https("www.boat-tracker.com", "")
+    private val baseUrl = FullUrl.https(Env.BackendDomain, "")
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private lateinit var tracks: MutableLiveData<List<TrackRef>>
+
+    init {
+        Timber.tag("TracksViewModel")
+    }
 
     fun getTracks(token: IdToken): LiveData<List<TrackRef>> {
         if (!::tracks.isInitialized) {
@@ -37,7 +41,7 @@ class TracksViewModel(val app: Application): AndroidViewModel(app) {
                 val response = http.getData(baseUrl.append("/tracks"))
                 tracks.value = TrackRef.parseList(response)
             } catch(e: Exception) {
-                Log.e(tag, "Failed to load tracks. Token was $token")
+                Timber.e(e, "Failed to load tracks. Token was $token")
             }
         }
     }

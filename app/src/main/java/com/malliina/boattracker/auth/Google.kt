@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.Task
 import com.malliina.boattracker.Email
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.UserInfo
+import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -30,7 +31,10 @@ class Google {
             }
         }
     }
-    val TAG = "Google"
+
+    init {
+        Timber.tag("Google")
+    }
 
     private val webClientId = "497623115973-c6v1e9khup8bqj41vf228o2urnv86muh.apps.googleusercontent.com"
 
@@ -43,14 +47,14 @@ class Google {
         .requestEmail()
         .build()
 
-    suspend fun refreshUserInfo(ctx: Context) = refreshUserInfo(client(ctx))
+    suspend fun signInSilently(ctx: Context) = signInSilently(client(ctx))
 
-    suspend fun refreshUserInfo(c: GoogleSignInClient): UserInfo {
+    suspend fun signInSilently(c: GoogleSignInClient): UserInfo {
         val user = c.silentSignIn().await()
         readUser(user)?.let {
             return it
         }
-        Log.w(TAG, "Unable to read user info from account.")
+        Timber.w("Unable to read user info from account.")
         throw Exception("No user.")
     }
 }
