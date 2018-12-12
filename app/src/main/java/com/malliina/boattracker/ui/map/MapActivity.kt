@@ -40,13 +40,13 @@ class MapActivity: AppCompatActivity() {
     companion object {
         const val BoatIconId = "boat-resized-opt-30"
         const val BoatIconSize: Float = 0.7f
-        const val TrophyIconId = "trophy-14"
+//        const val TrophyIconId = "trophy-14"
     }
     private lateinit var mapView: MapView
     private lateinit var viewModel: MapViewModel
     private var map: MapboxMap? = null
     private var user: UserInfo? = null
-    private val trails: MutableMap<TrackName, LineString> = mutableMapOf()
+    private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
     enum class MapMode {
@@ -94,12 +94,12 @@ class MapActivity: AppCompatActivity() {
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
         val from = coords.from
-        val trackName = from.trackName
         val newPoints = coords.coords.map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
+        val meta = TrackMeta(from.trackName)
 
         // Updates track
-        val lineString = updateOrCreateTrail(trackName, coords.from.topPoint, newPoints, map)
-        val trailSource = map.getSourceAs<GeoJsonSource>(trailSourceId(trackName))
+        val lineString = updateOrCreateTrail(meta, coords.from.topPoint, newPoints, map)
+        val trailSource = map.getSourceAs<GeoJsonSource>(meta.trailSource)
         trailSource?.setGeoJson(lineString)
         val latLngs = lineString.coordinates().map { asLatLng(it) }
         if (newPoints.isNotEmpty()) {
@@ -120,19 +120,19 @@ class MapActivity: AppCompatActivity() {
                     Unit
             }
             // Updates boat icon
-            map.getSourceAs<GeoJsonSource>(iconSourceId(trackName))?.let { source ->
+            map.getSourceAs<GeoJsonSource>(meta.iconSource)?.let { source ->
                 newPoints.lastOrNull()?.let { last ->
                     source.setGeoJson(last)
                 }
                 // Updates boat icon bearing
                 val lastTwo = latLngs.takeLast(2)
                 if (lastTwo.size == 2) {
-                    map.getLayerAs<SymbolLayer>(iconLayerId(trackName))
+                    map.getLayerAs<SymbolLayer>(meta.iconLayer)
                         ?.setProperties(PropertyFactory.iconRotate(Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()))
                 }
             }
             // Updates trophy
-            topSpeedMarkers[trackName]?.let { active ->
+            topSpeedMarkers[meta.trackName]?.let { active ->
                 val top = from.topPoint
                 if (active.topPoint.speed.knots < top.speed.knots) {
                     fill(active.marker, top)
@@ -149,26 +149,26 @@ class MapActivity: AppCompatActivity() {
 
     private fun asLatLng(p: Point): LatLng = LatLng(p.latitude(), p.longitude())
 
-    private fun updateOrCreateTrail(trackName: TrackName, topSpeed: CoordBody, coords: List<Point>, map: MapboxMap): LineString {
-        val old = trails[trackName]
+    private fun updateOrCreateTrail(meta: TrackMeta, topSpeed: CoordBody, coords: List<Point>, map: MapboxMap): LineString {
+        val old = trails[meta]
         return if (old == null) {
             // Adds trail
-            val trailSource = trailSourceId(trackName)
+            val trailSource = meta.trailSource
             val lineString = LineString.fromLngLats(coords)
             val source = GeoJsonSource(trailSource, LineString.fromLngLats(emptyList()))
             map.addSource(source)
-            val lineLayer = LineLayer(trailLayerId(trackName), trailSource).withProperties(
+            val lineLayer = LineLayer(meta.trailLayer, trailSource).withProperties(
                 PropertyFactory.lineWidth(1f),
                 PropertyFactory.lineColor(Color.BLACK)
             )
             map.addLayer(lineLayer)
-            trails[trackName] = lineString
+            trails[meta] = lineString
             // Adds boat icon
             coords.lastOrNull()?.let { latLng ->
-                val iconSourceId = iconSourceId(trackName)
+                val iconSourceId = meta.iconSource
                 val iconSource = GeoJsonSource(iconSourceId, latLng)
                 map.addSource(iconSource)
-                val layerId = iconLayerId(trackName)
+                val layerId = meta.iconLayer
                 val symbol = SymbolLayer(layerId, iconSourceId)
                     .withProperties(PropertyFactory.iconImage(BoatIconId), PropertyFactory.iconSize(BoatIconSize))
                 map.addLayer(symbol)
@@ -182,7 +182,7 @@ class MapActivity: AppCompatActivity() {
             val bitmap = svgToBitmap(this, R.drawable.ic_trophy)
             val trophyOptions = if (bitmap != null) options.icon(icons.fromBitmap(bitmap)) else options
             val marker = map.addMarker(trophyOptions)
-            topSpeedMarkers[trackName] = ActiveMarker(marker, topSpeed)
+            topSpeedMarkers[meta.trackName] = ActiveMarker(marker, topSpeed)
             // Adds trophy 2
 //            val trophySrcId = trophySourceId(trackName)
 //            val trophySource = GeoJsonSource(trophySrcId, topSpeed.coord.point())
@@ -215,18 +215,6 @@ class MapActivity: AppCompatActivity() {
         }
     }
 
-    private fun trailSourceId(trackName: TrackName): String = "$trackName-trail-source"
-
-    private fun trailLayerId(trackName: TrackName): String = "$trackName-trail-layer"
-
-    private fun iconSourceId(trackName: TrackName): String = "$trackName-boat-source"
-
-    private fun iconLayerId(trackName: TrackName): String = "$trackName-boat-layer"
-
-    private fun trophySourceId(trackName: TrackName): String = "$trackName-top-source"
-
-    private fun trophyLayerId(trackName: TrackName): String = "$trackName-top-layer"
-
     fun profileClicked(button: View) {
         val u = user
         if (u != null) {
@@ -249,13 +237,13 @@ class MapActivity: AppCompatActivity() {
 
     private fun clearMap() {
         map?.let { map ->
-            trails.keys.forEach { trackName ->
-                map.removeLayer(trailLayerId(trackName))
-                map.removeSource(trailSourceId(trackName))
-                map.removeLayer(iconLayerId(trackName))
-                map.removeSource(iconSourceId(trackName))
-                map.removeLayer(trophyLayerId(trackName))
-                map.removeSource(trophySourceId(trackName))
+            trails.keys.forEach { meta ->
+                map.removeLayer(meta.trailLayer)
+                map.removeSource(meta.trailSource)
+                map.removeLayer(meta.iconLayer)
+                map.removeSource(meta.iconSource)
+                map.removeLayer(meta.trophyLayer)
+                map.removeSource(meta.trophySource)
             }
             trails.clear()
             topSpeedMarkers.values.forEach { m -> map.removeMarker(m.marker) }
@@ -297,4 +285,13 @@ class MapActivity: AppCompatActivity() {
         super.onDestroy()
         mapView.onDestroy()
     }
+}
+
+data class TrackMeta(val trackName: TrackName) {
+    val trailSource = "$trackName-trail-source"
+    val trailLayer = "$trackName-trail-layer"
+    val iconSource = "$trackName-boat-source"
+    val iconLayer = "$trackName-boat-layer"
+    val trophySource = "$trackName-top-source"
+    val trophyLayer = "$trackName-top-layer"
 }
