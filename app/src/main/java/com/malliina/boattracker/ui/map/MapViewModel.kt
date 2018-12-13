@@ -41,25 +41,29 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     }
 
     init {
-        Timber.tag("MapViewModel")
+        Timber.tag(javaClass.simpleName)
     }
 
     fun getUser(): LiveData<UserInfo?> {
         if (!::userInfo.isInitialized) {
             userInfo = MutableLiveData()
+            // Might receive coords from the socket before we observe?
             coords = MutableLiveData()
         }
         return userInfo
+    }
+
+    fun coords(): LiveData<CoordsData> {
+        if (!::userInfo.isInitialized) {
+            coords = MutableLiveData()
+        }
+        return coords
     }
 
     override fun onCoords(coords: CoordsData) {
         if (coords.coords.isEmpty()) return
         val msg = socketHandler.obtainMessage(CoordsCode, coords)
         socketHandler.sendMessage(msg)
-    }
-
-    fun coords(): LiveData<CoordsData> {
-        return coords
     }
 
     fun openSocket(token: IdToken?) {

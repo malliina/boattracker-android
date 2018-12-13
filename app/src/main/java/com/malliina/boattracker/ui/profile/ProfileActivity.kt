@@ -10,6 +10,7 @@ import com.malliina.boattracker.Email
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
 import com.malliina.boattracker.auth.Google
+import com.malliina.boattracker.ui.boats.BoatsActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
 
 class ProfileActivity: AppCompatActivity() {
@@ -33,6 +34,13 @@ class ProfileActivity: AppCompatActivity() {
 
     fun tracksClicked(button: View) {
         val intent = Intent(this, TracksActivity::class.java).apply {
+            putExtra(TracksActivity.tokenExtra, token.token)
+        }
+        startActivity(intent)
+    }
+
+    fun boatsClicked(button: View) {
+        val intent = Intent(this, BoatsActivity::class.java).apply {
             putExtra(TracksActivity.tokenExtra, token.token)
         }
         startActivity(intent)

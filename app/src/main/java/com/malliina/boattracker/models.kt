@@ -19,8 +19,20 @@ data class IdToken(val token: String) {
 
 data class UserInfo(val email: Email, val idToken: IdToken)
 
+data class Username(val name: String) {
+    override fun toString(): String = name
+}
+
 data class TrackName(val name: String) {
     override fun toString(): String = name
+}
+
+data class BoatName(val name: String) {
+    override fun toString() = name
+}
+
+data class BoatToken(val token: String) {
+    override fun toString() = token
 }
 
 data class Speed(val knots: Double) {
@@ -41,8 +53,43 @@ data class Temperature(val celsius: Double) {
     override fun toString() = "$celsius"
 }
 
+data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val addedMillis: Long) {
+    companion object {
+        fun parse(json: JSONObject): Boat = Boat(
+            json.getInt("id"),
+            BoatName(json.getString("name")),
+            BoatToken(json.getString("token")),
+            json.getLong("addedMillis")
+        )
+    }
+}
+
+data class BoatUser(val id: Int,
+                    val username: Username,
+                    val email: String?,
+                    val boats: List<Boat>,
+                    val addedMillis: Long) {
+    companion object {
+        fun parse(json: JSONObject): BoatUser {
+            val boatsArr = json.getJSONArray("boats")
+            val boats = mutableListOf<Boat>()
+            for(i in 0..(boatsArr.length()-1)) {
+                val item = boatsArr.getJSONObject(i)
+                boats.add(Boat.parse(item))
+            }
+            return BoatUser(
+                json.getInt("id"),
+                Username(json.getString("username")),
+                json.optString("email", null),
+                boats,
+                json.getLong("addedMillis")
+            )
+        }
+    }
+}
+
 data class TrackRef(val trackName: TrackName,
-                    val boatName: String,
+                    val boatName: BoatName,
                     val start: String,
                     val distance: Distance,
                     val topSpeed: Speed,
@@ -64,7 +111,7 @@ data class TrackRef(val trackName: TrackName,
     companion object {
         fun parse(json: JSONObject): TrackRef = TrackRef(
             TrackName(json.getString("trackName")),
-            json.getString("boatName"),
+            BoatName(json.getString("boatName")),
             json.getString("start"),
             Distance(json.getDouble("distance")),
             Speed(json.getDouble("topSpeed")),

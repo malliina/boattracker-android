@@ -54,8 +54,8 @@ class TracksAdapter(var tracks: List<TrackRef>): RecyclerView.Adapter<TracksAdap
     class TrackHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
-        val textView = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false) as ConstraintLayout
-        return TrackHolder(textView)
+        val layout = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false) as ConstraintLayout
+        return TrackHolder(layout)
     }
 
     override fun onBindViewHolder(th: TrackHolder, position: Int) {

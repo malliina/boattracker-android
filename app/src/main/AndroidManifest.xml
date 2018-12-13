@@ -24,6 +24,7 @@
         <activity android:name=".ui.login.LoginActivity" />
         <activity android:name=".ui.profile.ProfileActivity" />
         <activity android:name=".ui.tracks.TracksActivity" />
+        <activity android:name=".ui.boats.BoatsActivity" />
     </application>
 
 </manifest>

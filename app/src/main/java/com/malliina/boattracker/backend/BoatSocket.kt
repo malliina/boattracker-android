@@ -20,7 +20,7 @@ class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegat
     }
 
     companion object {
-        val url = FullUrl.wss(Env.BackendDomain, "/ws/updates")
+        val url = Env.socketsUrl
     }
 
     fun onMessage(message: JSONObject) {

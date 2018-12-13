@@ -11,4 +11,7 @@
     <string name="top">Top</string>
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
+    <string name="boat">Boat</string>
+    <string name="boats">Boats</string>
+    <string name="token">Token</string>
 </resources>
