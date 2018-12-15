@@ -45,12 +45,37 @@ data class Speed(val knots: Double) {
     override fun toString() = formatted()
 }
 
-data class Distance(val mm: Double) {
-    override fun toString() = "$mm"
+data class Distance(val meters: Double) {
+    companion object {
+        fun millis(mm: Double): Distance = Distance(mm / 1000)
+    }
+
+    override fun toString() = formatted()
+
+    fun formatted(): String = "%.2f km".format(meters / 1000)
+}
+
+data class Duration(val seconds: Double) {
+    companion object {
+        private fun formatSeconds(seconds: Long): String {
+            val s = seconds % 60
+            val m = (seconds / 60) % 60
+            val h = (seconds / (60 * 60)) % 24
+            return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
+        }
+
+        fun seconds(seconds: Long): Duration = Duration(seconds.toDouble())
+    }
+
+    override fun toString() = formatted()
+
+    fun formatted(): String = formatSeconds(seconds.toLong())
 }
 
 data class Temperature(val celsius: Double) {
-    override fun toString() = "$celsius"
+    override fun toString() = formatted()
+
+    fun formatted() = "%.2f ℃".format(celsius)
 }
 
 data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val addedMillis: Long) {
@@ -92,39 +117,37 @@ data class TrackRef(val trackName: TrackName,
                     val boatName: BoatName,
                     val start: String,
                     val distance: Distance,
-                    val topSpeed: Speed,
-                    val durationSeconds: Long,
+                    val topSpeed: Speed?,
+                    val avgSpeed: Speed?,
+                    val avgWaterTemp: Temperature?,
+                    val duration: Duration,
                     val topPoint: CoordBody) {
-    fun formatDistance() = "%.2f km".format(distance.mm / 1000000)
-
-    fun formatDuration() = formatSeconds(durationSeconds)
-
     fun formatStart() = start.take(10)
 
-    private fun formatSeconds(seconds: Long): String {
-        val s = seconds % 60
-        val m = (seconds / 60) % 60
-        val h = (seconds / (60 * 60)) % 24
-        return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
-    }
-
     companion object {
-        fun parse(json: JSONObject): TrackRef = TrackRef(
-            TrackName(json.getString("trackName")),
-            BoatName(json.getString("boatName")),
-            json.getString("start"),
-            Distance(json.getDouble("distance")),
-            Speed(json.getDouble("topSpeed")),
-            json.getLong("duration"),
-            CoordBody.parse(json.getJSONObject("topPoint"))
-        )
+        fun parse(json: JSONObject): TrackRef {
+            val top = json.optDouble("topSpeed")
+            val avg = json.optDouble("avgSpeed")
+            val temp = json.optDouble("avgWaterTemp")
+            return TrackRef(
+                TrackName(json.getString("trackName")),
+                BoatName(json.getString("boatName")),
+                json.getString("start"),
+                Distance.millis(json.getDouble("distance")),
+                if (top.isNaN()) null else Speed(top),
+                if (avg.isNaN()) null else Speed(avg),
+                if (temp.isNaN()) null else Temperature(temp),
+                Duration.seconds(json.getLong("duration")),
+                CoordBody.parse(json.getJSONObject("topPoint"))
+            )
+        }
 
         fun parseList(json: JSONObject): List<TrackRef> {
             val list = ArrayList<TrackRef>()
             val arr = json.getJSONArray("tracks")
             for(i in 0..(arr.length() -1)) {
                 val item = arr.getJSONObject(i)
-                list.add(parse(item.getJSONObject("track")))
+                list.add(parse(item))
             }
             return list
         }
@@ -143,7 +166,7 @@ data class CoordBody(val coord: Coord,
             json.getString("boatTime"),
             json.getLong("boatTimeMillis"),
             Speed(json.getDouble("speed")),
-            Distance(json.getDouble("depth")),
+            Distance.millis(json.getDouble("depth")),
             Temperature(json.getDouble("waterTemp"))
         )
     }

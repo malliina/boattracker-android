@@ -7,9 +7,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.os.Handler
 import android.os.Looper
-import com.malliina.boattracker.CoordsData
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.UserInfo
+import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
@@ -32,6 +30,8 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private var socket: BoatSocket? = null
+    private var latestTrack: TrackName? = null
+
     private val socketHandler = Handler(Looper.getMainLooper()) { msg ->
         when (msg.what) {
             CoordsCode -> coords.value = msg.obj as CoordsData
@@ -61,6 +61,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     }
 
     override fun onCoords(coords: CoordsData) {
+        latestTrack = coords.from.trackName
         if (coords.coords.isEmpty()) return
         val msg = socketHandler.obtainMessage(CoordsCode, coords)
         socketHandler.sendMessage(msg)
@@ -68,7 +69,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
 
     fun openSocket(token: IdToken?) {
         socket?.disconnect()
-        socket = BoatSocket(token, this)
+        socket = BoatSocket.token(token, null, this)
         socket?.connect()
     }
 

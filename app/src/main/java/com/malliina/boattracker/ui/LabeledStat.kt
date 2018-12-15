@@ -26,4 +26,9 @@ class LabeledStat: ConstraintLayout {
         label = findViewById(R.id.stat_label)
         value = findViewById(R.id.stat_value)
     }
+
+    fun fill(label: String, value: String) {
+        this.label.text = label
+        this.value.text = value
+    }
 }

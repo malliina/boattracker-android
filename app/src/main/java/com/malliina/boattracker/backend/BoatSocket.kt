@@ -3,6 +3,7 @@ package com.malliina.boattracker.backend
 import com.malliina.boattracker.CoordsData
 import com.malliina.boattracker.FullUrl
 import com.malliina.boattracker.IdToken
+import com.malliina.boattracker.TrackName
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
@@ -15,12 +16,13 @@ interface SocketDelegate {
 }
 
 class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate) {
-    constructor(token: IdToken?, delegate: SocketDelegate)
-            : this(url, if (token != null) mapOf("Authorization" to "bearer $token") else mapOf(), delegate) {
-    }
-
     companion object {
         val url = Env.socketsUrl
+
+        fun token(token: IdToken?, track: TrackName?, delegate: SocketDelegate): BoatSocket {
+            val socketUrl = if (track == null) url else url.append("?track=$track")
+            return BoatSocket(socketUrl, HttpClient.headers(token), delegate)
+        }
     }
 
     fun onMessage(message: JSONObject) {

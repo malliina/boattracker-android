@@ -9,9 +9,15 @@
     <string name="sliders">\uf1de</string>
     <string name="location">\uf124</string>
     <string name="top">Top</string>
+    <string name="topSpeed">Top Speed</string>
+    <string name="avgSpeed">Avg Speed</string>
+    <string name="waterTemp">Water Temp</string>
+    <string name="date">Date</string>
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
     <string name="boat">Boat</string>
     <string name="boats">Boats</string>
     <string name="token">Token</string>
+    <string name="token_text">Add the token to the BoatTracker agent software running in your boat. For more information, see www.boat-tracker.com/docs/agent.</string>
+    <string name="na">N/A</string>
 </resources>

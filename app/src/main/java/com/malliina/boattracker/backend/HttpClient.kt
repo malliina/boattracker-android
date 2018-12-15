@@ -13,11 +13,17 @@ import com.malliina.boattracker.auth.Google
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONObject
+import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class HttpClient(ctx: Context) {
     companion object {
+        fun headers(token: IdToken?): Map<String, String> {
+            val acceptPair = "Accept" to "application/vnd.musicpimp.v2+json"
+            return if (token != null) mapOf("Authorization" to "bearer $token", acceptPair) else mapOf(acceptPair)
+        }
+
         @Volatile
         private var INSTANCE: HttpClient? = null
         fun getInstance(context: Context) =
@@ -27,6 +33,10 @@ class HttpClient(ctx: Context) {
                     INSTANCE = it
                 }
             }
+    }
+
+    init {
+        Timber.tag(javaClass.simpleName)
     }
 
     private val queue: RequestQueue = Volley.newRequestQueue(ctx.applicationContext)
@@ -39,6 +49,7 @@ class HttpClient(ctx: Context) {
             readData(url)
         } catch(re: ResponseException) {
             if (re.isTokenExpired()) {
+                Timber.i("JWT is expired. Obtaining a new token and retrying...")
                 val userInfo = Google.instance.signInSilently(google)
                 token = userInfo.idToken
                 readData(url)
@@ -59,9 +70,6 @@ class HttpClient(ctx: Context) {
         : JsonObjectRequest(Request.Method.GET, url.url, null,
         Response.Listener { cont.resume(it) },
         Response.ErrorListener { error -> cont.resumeWithException(ResponseException(error))}) {
-        override fun getHeaders(): Map<String, String> {
-            return if (token != null) mapOf("Authorization" to "bearer $token")
-            else mapOf()
-        }
+        override fun getHeaders(): Map<String, String> = HttpClient.headers(token)
     }
 }

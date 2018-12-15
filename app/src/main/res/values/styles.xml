@@ -20,4 +20,9 @@
         <item name="android:alpha">0.6</item>
     </style>
 
+    <style name="ProfileButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <!--<item name="android:background">@color/colorLink</item>-->
+        <!--<item name="android:textColor">@color/colorLink</item>-->
+    </style>
+
 </resources>

@@ -31,11 +31,11 @@ class BoatsActivity: AppCompatActivity() {
         setContentView(R.layout.boats_activity)
         viewManager = LinearLayoutManager(this)
         boatsAdapter = BoatsAdapter(emptyList())
-        findViewById<RecyclerView>(R.id.boats_view).apply {
+        findViewById<RecyclerView>(R.id.boats_list).apply {
             setHasFixedSize(false)
             layoutManager = viewManager
             adapter = boatsAdapter
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+//            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
         Timber.i("Loading boats...")
         val token = IdToken(intent.getStringExtra(TracksActivity.tokenExtra))

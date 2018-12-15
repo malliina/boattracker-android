@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
-import kotlinx.android.synthetic.main.labeled_stat.view.*
 import kotlinx.android.synthetic.main.track_item.view.*
 import timber.log.Timber
 
@@ -63,12 +62,9 @@ class TracksAdapter(var tracks: List<TrackRef>): RecyclerView.Adapter<TracksAdap
         val track = tracks[position]
         val layout = th.layout
         layout.date_text.text = track.formatStart()
-        layout.first.stat_label.text = ctx.getString(R.string.distance)
-        layout.first.stat_value.text = track.formatDistance()
-        layout.second.stat_label.text = ctx.getString(R.string.duration)
-        layout.second.stat_value.text = track.formatDuration()
-        layout.third.stat_label.text = ctx.getString(R.string.top)
-        layout.third.stat_value.text = track.topSpeed.formatted()
+        layout.first.fill(ctx.getString(R.string.distance), track.distance.formatted())
+        layout.second.fill(ctx.getString(R.string.duration), track.duration.formatted())
+        layout.third.fill(ctx.getString(R.string.top), track.topSpeed?.formatted() ?: ctx.getString(R.string.na))
     }
 
     override fun getItemCount(): Int = tracks.size

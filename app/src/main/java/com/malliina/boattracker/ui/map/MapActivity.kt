@@ -89,6 +89,7 @@ class MapActivity: AppCompatActivity() {
         super.onStart()
         mapView.onStart()
         // https://developers.google.com/identity/sign-in/android/backend-auth
+        // I think this triggers the userInfo callback eventually, which then opens the socket
         viewModel.signInSilently(this)
     }
 
