@@ -18,7 +18,7 @@
         android:textSize="@dimen/date_text"
         tools:text="2018-06-16" />
 
-    <com.malliina.boattracker.ui.LabeledStat
+    <com.malliina.boattracker.ui.StatBox
         android:id="@+id/first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date_text" />
 
-    <com.malliina.boattracker.ui.LabeledStat
+    <com.malliina.boattracker.ui.StatBox
         android:id="@+id/second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
         app:layout_constraintStart_toEndOf="@id/first"
         app:layout_constraintTop_toTopOf="@id/first" />
 
-    <com.malliina.boattracker.ui.LabeledStat
+    <com.malliina.boattracker.ui.StatBox
         android:id="@+id/third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

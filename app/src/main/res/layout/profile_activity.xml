@@ -5,48 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/duration"
-        android:layout_width="wrap_content"
+    <com.malliina.boattracker.ui.profile.TrackSummaryBox
+        android:id="@+id/track_summary"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <ProgressBar
+        android:id="@+id/indeterminateBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/distance"/>
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/duration"/>
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/topSpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/duration"
-        app:layout_constraintEnd_toStartOf="@id/avgSpeed"
-        app:layout_constraintStart_toStartOf="parent"/>
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/avgSpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/distance"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/topSpeed"/>
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/waterTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/topSpeed"
-        app:layout_constraintEnd_toStartOf="@id/date"
-        app:layout_constraintStart_toStartOf="parent"/>
-    <com.malliina.boattracker.ui.LabeledStat
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/avgSpeed"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/topSpeed"/>
+        app:layout_constraintBottom_toTopOf="@id/tracks_link"/>
     <Button style="@style/ProfileButtonStyle"
         android:id="@+id/tracks_link"
         android:layout_width="match_parent"
@@ -54,7 +24,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/tracks"
         android:onClick="tracksClicked"
-        app:layout_constraintTop_toBottomOf="@id/date"
+        app:layout_constraintTop_toBottomOf="@id/track_summary"
         app:layout_constraintBottom_toTopOf="@id/boats_link"
         app:layout_constraintVertical_chainStyle="spread_inside"/>
     <Button style="@style/ProfileButtonStyle"

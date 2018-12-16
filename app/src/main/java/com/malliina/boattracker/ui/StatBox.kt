@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.TextView
 import com.malliina.boattracker.R
 
-class LabeledStat: ConstraintLayout {
+class StatBox: ConstraintLayout {
     lateinit var label: TextView
     lateinit var value: TextView
 
@@ -22,7 +22,7 @@ class LabeledStat: ConstraintLayout {
     }
 
     private fun init() {
-        View.inflate(context, R.layout.labeled_stat, this)
+        View.inflate(context, R.layout.stat_box, this)
         label = findViewById(R.id.stat_label)
         value = findViewById(R.id.stat_value)
     }

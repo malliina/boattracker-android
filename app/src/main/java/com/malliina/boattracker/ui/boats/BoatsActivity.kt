@@ -16,7 +16,7 @@ import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
 import com.malliina.boattracker.ui.tracks.TracksActivity
 import kotlinx.android.synthetic.main.boat_item.view.*
-import kotlinx.android.synthetic.main.labeled_stat.view.*
+import kotlinx.android.synthetic.main.stat_box.view.*
 import timber.log.Timber
 
 class BoatsActivity: AppCompatActivity() {

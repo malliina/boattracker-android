@@ -12,7 +12,7 @@ import org.json.JSONObject
 import timber.log.Timber
 
 interface SocketDelegate {
-    fun onCoords(coords: CoordsData)
+    fun onCoords(newCoords: CoordsData)
 }
 
 class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate) {
@@ -33,9 +33,9 @@ class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegat
         }
     }
 
-    private fun onCoords(coords: CoordsData) {
-        Timber.i("Got ${coords.coords.size} coords.")
-        delegate.onCoords(coords)
+    private fun onCoords(newCoords: CoordsData) {
+        Timber.i("Got ${newCoords.coords.size} coords.")
+        delegate.onCoords(newCoords)
     }
 
     private val listener = object: WebSocketAdapter() {

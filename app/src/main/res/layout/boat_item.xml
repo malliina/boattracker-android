@@ -7,13 +7,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.malliina.boattracker.ui.LabeledStat
+    <com.malliina.boattracker.ui.StatBox
         android:id="@+id/boat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/token"
         app:layout_constraintStart_toStartOf="parent" />
-    <com.malliina.boattracker.ui.LabeledStat
+    <com.malliina.boattracker.ui.StatBox
         android:id="@+id/token"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

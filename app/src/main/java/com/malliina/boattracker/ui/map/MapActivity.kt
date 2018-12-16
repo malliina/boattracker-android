@@ -15,6 +15,7 @@ import android.widget.Button
 import com.malliina.boattracker.*
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileActivity
+import com.malliina.boattracker.ui.tracks.TracksActivity
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
@@ -31,9 +32,6 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import timber.log.Timber
 
 class MapActivity: AppCompatActivity() {
@@ -45,7 +43,7 @@ class MapActivity: AppCompatActivity() {
     private lateinit var mapView: MapView
     private lateinit var viewModel: MapViewModel
     private var map: MapboxMap? = null
-    private var user: UserInfo? = null
+    private var mapState: MapState = MapState(null, null)
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
@@ -60,7 +58,6 @@ class MapActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.tag(localClassName)
-
         Mapbox.getInstance(this, BuildConfig.MapboxAccessToken)
         setContentView(R.layout.map_activity)
         mapView = findViewById(R.id.mapView)
@@ -69,18 +66,16 @@ class MapActivity: AppCompatActivity() {
             this.map = map
         }
 
-        AppCenter.start(application, "768ec01e-fe9c-46b2-a05a-5389fa9d148f",
-            Analytics::class.java, Crashes::class.java)
-
         // Observer code happens on the main thread
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
-        viewModel.getUser().observe(this, Observer { userInfo ->
-//            Timber.i("Got user $userInfo")
-            user = userInfo
-            viewModel.openSocket(userInfo?.idToken)
-            findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
+        viewModel.getUser().observe(this, Observer { mapState ->
+            mapState?.let { state ->
+                this.mapState = state
+                viewModel.openSocket(state.user?.idToken, mapState.track)
+                findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
+            }
         })
-        viewModel.coords().observe(this, Observer { coords ->
+        viewModel.getCoords().observe(this, Observer { coords ->
             coords?.let { cs -> map?.let { m -> onCoords(cs, m) }  }
         })
     }
@@ -88,9 +83,31 @@ class MapActivity: AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        // https://developers.google.com/identity/sign-in/android/backend-auth
-        // I think this triggers the userInfo callback eventually, which then opens the socket
-        viewModel.signInSilently(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        viewModel.openSocket(mapState.user?.idToken, mapState.track)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+        viewModel.disconnect()
+        clearMap()
+    }
+
+    /**
+     * Called when the user has selected a track.
+     *
+     * @see TracksActivity
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent?.getStringExtra(TracksActivity.trackNameExtra)?.let { name ->
+            mapMode = MapMode.Fit
+            viewModel.update(MapState(mapState.user, TrackName(name)))
+        }
     }
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
@@ -217,12 +234,13 @@ class MapActivity: AppCompatActivity() {
     }
 
     fun profileClicked(button: View) {
-        val u = user
+        val u = mapState.user
         if (u != null) {
-            Timber.i( "Opening profile for ${u.email}...")
+            Timber.i("Opening profile for ${u.email}...")
             val intent = Intent(this, ProfileActivity::class.java).apply {
                 putExtra(ProfileActivity.userEmail, u.email.email)
                 putExtra(ProfileActivity.userToken, u.idToken.token)
+                putExtra(TracksActivity.trackNameExtra, mapState.track?.name)
             }
             startActivity(intent)
         } else {
@@ -262,14 +280,6 @@ class MapActivity: AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
-        viewModel.disconnect()
-        clearMap()
-        Timber.i("Stopped map.")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
