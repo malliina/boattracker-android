@@ -72,7 +72,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         socket?.disconnect()
     }
 
-    private fun signInSilently(ctx: Context) {
+    fun signInSilently(ctx: Context) {
         uiScope.launch {
             try {
                 val user = google.signInSilently(ctx)

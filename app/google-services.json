@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "497623115973",
+    "firebase_url": "https://boattracker-209616.firebaseio.com",
+    "project_id": "boattracker-209616",
+    "storage_bucket": "boattracker-209616.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:497623115973:android:dabc68f65181d77a",
+        "android_client_info": {
+          "package_name": "com.malliina.boattracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "497623115973-uqppg913nf3tli21i3tbk9ec0p44tu00.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.malliina.boattracker",
+            "certificate_hash": "1768808d21cf2b7d620931539ac85cd9981fe820"
+          }
+        },
+        {
+          "client_id": "497623115973-lvh7dd14hfp1t4flbk8pdrdt0a5uscd0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhChzpgLAlTzONcZ6SlKXwhBF6zns57JQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "497623115973-lvh7dd14hfp1t4flbk8pdrdt0a5uscd0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "497623115973-qut66ppubk4f9mpigckfkoqqoi060bge.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.malliina.BoatTracker"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

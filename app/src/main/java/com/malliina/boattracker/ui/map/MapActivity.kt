@@ -70,6 +70,7 @@ class MapActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         viewModel.getUser().observe(this, Observer { mapState ->
             mapState?.let { state ->
+                Timber.i("Got ${state.user?.email ?: "no email"}")
                 this.mapState = state
                 viewModel.openSocket(state.user?.idToken, mapState.track)
                 findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
@@ -87,7 +88,9 @@ class MapActivity: AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        viewModel.openSocket(mapState.user?.idToken, mapState.track)
+        // Triggers an onChanged event for the user: covers the case where we signed out, or signed in as another user.
+        // Alternatively we could convey this information through Intents, and just reopen the socket here.
+        viewModel.signInSilently(this)
     }
 
     override fun onStop() {
