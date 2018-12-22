@@ -59,17 +59,33 @@ class HttpClient(ctx: Context) {
         }
     }
 
+    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject =
+        makeRequest(RequestConf(Request.Method.POST, url, token, data))
+
     // https://jankotlin.wordpress.com/2017/10/16/volley-for-lazy-kotliniers/
-    private suspend fun readData(url: FullUrl): JSONObject = suspendCancellableCoroutine { cont ->
-        RequestWithHeaders(url, token, cont).also {
+    private suspend fun readData(url: FullUrl): JSONObject =
+        makeRequest(RequestConf.get(url, token))
+
+    private suspend fun makeRequest(conf: RequestConf): JSONObject = suspendCancellableCoroutine { cont ->
+        RequestWithHeaders(conf, cont).also {
             queue.add(it)
         }
     }
 
-    class RequestWithHeaders(url: FullUrl, private val token: IdToken?, cont: CancellableContinuation<JSONObject>)
-        : JsonObjectRequest(Request.Method.GET, url.url, null,
+    class RequestWithHeaders(private val conf: RequestConf, cont: CancellableContinuation<JSONObject>)
+        : JsonObjectRequest(conf.method, conf.url.url, conf.payload,
         Response.Listener { cont.resume(it) },
         Response.ErrorListener { error -> cont.resumeWithException(ResponseException(error))}) {
-        override fun getHeaders(): Map<String, String> = HttpClient.headers(token)
+        override fun getHeaders(): Map<String, String> = HttpClient.headers(conf.token)
+    }
+}
+
+data class RequestConf(val method: Int,
+                       val url: FullUrl,
+                       val token: IdToken?,
+                       val payload: JSONObject?) {
+    companion object {
+        fun get(url: FullUrl, token: IdToken?): RequestConf =
+            RequestConf(Request.Method.GET, url, token, null)
     }
 }

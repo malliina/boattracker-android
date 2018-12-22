@@ -9,6 +9,10 @@ import org.json.JSONObject
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
+data class PushToken(val token: String) {
+    override fun toString(): String = token
+}
+
 data class Email(val email: String) {
     override fun toString(): String = email
 }
