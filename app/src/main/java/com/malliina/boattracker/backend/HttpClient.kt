@@ -44,27 +44,25 @@ class HttpClient(ctx: Context) {
 
     var token: IdToken? = null
 
-    suspend fun getData(url: FullUrl): JSONObject {
-        return try {
-            readData(url)
-        } catch(re: ResponseException) {
-            if (re.isTokenExpired()) {
+    // https://jankotlin.wordpress.com/2017/10/16/volley-for-lazy-kotliniers/
+    suspend fun getData(url: FullUrl): JSONObject = makeWithRetry(RequestConf.get(url, token))
+
+    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject =
+        makeWithRetry(RequestConf(Request.Method.POST, url, token, data))
+
+    private suspend fun makeWithRetry(conf: RequestConf): JSONObject =
+        try {
+            makeRequest(conf)
+        } catch(e: ResponseException) {
+            if (e.isTokenExpired()) {
                 Timber.i("JWT is expired. Obtaining a new token and retrying...")
                 val userInfo = Google.instance.signInSilently(google)
                 token = userInfo.idToken
-                readData(url)
+                makeRequest(conf.copy(token = userInfo.idToken))
             } else {
-                throw re
+                throw e
             }
         }
-    }
-
-    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject =
-        makeRequest(RequestConf(Request.Method.POST, url, token, data))
-
-    // https://jankotlin.wordpress.com/2017/10/16/volley-for-lazy-kotliniers/
-    private suspend fun readData(url: FullUrl): JSONObject =
-        makeRequest(RequestConf.get(url, token))
 
     private suspend fun makeRequest(conf: RequestConf): JSONObject = suspendCancellableCoroutine { cont ->
         RequestWithHeaders(conf, cont).also {
