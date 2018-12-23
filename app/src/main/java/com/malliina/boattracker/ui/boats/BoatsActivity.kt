@@ -5,11 +5,11 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Switch
 import com.malliina.boattracker.Boat
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
@@ -27,6 +27,7 @@ class BoatsActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.boats_toolbar))
         Timber.tag(localClassName)
         setContentView(R.layout.boats_activity)
         viewManager = LinearLayoutManager(this)
@@ -44,6 +45,11 @@ class BoatsActivity: AppCompatActivity() {
             boatsAdapter.boats = user?.boats ?: emptyList()
             boatsAdapter.notifyDataSetChanged()
         })
+        val notifications = findViewById<Switch>(R.id.notifications_switch)
+        notifications.isChecked = viewModel.notificationsEnabled
+        notifications.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleNotifications(isChecked)
+        }
     }
 }
 

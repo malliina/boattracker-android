@@ -265,10 +265,12 @@ data class Errors(val errors: List<SingleError>) {
 data class ResponseException(val error: VolleyError): Exception("Invalid response", error.cause) {
     val response: NetworkResponse = error.networkResponse
 
-    fun isTokenExpired(): Boolean {
-        val response = error.networkResponse
+    fun errors(): Errors {
+        val response = response
         val charset = Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
         val json = JSONObject(String(response.data, charset))
-        return Errors.parse(json).errors.any { e -> e.key == "token_expired" }
+        return Errors.parse(json)
     }
+
+    fun isTokenExpired(): Boolean = errors().errors.any { e -> e.key == "token_expired" }
 }

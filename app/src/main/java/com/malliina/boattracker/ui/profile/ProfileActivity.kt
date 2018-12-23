@@ -31,6 +31,7 @@ class ProfileActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.profile_activity)
+        setSupportActionBar(findViewById(R.id.profile_toolbar))
         viewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
         viewModel.getState().observe(this, Observer { state ->
             state?.let { s -> toggleSummary(s) }

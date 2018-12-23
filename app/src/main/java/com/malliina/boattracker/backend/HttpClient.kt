@@ -75,8 +75,19 @@ class HttpClient(ctx: Context) {
     class RequestWithHeaders(private val conf: RequestConf, cont: CancellableContinuation<JSONObject>)
         : JsonObjectRequest(conf.method, conf.url.url, conf.payload,
         Response.Listener { cont.resume(it) },
-        Response.ErrorListener { error -> cont.resumeWithException(ResponseException(error))}) {
-        override fun getHeaders(): Map<String, String> = HttpClient.headers(conf.token)
+        Response.ErrorListener { error ->
+            val exception = ResponseException(error)
+            try {
+                val errors = exception.errors()
+                Timber.e("Request failed with errors $errors.")
+                // This try-catch is only for error logging purposes; the error must be handled by the caller later
+            } catch(e: Exception) {}
+            cont.resumeWithException(exception)
+        }) {
+        private val csrf =
+            if (conf.method == Request.Method.POST) mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
+            else emptyMap()
+        override fun getHeaders(): Map<String, String> = HttpClient.headers(conf.token).plus(csrf)
     }
 }
 

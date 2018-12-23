@@ -4,10 +4,12 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.backend.Env
 import com.malliina.boattracker.backend.HttpClient
+import com.malliina.boattracker.push.PushService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,6 +31,12 @@ class BoatsViewModel(val app: Application): AndroidViewModel(app) {
             loadBoats(token)
         }
         return boats
+    }
+
+    var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
+
+    fun toggleNotifications(isOn: Boolean) {
+        PushService.getInstance(app).toggleNotifications(isOn)
     }
 
     private fun loadBoats(token: IdToken) {

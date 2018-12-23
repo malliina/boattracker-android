@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">BoatTracker</string>
+    <string name="boat_tracker">BoatTracker</string>
     <string name="helloText">Hello, world</string>
     <string name="profile">Profile</string>
     <string name="center">Center</string>
     <string name="tracks">Tracks</string>
     <string name="signedInAs">Signed in as %1$s</string>
+    <string name="signin">Sign in</string>
     <string name="logout">Logout</string>
     <string name="sliders">\uf1de</string>
     <string name="location">\uf124</string>
@@ -20,4 +22,6 @@
     <string name="token">Token</string>
     <string name="token_text">Add the token to the BoatTracker agent software running in your boat. For more information, see www.boat-tracker.com/docs/agent.</string>
     <string name="na">N/A</string>
+    <string name="notifications">Enable notifications</string>
+    <string name="notifications_description">Turn on to receive notifications when your boat connects or disconnects from BoatTracker.</string>
 </resources>

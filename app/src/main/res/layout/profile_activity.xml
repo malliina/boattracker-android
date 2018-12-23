@@ -5,18 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+            style="@style/BoatToolbar"
+            app:title="@string/boat_tracker"
+            android:id="@+id/profile_toolbar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
     <com.malliina.boattracker.ui.profile.TrackSummaryBox
         android:id="@+id/track_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/profile_toolbar"/>
     <ProgressBar
         android:id="@+id/indeterminateBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tracks_link"/>
+        app:layout_constraintTop_toTopOf="@id/track_summary"
+        app:layout_constraintBottom_toBottomOf="@id/track_summary"/>
     <Button style="@style/ProfileButtonStyle"
         android:id="@+id/tracks_link"
         android:layout_width="match_parent"

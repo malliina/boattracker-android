@@ -26,6 +26,7 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.login_toolbar))
         Timber.tag(localClassName)
         setContentView(R.layout.login_activity)
         client = Google.instance.client(this)

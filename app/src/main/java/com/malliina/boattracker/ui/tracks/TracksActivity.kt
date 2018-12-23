@@ -35,6 +35,7 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.tracks_toolbar))
         Timber.tag(localClassName)
         setContentView(R.layout.tracks_activity)
 
