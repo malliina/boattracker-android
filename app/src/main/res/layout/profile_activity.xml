@@ -10,18 +10,24 @@
             app:title="@string/boat_tracker"
             android:id="@+id/profile_toolbar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_view_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/profile_toolbar"
+            app:shimmer_auto_start="false">
+        <com.malliina.boattracker.ui.profile.TrackSummaryBox
+                android:id="@+id/summary_template"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+    </com.facebook.shimmer.ShimmerFrameLayout>
     <com.malliina.boattracker.ui.profile.TrackSummaryBox
-        android:id="@+id/track_summary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/profile_toolbar"/>
-    <ProgressBar
-        android:id="@+id/indeterminateBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="@id/track_summary"
-        app:layout_constraintBottom_toBottomOf="@id/track_summary"/>
+            android:id="@+id/track_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/profile_toolbar"/>
     <Button style="@style/ProfileButtonStyle"
         android:id="@+id/tracks_link"
         android:layout_width="match_parent"
@@ -29,7 +35,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/tracks"
         android:onClick="tracksClicked"
-        app:layout_constraintTop_toBottomOf="@id/track_summary"
+        app:layout_constraintTop_toBottomOf="@id/shimmer_view_container"
         app:layout_constraintBottom_toTopOf="@id/boats_link"
         app:layout_constraintVertical_chainStyle="spread_inside"/>
     <Button style="@style/ProfileButtonStyle"

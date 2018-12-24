@@ -34,25 +34,31 @@ class TrackSummaryBox: ConstraintLayout {
     private fun init() {
         View.inflate(context, R.layout.track_summary, this)
         duration = findViewById(R.id.duration)
+        initLabel(duration, R.string.duration)
         distance = findViewById(R.id.distance)
+        initLabel(distance, R.string.distance)
         topSpeed = findViewById(R.id.topSpeed)
+        initLabel(topSpeed, R.string.topSpeed)
         avgSpeed = findViewById(R.id.avgSpeed)
+        initLabel(avgSpeed, R.string.avgSpeed)
         waterTemp = findViewById(R.id.waterTemp)
+        initLabel(waterTemp, R.string.waterTemp)
         date = findViewById(R.id.date)
+        initLabel(date, R.string.date)
+    }
+
+    private fun initLabel(box: StatBox, labelRes: Int) {
+        box.label(context.getString(labelRes))
     }
 
     fun fill(track: TrackRef) {
         val na = context.getString(R.string.na)
-        fillStat(duration, R.string.duration, track.duration.formatted())
-        fillStat(distance, R.string.distance, track.distance.formatted())
-        fillStat(topSpeed, R.string.topSpeed, track.topSpeed?.formatted() ?: na)
-        fillStat(avgSpeed, R.string.avgSpeed, track.avgSpeed?.formatted() ?: na)
-        fillStat(waterTemp, R.string.waterTemp, track.avgWaterTemp?.formatted() ?: na)
-        fillStat(date, R.string.date, track.formatStart())
+        duration.value = track.duration.formatted()
+        distance.value = track.distance.formatted()
+        topSpeed.value = track.topSpeed?.formatted() ?: na
+        avgSpeed.value = track.avgSpeed?.formatted() ?: na
+        waterTemp.value = track.avgWaterTemp?.formatted() ?: na
+        date.value = track.formatStart()
         state = LoadState.Loaded
-    }
-
-    private fun fillStat(box: StatBox, labelRes: Int, value: String) {
-        box.fill(context.getString(labelRes), value)
     }
 }

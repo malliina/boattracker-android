@@ -48,9 +48,9 @@ class ProfileViewModel(val app: Application): AndroidViewModel(app), SocketDeleg
         socket?.disconnect()
     }
 
-    override fun onCoords(coords: CoordsData) {
+    override fun onCoords(newCoords: CoordsData) {
         // Not on main thread here, therefore using postValue instead of setValue
-        current.postValue(coords.from)
+        current.postValue(newCoords.from)
         loadState.postValue(LoadState.Loaded)
     }
 }
