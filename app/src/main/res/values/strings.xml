@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">BoatTracker</string>
+    <string name="attributions">Attributions</string>
     <string name="boat_tracker">BoatTracker</string>
     <string name="helloText">Hello, world</string>
     <string name="profile">Profile</string>
