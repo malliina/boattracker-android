@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -16,11 +16,13 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="@dimen/date_text"
-        tools:text="2018-06-16" />
+        tools:text="2018-06-16"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/first"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/second"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +30,7 @@
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/second"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/third"
         app:layout_constraintStart_toEndOf="@id/first"
@@ -36,9 +38,9 @@
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/third"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/second"
         app:layout_constraintTop_toTopOf="@id/first" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

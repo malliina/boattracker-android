@@ -1,12 +1,12 @@
 package com.malliina.boattracker.ui.profile
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.malliina.boattracker.*

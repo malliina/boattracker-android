@@ -1,16 +1,16 @@
 package com.malliina.boattracker.ui.tracks
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
@@ -85,7 +85,7 @@ class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDeleg
         layout.setOnClickListener {
             delegate.onTrack(track)
         }
-        layout.date_text.text = track.formatStart()
+        layout.date_text.text = track.times.start.date
         layout.first.fill(ctx.getString(R.string.distance), track.distance.formatted())
         layout.second.fill(ctx.getString(R.string.duration), track.duration.formatted())
         layout.third.fill(ctx.getString(R.string.top), track.topSpeed?.formatted() ?: ctx.getString(R.string.na))

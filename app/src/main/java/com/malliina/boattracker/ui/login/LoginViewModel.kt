@@ -1,6 +1,6 @@
 package com.malliina.boattracker.ui.login
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 
 class LoginViewModel: ViewModel() {
 

@@ -1,9 +1,9 @@
 package com.malliina.boattracker.ui.boats
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken

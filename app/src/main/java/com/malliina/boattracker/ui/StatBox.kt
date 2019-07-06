@@ -1,10 +1,10 @@
 package com.malliina.boattracker.ui
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.malliina.boattracker.R
 
 class StatBox: ConstraintLayout {

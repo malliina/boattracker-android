@@ -102,7 +102,7 @@ data class BoatUser(val id: Int,
         fun parse(json: JSONObject): BoatUser {
             val boatsArr = json.getJSONArray("boats")
             val boats = mutableListOf<Boat>()
-            for(i in 0..(boatsArr.length()-1)) {
+            for(i in 0 until boatsArr.length()) {
                 val item = boatsArr.getJSONObject(i)
                 boats.add(Boat.parse(item))
             }
@@ -117,16 +117,44 @@ data class BoatUser(val id: Int,
     }
 }
 
+data class Timing(val date: String,
+                  val time: String,
+                  val dateTime: String,
+                  val millis: Long) {
+    companion object {
+        fun parse(json: JSONObject): Timing {
+            return Timing(
+                json.getString("date"),
+                json.getString("time"),
+                json.getString("dateTime"),
+                json.getLong("millis")
+            )
+        }
+    }
+}
+
+data class Times(val start: Timing, val end: Timing, val range: String) {
+    companion object {
+        fun parse(json: JSONObject): Times {
+            return Times(
+                Timing.parse(json.getJSONObject("start")),
+                Timing.parse(json.getJSONObject("end")),
+                json.getString("range")
+            )
+        }
+    }
+}
+
 data class TrackRef(val trackName: TrackName,
                     val boatName: BoatName,
-                    val start: String,
+                    val times: Times,
                     val distance: Distance,
                     val topSpeed: Speed?,
                     val avgSpeed: Speed?,
                     val avgWaterTemp: Temperature?,
                     val duration: Duration,
                     val topPoint: CoordBody) {
-    fun formatStart() = start.take(10)
+//    fun formatStart() = start.take(10)
 
     companion object {
         fun parse(json: JSONObject): TrackRef {
@@ -136,8 +164,8 @@ data class TrackRef(val trackName: TrackName,
             return TrackRef(
                 TrackName(json.getString("trackName")),
                 BoatName(json.getString("boatName")),
-                json.getString("start"),
-                Distance.millis(json.getDouble("distance")),
+                Times.parse(json.getJSONObject("times")),
+                Distance(json.getDouble("distanceMeters")),
                 if (top.isNaN()) null else Speed(top),
                 if (avg.isNaN()) null else Speed(avg),
                 if (temp.isNaN()) null else Temperature(temp),
@@ -190,7 +218,7 @@ data class CoordsData(val from: TrackRef, val coords: List<CoordBody>) {
         fun parse(json: JSONObject): CoordsData {
             val coordsArray = json.getJSONArray("coords")
             val coords = mutableListOf<CoordBody>()
-            for(i in 0..(coordsArray.length()-1)) {
+            for(i in 0 until coordsArray.length()) {
                 val item = coordsArray.getJSONObject(i)
                 coords.add(CoordBody.parse(item))
             }
@@ -254,7 +282,7 @@ data class Errors(val errors: List<SingleError>) {
         fun parse(json: JSONObject): Errors {
             val errors = ArrayList<SingleError>()
             val arr = json.getJSONArray("errors")
-            for(i in 0..(arr.length()-1)) {
+            for(i in 0 until arr.length()) {
                 errors.add(SingleError.parse(arr.getJSONObject(i)))
             }
             return Errors(errors)

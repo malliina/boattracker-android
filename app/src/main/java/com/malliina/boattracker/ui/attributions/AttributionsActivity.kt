@@ -1,6 +1,6 @@
 package com.malliina.boattracker.ui.attributions
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 
 class AttributionsActivity: AppCompatActivity() {
 

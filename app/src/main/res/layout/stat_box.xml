@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp">
 
     <TextView
         android:id="@+id/stat_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/stat_margin"
         android:layout_marginEnd="@dimen/stat_margin"
@@ -17,21 +17,24 @@
         android:layout_marginBottom="@dimen/vertical_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="@color/darkGray"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         tools:text="Distance" />
 
     <TextView
         android:id="@+id/stat_value"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/stat_margin"
         android:layout_marginEnd="@dimen/stat_margin"
         android:layout_marginTop="@dimen/vertical_margin"
         android:layout_marginBottom="@dimen/vertical_margin"
         android:textAppearance="?attr/textAppearanceListItem"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/stat_label"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="21.29 km" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

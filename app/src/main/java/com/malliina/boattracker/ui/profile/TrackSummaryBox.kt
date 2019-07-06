@@ -1,9 +1,9 @@
 package com.malliina.boattracker.ui.profile
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.ui.StatBox
@@ -58,7 +58,7 @@ class TrackSummaryBox: ConstraintLayout {
         topSpeed.value = track.topSpeed?.formatted() ?: na
         avgSpeed.value = track.avgSpeed?.formatted() ?: na
         waterTemp.value = track.avgWaterTemp?.formatted() ?: na
-        date.value = track.formatStart()
+        date.value = track.times.start.date
         state = LoadState.Loaded
     }
 }

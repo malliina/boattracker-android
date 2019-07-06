@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/boats_view">
-    <android.support.v7.widget.Toolbar
-            style="@style/BoatToolbar"
-            android:id="@+id/boats_toolbar"
-            app:title="@string/boats"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    <androidx.appcompat.widget.Toolbar
+        style="@style/BoatToolbar"
+        android:id="@+id/boats_toolbar"
+        app:title="@string/boats"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
     <Switch
         android:id="@+id/notifications_switch"
         android:layout_width="match_parent"
@@ -32,7 +35,7 @@
         android:textSize="@dimen/text_sub"
         android:text="@string/notifications_description"
         app:layout_constraintTop_toBottomOf="@id/notifications_switch"/>
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/boats_list"
@@ -57,4 +60,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0"/>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
