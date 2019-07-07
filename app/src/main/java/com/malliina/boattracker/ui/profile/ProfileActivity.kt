@@ -11,8 +11,10 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
+import com.malliina.boattracker.ui.attributions.AttributionsActivity
 import com.malliina.boattracker.ui.boats.BoatsActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
+import kotlin.reflect.KClass
 
 class ProfileActivity: AppCompatActivity() {
     companion object {
@@ -26,6 +28,7 @@ class ProfileActivity: AppCompatActivity() {
     private lateinit var client: GoogleSignInClient
     private lateinit var email: Email
     private lateinit var token: IdToken
+    private lateinit var lang: Lang
     private var trackName: TrackName? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,7 @@ class ProfileActivity: AppCompatActivity() {
         client = Google.instance.client(this)
         email = Email(intent.getStringExtra(userEmail))
         token = IdToken(intent.getStringExtra(userToken))
+        lang = intent.getParcelableExtra(Lang.key)
         trackName = intent.getStringExtra(TracksActivity.trackNameExtra)?.let { TrackName(it) }
         findViewById<TextView>(R.id.userEmailMessage).text = getString(R.string.signedInAs, email)
     }
@@ -90,7 +94,19 @@ class ProfileActivity: AppCompatActivity() {
     }
 
     fun boatsClicked(button: View) {
-        val intent = Intent(this, BoatsActivity::class.java).apply {
+        navigate(BoatsActivity::class)
+    }
+
+    fun licensesClicked(button: View) {
+        val intent = Intent(this, AttributionsActivity::class.java).apply {
+            putExtra(AttributionInfo.key, lang.attributions)
+            putExtra(TracksActivity.tokenExtra, token.token)
+        }
+        startActivity(intent)
+    }
+
+    private fun <T : Any> navigate(to: KClass<T>) {
+        val intent = Intent(this, to.java).apply {
             putExtra(TracksActivity.tokenExtra, token.token)
         }
         startActivity(intent)

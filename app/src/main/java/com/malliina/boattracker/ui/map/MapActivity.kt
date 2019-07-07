@@ -47,6 +47,7 @@ class MapActivity: AppCompatActivity() {
     private var map: MapboxMap? = null
     private val style: Style? get() = map?.style
     private var mapState: MapState = MapState(null, null)
+    private var conf: ClientConf? = null
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
@@ -82,6 +83,10 @@ class MapActivity: AppCompatActivity() {
                 viewModel.openSocket(state.user?.idToken, mapState.track)
                 findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
             }
+        })
+        viewModel.getConf().observe(this, Observer { conf ->
+            Timber.i("Got conf.")
+            this.conf = conf
         })
         viewModel.getCoords().observe(this, Observer { coords ->
             coords?.let { cs -> map?.let { m -> onCoords(cs, m) }  }
@@ -251,6 +256,9 @@ class MapActivity: AppCompatActivity() {
                 putExtra(ProfileActivity.userEmail, u.email.email)
                 putExtra(ProfileActivity.userToken, u.idToken.token)
                 putExtra(TracksActivity.trackNameExtra, mapState.track?.name)
+                conf?.let { conf ->
+                    putExtra(Lang.key, conf.languages.swedish)
+                }
             }
             startActivity(intent)
         } else {

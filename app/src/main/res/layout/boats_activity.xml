@@ -36,8 +36,6 @@
         android:text="@string/notifications_description"
         app:layout_constraintTop_toBottomOf="@id/notifications_switch"/>
     <androidx.recyclerview.widget.RecyclerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/boats_list"
         android:scrollbars="vertical"
         android:layout_width="match_parent"

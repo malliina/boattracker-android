@@ -5,12 +5,11 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.malliina.boattracker.CoordsData
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.TrackName
-import com.malliina.boattracker.UserInfo
+import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.backend.BoatSocket
+import com.malliina.boattracker.backend.Env
+import com.malliina.boattracker.backend.HttpClient
 import com.malliina.boattracker.backend.SocketDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +22,7 @@ data class MapState(val user: UserInfo?, val track: TrackName?)
 class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
     private lateinit var mapState: MutableLiveData<MapState>
     private lateinit var coords: MutableLiveData<CoordsData>
+    private lateinit var conf: MutableLiveData<ClientConf>
 
     private val google = Google.instance
     private val viewModelJob = Job()
@@ -43,6 +43,26 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
             signInSilently(app.applicationContext)
         }
         return mapState
+    }
+
+    fun getConf(): LiveData<ClientConf> {
+        if (!::conf.isInitialized) {
+            conf = MutableLiveData()
+            loadConf()
+        }
+        return conf
+    }
+
+    private fun loadConf() {
+        val http = HttpClient.getInstance(app)
+        uiScope.launch {
+            try {
+                val response = http.getData(Env.baseUrl.append("/conf"))
+                conf.value = ClientConf.parse(response)
+            } catch(e: Exception) {
+                Timber.e(e, "Failed to load conf.")
+            }
+        }
     }
 
     fun getCoords(): LiveData<CoordsData> {

@@ -25,4 +25,5 @@
     <string name="na">N/A</string>
     <string name="notifications">Enable notifications</string>
     <string name="notifications_description">Turn on to receive notifications when your boat connects or disconnects from BoatTracker.</string>
+    <string name="licenses">Licenses</string>
 </resources>
