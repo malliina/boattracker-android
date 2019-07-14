@@ -8,7 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.malliina.boattracker.R
 
 class StatBox: ConstraintLayout {
-    lateinit var label: TextView
+    lateinit var labelView: TextView
     lateinit var valueView: TextView
 
     constructor(ctx: Context): super(ctx) {
@@ -23,20 +23,20 @@ class StatBox: ConstraintLayout {
 
     private fun init() {
         View.inflate(context, R.layout.stat_box, this)
-        label = findViewById(R.id.stat_label)
+        labelView = findViewById(R.id.stat_label)
         valueView = findViewById(R.id.stat_value)
     }
 
-    fun label(labelValue: String) {
-        this.label.text = labelValue
-    }
+    var label: String
+        get() = labelView.text.toString()
+        set(newValue) { this.labelView.text = newValue }
 
     var value: String
         get() = valueView.text.toString()
         set(newValue) { this.valueView.text = newValue }
 
     fun fill(label: String, value: String) {
-        this.label.text = label
-        this.valueView.text = value
+        this.label = label
+        this.value = value
     }
 }

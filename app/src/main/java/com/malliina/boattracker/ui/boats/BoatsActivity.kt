@@ -53,7 +53,7 @@ class BoatsActivity: AppCompatActivity() {
 class BoatsAdapter(var boats: List<Boat>): RecyclerView.Adapter<BoatsAdapter.BoatHolder>() {
     class BoatHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoatsAdapter.BoatHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoatHolder {
         val layout = LayoutInflater.from(parent.context)
             .inflate(R.layout.boat_item, parent, false) as ConstraintLayout
         return BoatHolder(layout)

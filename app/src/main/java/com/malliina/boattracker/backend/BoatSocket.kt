@@ -8,11 +8,24 @@ import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketFrame
-import org.json.JSONObject
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonDataException
 import timber.log.Timber
 
 interface SocketDelegate {
     fun onCoords(newCoords: CoordsData)
+}
+
+data class CoordsMessage(val body: CoordsData)
+
+data class EventName(val event: String)
+
+fun <T> JsonAdapter<T>.read(json: String): T {
+    return this.fromJson(json) ?: throw JsonDataException("Moshi returned null when reading '$json'.")
+}
+
+fun <T> JsonAdapter<T>.readUrl(json: String, url: FullUrl): T {
+    return this.fromJson(json) ?: throw JsonDataException("Moshi returned null for response from '$url': '$json'.")
 }
 
 class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate) {
@@ -26,10 +39,14 @@ class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val del
         }
     }
 
-    fun onMessage(message: JSONObject) {
-        when (message.getString("event")) {
-            "coords" -> onCoords(CoordsData.parse(message.getJSONObject("body")))
-            else -> Unit
+    fun onMessage(message: String) {
+        when (BoatClient.eventAdapter.fromJson(message)?.event) {
+            "coords" -> {
+                val coords = BoatClient.coordsAdapter.read(message).body
+                onCoords(coords)
+            }
+            else -> {
+            }
         }
     }
 
@@ -46,8 +63,9 @@ class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val del
 
         override fun onTextMessage(websocket: WebSocket?, text: String?) {
             try {
-                val json = JSONObject(text)
-                onMessage(json)
+                text?.let { onMessage(it) }
+//                val json = JSONObject(text)
+//                onMessage(json)
             } catch (e: Exception) {
                 Timber.e(e, "JSON error.")
             }

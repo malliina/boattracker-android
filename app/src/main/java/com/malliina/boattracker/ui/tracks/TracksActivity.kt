@@ -77,7 +77,7 @@ class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDeleg
             delegate.onTrack(track)
         }
         layout.date_text.text = track.times.start.date
-        layout.first.fill(ctx.getString(R.string.distance), track.distance.formatted())
+        layout.first.fill(ctx.getString(R.string.distance), track.distanceMeters.formatted())
         layout.second.fill(ctx.getString(R.string.duration), track.duration.formatted())
         layout.third.fill(ctx.getString(R.string.top), track.topSpeed?.formatted() ?: ctx.getString(R.string.na))
     }

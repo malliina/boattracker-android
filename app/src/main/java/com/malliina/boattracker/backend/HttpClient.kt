@@ -10,6 +10,7 @@ import com.malliina.boattracker.FullUrl
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.ResponseException
 import com.malliina.boattracker.auth.Google
+import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONObject
@@ -42,6 +43,11 @@ class HttpClient(ctx: Context) {
 
     // https://jankotlin.wordpress.com/2017/10/16/volley-for-lazy-kotliniers/
     suspend fun getData(url: FullUrl): JSONObject = makeWithRetry(RequestConf.get(url, token))
+
+    suspend fun <T> getJson(url: FullUrl, adapter: JsonAdapter<T>): T {
+        val json = getData(url)
+        return adapter.readUrl(json.toString(), url)
+    }
 
     suspend fun postData(url: FullUrl, data: JSONObject): JSONObject =
         makeWithRetry(RequestConf(Request.Method.POST, url, token, data))

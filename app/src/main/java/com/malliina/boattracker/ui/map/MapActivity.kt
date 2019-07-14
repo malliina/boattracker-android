@@ -52,7 +52,12 @@ class MapActivity: AppCompatActivity() {
     private var profile: BoatUser? = null
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
-    private val lang: Lang? get() = conf?.languages?.all?.find { l -> l.language == profile?.language }
+    private val lang: Lang? get() = when (profile?.language) {
+        Language.Swedish -> conf?.languages?.swedish
+        Language.Finnish -> conf?.languages?.finnish
+        Language.English -> conf?.languages?.english
+        else -> conf?.languages?.english
+    }
 
     enum class MapMode {
         Fit, Follow, Stay
@@ -259,12 +264,14 @@ class MapActivity: AppCompatActivity() {
     fun profileClicked(button: View) {
         val u = mapState.user
         val c = conf
-        if (u != null && c != null) {
-            Timber.i("Opening profile for ${u.email}...")
-            val intent = Intent(this, ProfileActivity::class.java).apply {
-                putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, c.languages.swedish, mapState.track))
+        if (u != null && c != null && lang != null) {
+            lang?.let { l ->
+                Timber.i("Opening profile for ${u.email}...")
+                val intent = Intent(this, ProfileActivity::class.java).apply {
+                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, l, mapState.track))
+                }
+                startActivityForResult(intent, profileCode)
             }
-            startActivityForResult(intent, profileCode)
         } else {
             Timber.i("Opening login screen...")
             val intent = Intent(this, LoginActivity::class.java)

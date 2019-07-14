@@ -1,10 +1,9 @@
 package com.malliina.boattracker.backend
 
 import android.content.Context
-import com.malliina.boattracker.BoatUser
-import com.malliina.boattracker.ClientConf
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.*
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
 
 class BoatClient(val http: HttpClient) {
     companion object {
@@ -18,20 +17,24 @@ class BoatClient(val http: HttpClient) {
             val http = HttpClient.getInstance(ctx)
             return BoatClient(http)
         }
+        private val moshi: Moshi = Moshi.Builder().add(PrimitiveAdapter()).build()
+        val userAdapter: JsonAdapter<UserResponse> = moshi.adapter(UserResponse::class.java)
+        val confAdapter: JsonAdapter<ClientConf> = moshi.adapter(ClientConf::class.java)
+        val tracksAdapter: JsonAdapter<TracksResponse> = moshi.adapter(TracksResponse::class.java)
+        val errorsAdapter: JsonAdapter<Errors> = moshi.adapter(Errors::class.java)
+        val coordsAdapter: JsonAdapter<CoordsMessage> = moshi.adapter(CoordsMessage::class.java)
+        val eventAdapter: JsonAdapter<EventName> = moshi.adapter(EventName::class.java)
     }
 
     suspend fun me(): BoatUser {
-        val response = http.getData(Env.baseUrl.append("/users/me"))
-        return BoatUser.parse(response.getJSONObject("user"))
+        return http.getJson(Env.baseUrl.append("/users/me"), userAdapter).user
     }
 
     suspend fun conf(): ClientConf {
-        val response = http.getData(Env.baseUrl.append("/conf"))
-        return ClientConf.parse(response)
+        return http.getJson(Env.baseUrl.append("/conf"), confAdapter)
     }
 
     suspend fun tracks(): List<TrackRef> {
-        val response = http.getData(Env.baseUrl.append("/tracks"))
-        return TrackRef.parseList(response)
+        return http.getJson(Env.baseUrl.append("/tracks"), tracksAdapter).tracks
     }
 }

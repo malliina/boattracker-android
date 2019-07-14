@@ -32,6 +32,9 @@ class ProfileActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.profile_activity)
         setSupportActionBar(findViewById(R.id.profile_toolbar))
+        profile = intent.getParcelableExtra(ProfileInfo.key)
+        val summary = findViewById<TrackSummaryBox>(R.id.track_summary)
+        summary.fillLabels(profile.lang.track)
         viewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
         viewModel.getState().observe(this, Observer { state ->
             state?.let { s -> toggleSummary(s) }
@@ -40,7 +43,6 @@ class ProfileActivity: AppCompatActivity() {
             ref?.let { update(it) }
         })
         client = Google.instance.client(this)
-        profile = intent.getParcelableExtra(ProfileInfo.key)
         findViewById<TextView>(R.id.userEmailMessage).text = getString(R.string.signedInAs, profile.email)
     }
 

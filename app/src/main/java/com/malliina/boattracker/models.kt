@@ -4,51 +4,80 @@ import android.os.Parcelable
 import com.android.volley.NetworkResponse
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
+import com.malliina.boattracker.backend.BoatClient
+import com.malliina.boattracker.backend.read
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.JsonDataException
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
-import org.json.JSONObject
 import java.nio.charset.Charset
 import java.util.regex.Pattern
+
+class PrimitiveAdapter {
+    @FromJson fun push(s: String): PushToken = PushToken(s)
+    @FromJson fun email(s: String): Email = Email(s)
+    @FromJson fun id(s: String): IdToken = IdToken(s)
+    @FromJson fun user(s: String): Username = Username(s)
+    @FromJson fun track(s: String): TrackName = TrackName(s)
+    @FromJson fun boat(s: String): BoatName = BoatName(s)
+    @FromJson fun token(s: String): BoatToken = BoatToken(s)
+    @FromJson fun speed(s: Double): Speed = Speed(s)
+    @FromJson fun distance(d: Double): Distance = Distance(d)
+    @FromJson fun duration(d: Double): Duration = Duration(d)
+    @FromJson fun temp(t: Double): Temperature = Temperature(t)
+    @FromJson fun language(l: String): Language = Language.parse(l)
+    @FromJson fun url(url: String): FullUrl = FullUrl.build(url) ?: throw JsonDataException("Value '$url' cannot be converted to FullUrl")
+}
+
+interface Primitive {
+    val value: String
+}
 
 data class PushToken(val token: String) {
     override fun toString(): String = token
 }
 
 @Parcelize
-data class Email(val email: String): Parcelable {
+data class Email(val email: String): Parcelable, Primitive {
+    override val value: String get() = email
     override fun toString(): String = email
 }
 
 @Parcelize
-data class IdToken(val token: String): Parcelable {
+data class IdToken(val token: String): Parcelable, Primitive {
     companion object {
         const val key = "idToken"
     }
 
+    override val value: String get() = token
     override fun toString(): String = token
 }
 
 data class UserInfo(val email: Email, val idToken: IdToken)
 
-data class Username(val name: String) {
+data class Username(val name: String): Primitive {
+    override val value: String get() = name
     override fun toString(): String = name
 }
 
 @Parcelize
-data class TrackName(val name: String): Parcelable {
+data class TrackName(val name: String): Parcelable, Primitive {
     companion object {
         const val key = "trackName"
     }
+    override val value: String get() = name
     override fun toString(): String = name
 }
 
-data class BoatName(val name: String) {
+data class BoatName(val name: String): Primitive {
+    override val value: String get() = name
     override fun toString() = name
 }
 
-data class BoatToken(val token: String) {
+data class BoatToken(val token: String): Primitive {
+    override val value: String get() = token
     override fun toString() = token
 }
 
@@ -63,13 +92,9 @@ data class Speed(val knots: Double) {
 }
 
 data class Distance(val meters: Double) {
-    companion object {
-        fun millis(mm: Double): Distance = Distance(mm / 1000)
-    }
+    fun formatted(): String = "%.2f km".format(meters / 1000)
 
     override fun toString() = formatted()
-
-    fun formatted(): String = "%.2f km".format(meters / 1000)
 }
 
 data class Duration(val seconds: Double) {
@@ -95,16 +120,7 @@ data class Temperature(val celsius: Double) {
     fun formatted() = "%.2f ℃".format(celsius)
 }
 
-data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val addedMillis: Long) {
-    companion object {
-        fun parse(json: JSONObject): Boat = Boat(
-            json.getInt("id"),
-            BoatName(json.getString("name")),
-            BoatToken(json.getString("token")),
-            json.getLong("addedMillis")
-        )
-    }
-}
+data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val addedMillis: Long)
 
 enum class Language(val code: String) {
     Swedish("sv-SE"), Finnish("fi-FI"), English("en-US");
@@ -126,126 +142,42 @@ data class BoatUser(val id: Int,
                     val email: String?,
                     val language: Language,
                     val boats: List<Boat>,
-                    val addedMillis: Long) {
-    companion object {
-        fun parse(json: JSONObject): BoatUser {
-            return BoatUser(
-                json.getInt("id"),
-                Username(json.getString("username")),
-                json.optString("email", null),
-                Language.parse(json.getString("language")),
-                json.parseList("boats") { Boat.parse(it) },
-                json.getLong("addedMillis")
-            )
-        }
-    }
-}
+                    val addedMillis: Long)
+
+data class UserResponse(val user: BoatUser)
 
 data class Timing(val date: String,
                   val time: String,
                   val dateTime: String,
-                  val millis: Long) {
-    companion object {
-        fun parse(json: JSONObject): Timing {
-            return Timing(
-                json.getString("date"),
-                json.getString("time"),
-                json.getString("dateTime"),
-                json.getLong("millis")
-            )
-        }
-    }
-}
+                  val millis: Long)
 
-data class Times(val start: Timing, val end: Timing, val range: String) {
-    companion object {
-        fun parse(json: JSONObject): Times {
-            return Times(
-                Timing.parse(json.getJSONObject("start")),
-                Timing.parse(json.getJSONObject("end")),
-                json.getString("range")
-            )
-        }
-    }
-}
+data class Times(val start: Timing, val end: Timing, val range: String)
 
 data class TrackRef(val trackName: TrackName,
                     val boatName: BoatName,
                     val times: Times,
-                    val distance: Distance,
+                    val distanceMeters: Distance,
                     val topSpeed: Speed?,
                     val avgSpeed: Speed?,
                     val avgWaterTemp: Temperature?,
                     val duration: Duration,
-                    val topPoint: CoordBody) {
-    companion object {
-        fun parse(json: JSONObject): TrackRef {
-            val top = json.optDouble("topSpeed")
-            val avg = json.optDouble("avgSpeed")
-            val temp = json.optDouble("avgWaterTemp")
-            return TrackRef(
-                TrackName(json.getString("trackName")),
-                BoatName(json.getString("boatName")),
-                Times.parse(json.getJSONObject("times")),
-                Distance(json.getDouble("distanceMeters")),
-                if (top.isNaN()) null else Speed(top),
-                if (avg.isNaN()) null else Speed(avg),
-                if (temp.isNaN()) null else Temperature(temp),
-                Duration.seconds(json.getLong("duration")),
-                CoordBody.parse(json.getJSONObject("topPoint"))
-            )
-        }
+                    val topPoint: CoordBody)
 
-        fun parseList(json: JSONObject): List<TrackRef> {
-            val list = ArrayList<TrackRef>()
-            val arr = json.getJSONArray("tracks")
-            for(i in 0..(arr.length() -1)) {
-                val item = arr.getJSONObject(i)
-                list.add(parse(item))
-            }
-            return list
-        }
-    }
-}
+data class TracksResponse(val tracks: List<TrackRef>)
 
 data class CoordBody(val coord: Coord,
                      val boatTime: String,
                      val boatTimeMillis: Long,
                      val speed: Speed,
-                     val depth: Distance,
-                     val waterTemp: Temperature) {
-    companion object {
-        fun parse(json: JSONObject): CoordBody = CoordBody(
-            Coord.parse(json.getJSONObject("coord")),
-            json.getString("boatTime"),
-            json.getLong("boatTimeMillis"),
-            Speed(json.getDouble("speed")),
-            Distance.millis(json.getDouble("depth")),
-            Temperature(json.getDouble("waterTemp"))
-        )
-    }
-}
+                     val depthMeters: Distance,
+                     val waterTemp: Temperature)
 
 data class Coord(val lat: Double, val lng: Double) {
     fun latLng(): LatLng = LatLng(lat, lng)
     fun point(): Point = Point.fromLngLat(lng, lat)
-
-    companion object {
-        fun parse(json: JSONObject): Coord =
-            Coord(json.getDouble("lat"), json.getDouble("lng"))
-    }
 }
 
-data class CoordsData(val from: TrackRef, val coords: List<CoordBody>) {
-    companion object {
-        fun parse(json: JSONObject): CoordsData {
-            return CoordsData(
-                TrackRef.parse(json.getJSONObject("from")),
-                json.parseList("coords") { CoordBody.parse(it) }
-            )
-        }
-    }
-}
+data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
 @Parcelize
 data class FullUrl(val proto: String, val hostAndPort: String, val uri: String): Parcelable {
@@ -286,22 +218,9 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String):
     }
 }
 
-data class SingleError(val key: String, val message: String) {
-    companion object {
-        fun parse(json: JSONObject): SingleError = SingleError(
-            json.getString("key"),
-            json.getString("message")
-        )
-    }
-}
+data class SingleError(val key: String, val message: String)
 
-data class Errors(val errors: List<SingleError>) {
-    companion object {
-        fun parse(json: JSONObject): Errors {
-            return Errors(json.parseList("errors") { SingleError.parse(it) })
-        }
-    }
-}
+data class Errors(val errors: List<SingleError>)
 
 data class ResponseException(val error: VolleyError): Exception("Invalid response", error.cause) {
     val response: NetworkResponse = error.networkResponse
@@ -309,8 +228,8 @@ data class ResponseException(val error: VolleyError): Exception("Invalid respons
     fun errors(): Errors {
         val response = response
         val charset = Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
-        val json = JSONObject(String(response.data, charset))
-        return Errors.parse(json)
+        val str = String(response.data, charset)
+        return BoatClient.errorsAdapter.read(str)
     }
 
     fun isTokenExpired(): Boolean = errors().errors.any { e -> e.key == "token_expired" }
