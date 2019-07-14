@@ -40,6 +40,7 @@ class MapActivity: AppCompatActivity() {
         const val StyleUrl = "mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
         const val BoatIconId = "boat-resized-opt-30"
         const val BoatIconSize: Float = 0.7f
+        const val profileCode = 101
 //        const val TrophyIconId = "trophy-14"
     }
     private lateinit var mapView: MapView
@@ -61,7 +62,6 @@ class MapActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.tag(localClassName)
         Timber.i("Hello, using token %s", BuildConfig.MapboxAccessToken)
         Mapbox.getInstance(this, BuildConfig.MapboxAccessToken)
         setContentView(R.layout.map_activity)
@@ -78,9 +78,9 @@ class MapActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         viewModel.getUser().observe(this, Observer { mapState ->
             mapState?.let { state ->
-                Timber.i("Got ${state.user?.email ?: "no email"}")
+                Timber.i("Got ${state.user?.email ?: "no email"} with track ${state.track}")
                 this.mapState = state
-                viewModel.openSocket(state.user?.idToken, mapState.track)
+                viewModel.openSocket(state.user?.idToken, state.track)
                 findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
             }
         })
@@ -98,12 +98,12 @@ class MapActivity: AppCompatActivity() {
         mapView.onStart()
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        // Triggers an onChanged event for the user: covers the case where we signed out, or signed in as another user.
-        // Alternatively we could convey this information through Intents, and just reopen the socket here.
-        viewModel.signInSilently(this)
-    }
+//    override fun onRestart() {
+//        super.onRestart()
+//        // Triggers an onChanged event for the user: covers the case where we signed out, or signed in as another user.
+//        // Alternatively we could convey this information through Intents, and just reopen the socket here.
+//        viewModel.signInSilently(this)
+//    }
 
     override fun onStop() {
         super.onStop()
@@ -119,9 +119,11 @@ class MapActivity: AppCompatActivity() {
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        intent?.getStringExtra(TracksActivity.trackNameExtra)?.let { name ->
-            mapMode = MapMode.Fit
-            viewModel.update(MapState(mapState.user, TrackName(name)))
+        intent?.let { it ->
+            it.getParcelableExtra<TrackName>(TrackName.key)?.let { name ->
+                mapMode = MapMode.Fit
+                viewModel.update(MapState(mapState.user, name))
+            }
         }
     }
 
@@ -231,6 +233,7 @@ class MapActivity: AppCompatActivity() {
         }
     }
 
+    // TODO move elsewhere
     private fun svgToBitmap(context: Context, drawableId: Int): Bitmap? {
         val drawable = ContextCompat.getDrawable(context, drawableId)
         return if (drawable != null) {
@@ -248,23 +251,33 @@ class MapActivity: AppCompatActivity() {
         }
     }
 
+
     fun profileClicked(button: View) {
         val u = mapState.user
-        if (u != null) {
+        val c = conf
+        if (u != null && c != null) {
             Timber.i("Opening profile for ${u.email}...")
             val intent = Intent(this, ProfileActivity::class.java).apply {
-                putExtra(ProfileActivity.userEmail, u.email.email)
-                putExtra(ProfileActivity.userToken, u.idToken.token)
-                putExtra(TracksActivity.trackNameExtra, mapState.track?.name)
-                conf?.let { conf ->
-                    putExtra(Lang.key, conf.languages.swedish)
-                }
+                putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, c.languages.swedish, mapState.track))
             }
-            startActivity(intent)
+            startActivityForResult(intent, profileCode)
         } else {
             Timber.i("Opening login screen...")
             val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, profileCode)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Timber.i("Returning with code $requestCode")
+        when (requestCode) {
+            profileCode -> data?.let {
+                if (it.getBooleanExtra(ProfileActivity.refreshSignIn, false)) {
+                    viewModel.signInSilently(this)
+                }
+            }
+            else -> {}
         }
     }
 

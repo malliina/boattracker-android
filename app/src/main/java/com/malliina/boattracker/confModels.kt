@@ -5,6 +5,13 @@ import kotlinx.android.parcel.Parcelize
 import org.json.JSONObject
 
 @Parcelize
+data class ProfileInfo(val email: Email, val token: IdToken, val lang: Lang, val trackName: TrackName?): Parcelable {
+    companion object {
+        const val key = "profile"
+    }
+}
+
+@Parcelize
 data class Link(val text: String, val url: FullUrl): Parcelable {
     companion object {
         fun parse(json: JSONObject): Link {
@@ -41,7 +48,8 @@ data class AppAttribution(val title: String,
 data class AttributionInfo(val title: String,
                            val attributions: List<AppAttribution>): Parcelable {
     companion object {
-        val key = "attributions"
+        const val key = "attributions"
+
         fun parse(json: JSONObject): AttributionInfo {
             val attrsArr = json.getJSONArray("attributions")
             val attrs = mutableListOf<AppAttribution>()

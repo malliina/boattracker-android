@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
+import com.malliina.boattracker.TrackName
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.ui.map.MapActivity
 import kotlinx.android.synthetic.main.track_item.view.*
@@ -23,11 +24,6 @@ interface TrackDelegate {
 }
 
 class TracksActivity: AppCompatActivity(), TrackDelegate {
-    companion object {
-        const val tokenExtra = "com.malliina.boattracker.token"
-        const val trackNameExtra = "com.malliina.boattracker.track"
-    }
-
     private lateinit var viewAdapter: TracksAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -36,7 +32,6 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.tracks_toolbar))
-        Timber.tag(localClassName)
         setContentView(R.layout.tracks_activity)
 
         viewManager = LinearLayoutManager(this)
@@ -48,7 +43,7 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
         Timber.i("Loading tracks...")
-        val token = IdToken(intent.getStringExtra(tokenExtra))
+        val token: IdToken = intent.getParcelableExtra(IdToken.key)
         viewModel = ViewModelProviders.of(this).get(TracksViewModel::class.java)
         viewModel.getTracks(token).observe(this, Observer<List<TrackRef>> { tracks ->
             viewAdapter.tracks = tracks ?: emptyList()
@@ -61,17 +56,13 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
         val intent = Intent(this, MapActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        intent.putExtra(trackNameExtra, selected.trackName.name)
+        intent.putExtra(TrackName.key, selected.trackName)
         startActivity(intent)
     }
 }
 
 class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDelegate): RecyclerView.Adapter<TracksAdapter.TrackHolder>() {
     class TrackHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
-
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
         val layout = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false) as ConstraintLayout

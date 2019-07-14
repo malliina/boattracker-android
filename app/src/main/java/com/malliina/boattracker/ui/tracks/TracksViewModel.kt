@@ -15,9 +15,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class TracksViewModel(val app: Application): AndroidViewModel(app) {
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private lateinit var tracks: MutableLiveData<List<TrackRef>>

@@ -15,19 +15,19 @@ interface SocketDelegate {
     fun onCoords(newCoords: CoordsData)
 }
 
-class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate) {
+class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate) {
     companion object {
-        val url = Env.socketsUrl
+        private val baseUrl = Env.socketsUrl
 
         fun token(token: IdToken?, track: TrackName?, delegate: SocketDelegate): BoatSocket {
-            val socketUrl = if (track == null) url else url.append("?track=$track")
+            val socketUrl = if (track == null) baseUrl else baseUrl.append("?track=$track")
+            Timber.i("Setting socketUrl to $socketUrl")
             return BoatSocket(socketUrl, HttpClient.headers(token), delegate)
         }
     }
 
     fun onMessage(message: JSONObject) {
-        val event = message.getString("event")
-        when (event) {
+        when (message.getString("event")) {
             "coords" -> onCoords(CoordsData.parse(message.getJSONObject("body")))
             else -> Unit
         }
@@ -68,7 +68,6 @@ class BoatSocket(url: FullUrl, headers: Map<String, String>, private val delegat
     private val socket = sf.createSocket(url.url, 10000)
 
     init {
-        Timber.tag("BoatSocket")
         socket.addListener(listener)
         headers.forEach { (k, v) -> socket.addHeader(k, v) }
     }

@@ -30,10 +30,6 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
 
     private var socket: BoatSocket? = null
 
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
-
     fun getUser(): LiveData<MapState> {
         if (!::mapState.isInitialized) {
             mapState = MutableLiveData()
@@ -73,7 +69,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     }
 
     fun update(state: MapState) {
-        mapState.value = state
+        mapState.postValue(state)
     }
 
     override fun onCoords(newCoords: CoordsData) {
@@ -96,6 +92,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         uiScope.launch {
             try {
                 val user = google.signInSilently(ctx)
+//                val track = user.email == mapState?.value.user?.email ? mapState.value?.track
                 mapState.value = MapState(user, null)
                 Timber.i("Hello, '${user.email}'!")
             } catch(e: Exception) {

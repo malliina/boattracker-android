@@ -32,10 +32,6 @@ class Google {
         }
     }
 
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
-
     private val webClientId = "497623115973-c6v1e9khup8bqj41vf228o2urnv86muh.apps.googleusercontent.com"
 
     fun client(activity: Activity): GoogleSignInClient = GoogleSignIn.getClient(activity, options())

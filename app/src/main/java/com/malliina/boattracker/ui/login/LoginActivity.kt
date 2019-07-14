@@ -1,5 +1,6 @@
 package com.malliina.boattracker.ui.login
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -14,6 +15,7 @@ import com.google.android.gms.tasks.Task
 import com.malliina.boattracker.R
 import com.malliina.boattracker.UserInfo
 import com.malliina.boattracker.auth.Google
+import com.malliina.boattracker.ui.profile.ProfileActivity
 import timber.log.Timber
 
 /**
@@ -27,7 +29,6 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.login_toolbar))
-        Timber.tag(localClassName)
         setContentView(R.layout.login_activity)
         client = Google.instance.client(this)
         findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener(this)
@@ -74,6 +75,10 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
         updateFeedback(msg)
         user?.let {
             Timber.i("Updating UI with ${user.email} then finishing.")
+            val intent = Intent().apply {
+                this.putExtra(ProfileActivity.refreshSignIn, true)
+            }
+            setResult(Activity.RESULT_OK, intent)
             finish()
         }
     }

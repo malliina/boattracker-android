@@ -10,13 +10,8 @@ import com.malliina.boattracker.TrackName
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
-import timber.log.Timber
 
 class ProfileViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
-
     private lateinit var loadState: MutableLiveData<LoadState>
     private lateinit var current: MutableLiveData<TrackRef>
 

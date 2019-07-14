@@ -16,11 +16,17 @@ data class PushToken(val token: String) {
     override fun toString(): String = token
 }
 
-data class Email(val email: String) {
+@Parcelize
+data class Email(val email: String): Parcelable {
     override fun toString(): String = email
 }
 
-data class IdToken(val token: String) {
+@Parcelize
+data class IdToken(val token: String): Parcelable {
+    companion object {
+        const val key = "idToken"
+    }
+
     override fun toString(): String = token
 }
 
@@ -30,7 +36,11 @@ data class Username(val name: String) {
     override fun toString(): String = name
 }
 
-data class TrackName(val name: String) {
+@Parcelize
+data class TrackName(val name: String): Parcelable {
+    companion object {
+        const val key = "trackName"
+    }
     override fun toString(): String = name
 }
 
@@ -157,8 +167,6 @@ data class TrackRef(val trackName: TrackName,
                     val avgWaterTemp: Temperature?,
                     val duration: Duration,
                     val topPoint: CoordBody) {
-//    fun formatStart() = start.take(10)
-
     companion object {
         fun parse(json: JSONObject): TrackRef {
             val top = json.optDouble("topSpeed")

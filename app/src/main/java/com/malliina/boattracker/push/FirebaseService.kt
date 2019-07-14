@@ -15,10 +15,6 @@ import com.malliina.boattracker.ui.map.MapActivity
 import timber.log.Timber
 
 class FirebaseService: FirebaseMessagingService() {
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
-
     override fun onNewToken(token: String) {
         Timber.i("Got token $token")
         PushService.getInstance(application).update(PushToken(token))

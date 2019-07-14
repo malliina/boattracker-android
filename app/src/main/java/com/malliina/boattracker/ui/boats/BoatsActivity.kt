@@ -14,7 +14,6 @@ import com.malliina.boattracker.Boat
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.R
-import com.malliina.boattracker.ui.tracks.TracksActivity
 import kotlinx.android.synthetic.main.boat_item.view.*
 import kotlinx.android.synthetic.main.stat_box.view.*
 import timber.log.Timber
@@ -28,7 +27,6 @@ class BoatsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.boats_toolbar))
-        Timber.tag(localClassName)
         setContentView(R.layout.boats_activity)
         viewManager = LinearLayoutManager(this)
         boatsAdapter = BoatsAdapter(emptyList())
@@ -36,10 +34,9 @@ class BoatsActivity: AppCompatActivity() {
             setHasFixedSize(false)
             layoutManager = viewManager
             adapter = boatsAdapter
-//            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
         Timber.i("Loading boats...")
-        val token = IdToken(intent.getStringExtra(TracksActivity.tokenExtra))
+        val token: IdToken = intent.getParcelableExtra(IdToken.key)
         viewModel = ViewModelProviders.of(this).get(BoatsViewModel::class.java)
         viewModel.getBoats(token).observe(this, Observer<BoatUser> { user ->
             boatsAdapter.boats = user?.boats ?: emptyList()

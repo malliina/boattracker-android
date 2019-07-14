@@ -1,5 +1,6 @@
 package com.malliina.boattracker.ui.profile
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -14,22 +15,18 @@ import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.attributions.AttributionsActivity
 import com.malliina.boattracker.ui.boats.BoatsActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
-import kotlin.reflect.KClass
 
 class ProfileActivity: AppCompatActivity() {
-    companion object {
-        const val userEmail = "com.malliina.boattracker.userEmail"
-        const val userToken = "com.malliina.boattracker.userToken"
-        const val selectTrackRequest = 100
-    }
-
     private lateinit var viewModel: ProfileViewModel
-
     private lateinit var client: GoogleSignInClient
-    private lateinit var email: Email
-    private lateinit var token: IdToken
-    private lateinit var lang: Lang
-    private var trackName: TrackName? = null
+
+    private lateinit var profile: ProfileInfo
+    val token get() = profile.token
+    private val trackName get() = profile.trackName
+
+    companion object {
+        const val refreshSignIn = "com.malliina.boattracker.ui.profile.refreshSignIn"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,11 +40,8 @@ class ProfileActivity: AppCompatActivity() {
             ref?.let { update(it) }
         })
         client = Google.instance.client(this)
-        email = Email(intent.getStringExtra(userEmail))
-        token = IdToken(intent.getStringExtra(userToken))
-        lang = intent.getParcelableExtra(Lang.key)
-        trackName = intent.getStringExtra(TracksActivity.trackNameExtra)?.let { TrackName(it) }
-        findViewById<TextView>(R.id.userEmailMessage).text = getString(R.string.signedInAs, email)
+        profile = intent.getParcelableExtra(ProfileInfo.key)
+        findViewById<TextView>(R.id.userEmailMessage).text = getString(R.string.signedInAs, profile.email)
     }
 
     private fun toggleSummary(state: LoadState) {
@@ -88,32 +82,31 @@ class ProfileActivity: AppCompatActivity() {
 
     fun tracksClicked(button: View) {
         val intent = Intent(this, TracksActivity::class.java).apply {
-            putExtra(TracksActivity.tokenExtra, token.token)
-        }
-        startActivityForResult(intent, selectTrackRequest)
-    }
-
-    fun boatsClicked(button: View) {
-        navigate(BoatsActivity::class)
-    }
-
-    fun licensesClicked(button: View) {
-        val intent = Intent(this, AttributionsActivity::class.java).apply {
-            putExtra(AttributionInfo.key, lang.attributions)
-            putExtra(TracksActivity.tokenExtra, token.token)
+            putExtra(IdToken.key, token)
         }
         startActivity(intent)
     }
 
-    private fun <T : Any> navigate(to: KClass<T>) {
-        val intent = Intent(this, to.java).apply {
-            putExtra(TracksActivity.tokenExtra, token.token)
+    fun boatsClicked(button: View) {
+        val intent = Intent(this, BoatsActivity::class.java).apply {
+            putExtra(IdToken.key, token)
+        }
+        startActivity(intent)
+    }
+
+    fun licensesClicked(button: View) {
+        val intent = Intent(this, AttributionsActivity::class.java).apply {
+            putExtra(AttributionInfo.key, profile.lang.attributions)
         }
         startActivity(intent)
     }
 
     fun signOutClicked(button: View) {
         client.signOut().addOnCompleteListener {
+            val intent = Intent().apply {
+                this.putExtra(refreshSignIn, true)
+            }
+            setResult(Activity.RESULT_OK, intent)
             finish()
         }
     }

@@ -35,10 +35,6 @@ class HttpClient(ctx: Context) {
             }
     }
 
-    init {
-        Timber.tag(javaClass.simpleName)
-    }
-
     private val queue: RequestQueue = Volley.newRequestQueue(ctx.applicationContext)
     private val google = Google.instance.client(ctx.applicationContext)
 
