@@ -49,8 +49,10 @@ class MapActivity: AppCompatActivity() {
     private val style: Style? get() = map?.style
     private var mapState: MapState = MapState(null, null)
     private var conf: ClientConf? = null
+    private var profile: BoatUser? = null
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
+    private val lang: Lang? get() = conf?.languages?.all?.find { l -> l.language == profile?.language }
 
     enum class MapMode {
         Fit, Follow, Stay
@@ -91,6 +93,10 @@ class MapActivity: AppCompatActivity() {
         viewModel.getCoords().observe(this, Observer { coords ->
             coords?.let { cs -> map?.let { m -> onCoords(cs, m) }  }
         })
+        viewModel.getProfile().observe(this, Observer { profile ->
+            Timber.i("Using language ${profile.language}")
+            this.profile = profile
+        })
     }
 
     override fun onStart() {
@@ -98,18 +104,16 @@ class MapActivity: AppCompatActivity() {
         mapView.onStart()
     }
 
-//    override fun onRestart() {
-//        super.onRestart()
-//        // Triggers an onChanged event for the user: covers the case where we signed out, or signed in as another user.
-//        // Alternatively we could convey this information through Intents, and just reopen the socket here.
-//        viewModel.signInSilently(this)
-//    }
-
     override fun onStop() {
         super.onStop()
         mapView.onStop()
         viewModel.disconnect()
         clearMap()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        viewModel.reconnect()
     }
 
     /**

@@ -81,7 +81,7 @@ class HttpClient(ctx: Context) {
         private val csrf =
             if (conf.method == Request.Method.POST) mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
             else emptyMap()
-        override fun getHeaders(): Map<String, String> = HttpClient.headers(conf.token).plus(csrf)
+        override fun getHeaders(): Map<String, String> = headers(conf.token).plus(csrf)
     }
 }
 

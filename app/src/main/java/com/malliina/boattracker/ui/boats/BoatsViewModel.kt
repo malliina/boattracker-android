@@ -7,8 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.backend.Env
-import com.malliina.boattracker.backend.HttpClient
+import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.push.PushService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,12 +36,11 @@ class BoatsViewModel(val app: Application): AndroidViewModel(app) {
     }
 
     private fun loadBoats(token: IdToken) {
-        val http = HttpClient.getInstance(app)
-        http.token = token
+        val http = BoatClient.build(app, token)
         uiScope.launch {
             try {
-                val response = http.getData(Env.baseUrl.append("/users/me"))
-                boats.value = BoatUser.parse(response.getJSONObject("user"))
+                val response = http.me()
+                boats.value = response
             } catch(e: Exception) {
                 Timber.e(e, "Failed to load boats. Token was $token")
             }

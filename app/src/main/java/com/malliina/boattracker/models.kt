@@ -106,24 +106,35 @@ data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val added
     }
 }
 
+enum class Language(val code: String) {
+    Swedish("sv-SE"), Finnish("fi-FI"), English("en-US");
+
+    companion object {
+        fun parse(s: String): Language {
+            return when (s) {
+                Swedish.code -> Swedish
+                Finnish.code -> Finnish
+                English.code -> English
+                else -> English
+            }
+        }
+    }
+}
+
 data class BoatUser(val id: Int,
                     val username: Username,
                     val email: String?,
+                    val language: Language,
                     val boats: List<Boat>,
                     val addedMillis: Long) {
     companion object {
         fun parse(json: JSONObject): BoatUser {
-            val boatsArr = json.getJSONArray("boats")
-            val boats = mutableListOf<Boat>()
-            for(i in 0 until boatsArr.length()) {
-                val item = boatsArr.getJSONObject(i)
-                boats.add(Boat.parse(item))
-            }
             return BoatUser(
                 json.getInt("id"),
                 Username(json.getString("username")),
                 json.optString("email", null),
-                boats,
+                Language.parse(json.getString("language")),
+                json.parseList("boats") { Boat.parse(it) },
                 json.getLong("addedMillis")
             )
         }
@@ -218,6 +229,7 @@ data class CoordBody(val coord: Coord,
 data class Coord(val lat: Double, val lng: Double) {
     fun latLng(): LatLng = LatLng(lat, lng)
     fun point(): Point = Point.fromLngLat(lng, lat)
+
     companion object {
         fun parse(json: JSONObject): Coord =
             Coord(json.getDouble("lat"), json.getDouble("lng"))
@@ -227,15 +239,9 @@ data class Coord(val lat: Double, val lng: Double) {
 data class CoordsData(val from: TrackRef, val coords: List<CoordBody>) {
     companion object {
         fun parse(json: JSONObject): CoordsData {
-            val coordsArray = json.getJSONArray("coords")
-            val coords = mutableListOf<CoordBody>()
-            for(i in 0 until coordsArray.length()) {
-                val item = coordsArray.getJSONObject(i)
-                coords.add(CoordBody.parse(item))
-            }
             return CoordsData(
                 TrackRef.parse(json.getJSONObject("from")),
-                coords
+                json.parseList("coords") { CoordBody.parse(it) }
             )
         }
     }
@@ -292,12 +298,7 @@ data class SingleError(val key: String, val message: String) {
 data class Errors(val errors: List<SingleError>) {
     companion object {
         fun parse(json: JSONObject): Errors {
-            val errors = ArrayList<SingleError>()
-            val arr = json.getJSONArray("errors")
-            for(i in 0 until arr.length()) {
-                errors.add(SingleError.parse(arr.getJSONObject(i)))
-            }
-            return Errors(errors)
+            return Errors(json.parseList("errors") { SingleError.parse(it) })
         }
     }
 }

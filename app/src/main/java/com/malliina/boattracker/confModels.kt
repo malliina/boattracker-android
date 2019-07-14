@@ -2,6 +2,7 @@ package com.malliina.boattracker
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import org.json.JSONArray
 import org.json.JSONObject
 
 @Parcelize
@@ -29,16 +30,10 @@ data class AppAttribution(val title: String,
                           val links: List<Link>): Parcelable {
     companion object {
         fun parse(json: JSONObject): AppAttribution {
-            val linksArr = json.getJSONArray("links")
-            val links = mutableListOf<Link>()
-            for(i in 0 until linksArr.length()) {
-                val item = linksArr.getJSONObject(i)
-                links.add(Link.parse(item))
-            }
             return AppAttribution(
                 json.getString("title"),
                 json.optString("text", null),
-                links
+                json.parseList("links") { Link.parse(it) }
             )
         }
     }
@@ -51,27 +46,22 @@ data class AttributionInfo(val title: String,
         const val key = "attributions"
 
         fun parse(json: JSONObject): AttributionInfo {
-            val attrsArr = json.getJSONArray("attributions")
-            val attrs = mutableListOf<AppAttribution>()
-            for(i in 0 until attrsArr.length()) {
-                val item = attrsArr.getJSONObject(i)
-                attrs.add(AppAttribution.parse(item))
-            }
             return AttributionInfo(
                 json.getString("title"),
-                attrs
+                json.parseList("attributions") { AppAttribution.parse(it) }
             )
         }
     }
 }
 
 @Parcelize
-data class Lang(val attributions: AttributionInfo): Parcelable {
+data class Lang(val language: Language, val attributions: AttributionInfo): Parcelable {
     companion object {
         val key = "lang"
 
         fun parse(json: JSONObject): Lang {
             return Lang(
+                Language.parse(json.getString("language")),
                 AttributionInfo.parse(json.getJSONObject("attributions"))
             )
         }
@@ -79,13 +69,17 @@ data class Lang(val attributions: AttributionInfo): Parcelable {
 }
 
 @Parcelize
-data class Languages(val finnish: Lang, val swedish: Lang, val english: Lang): Parcelable {
+data class Languages(val finnish: Lang, val swedish: Lang, val english: Lang, val all: List<Lang>): Parcelable {
     companion object {
         fun parse(json: JSONObject): Languages {
+            val all = json.keys().asSequence().map { k ->
+                Lang.parse(json.getJSONObject(k))
+            }
             return Languages(
                 Lang.parse(json.getJSONObject("finnish")),
                 Lang.parse(json.getJSONObject("swedish")),
-                Lang.parse(json.getJSONObject("english"))
+                Lang.parse(json.getJSONObject("english")),
+                all.toList()
             )
         }
     }
@@ -101,5 +95,23 @@ data class ClientConf(val languages: Languages): Parcelable {
                 Languages.parse(json.getJSONObject("languages"))
             )
         }
+    }
+}
+
+fun JSONArray.toList(): List<JSONObject> {
+    val list = mutableListOf<JSONObject>()
+    for(i in 0 until this.length()) {
+        list.add(this.getJSONObject(i))
+    }
+    return list
+}
+
+fun JSONObject.getJSONList(key: String): List<JSONObject> {
+    return this.getJSONArray(key).toList()
+}
+
+fun <T> JSONObject.parseList(key: String, parse: (JSONObject) -> T): List<T> {
+    return this.getJSONList(key).map { item ->
+        parse(item)
     }
 }

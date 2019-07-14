@@ -7,10 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
-import com.malliina.boattracker.backend.BoatSocket
-import com.malliina.boattracker.backend.Env
-import com.malliina.boattracker.backend.HttpClient
-import com.malliina.boattracker.backend.SocketDelegate
+import com.malliina.boattracker.backend.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,6 +20,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     private lateinit var mapState: MutableLiveData<MapState>
     private lateinit var coords: MutableLiveData<CoordsData>
     private lateinit var conf: MutableLiveData<ClientConf>
+    private lateinit var profile: MutableLiveData<BoatUser>
 
     private val google = Google.instance
     private val viewModelJob = Job()
@@ -33,8 +31,6 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     fun getUser(): LiveData<MapState> {
         if (!::mapState.isInitialized) {
             mapState = MutableLiveData()
-            // Might receive coords from the socket before we observe?
-            coords = MutableLiveData()
             // https://developers.google.com/identity/sign-in/android/backend-auth
             signInSilently(app.applicationContext)
         }
@@ -49,18 +45,6 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         return conf
     }
 
-    private fun loadConf() {
-        val http = HttpClient.getInstance(app)
-        uiScope.launch {
-            try {
-                val response = http.getData(Env.baseUrl.append("/conf"))
-                conf.value = ClientConf.parse(response)
-            } catch(e: Exception) {
-                Timber.e(e, "Failed to load conf.")
-            }
-        }
-    }
-
     fun getCoords(): LiveData<CoordsData> {
         if (!::coords.isInitialized) {
             coords = MutableLiveData()
@@ -68,8 +52,40 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         return coords
     }
 
+    fun getProfile(): LiveData<BoatUser> {
+        if (!::profile.isInitialized) {
+            profile = MutableLiveData()
+        }
+        return profile
+    }
+
+    private fun loadProfile(token: IdToken) {
+        val http = BoatClient.build(app, token)
+        uiScope.launch {
+            try {
+                profile.value = http.me()
+            } catch(e: Exception) {
+                Timber.e(e, "Failed to load profile.")
+            }
+        }
+    }
+
+    private fun loadConf() {
+        val http = BoatClient.basic(app)
+        uiScope.launch {
+            try {
+                conf.value = http.conf()
+            } catch(e: Exception) {
+                Timber.e(e, "Failed to load conf.")
+            }
+        }
+    }
+
     fun update(state: MapState) {
         mapState.postValue(state)
+        state.user?.idToken?.let { token ->
+            loadProfile(token)
+        }
     }
 
     override fun onCoords(newCoords: CoordsData) {
@@ -83,6 +99,11 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         socket?.connect()
     }
 
+    fun reconnect() {
+        val state = mapState.value
+        openSocket(state?.user?.idToken, state?.track)
+    }
+
     fun disconnect() {
         Timber.i("Disconnecting socket...")
         socket?.disconnect()
@@ -92,11 +113,10 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         uiScope.launch {
             try {
                 val user = google.signInSilently(ctx)
-//                val track = user.email == mapState?.value.user?.email ? mapState.value?.track
-                mapState.value = MapState(user, null)
+                update(MapState(user, null))
                 Timber.i("Hello, '${user.email}'!")
             } catch(e: Exception) {
-                Timber.w(e, "No authenticated user.")
+                Timber.w(e, "No authenticated profile.")
                 mapState.value = MapState(null, null)
             }
         }

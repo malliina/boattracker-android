@@ -6,8 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.TrackRef
-import com.malliina.boattracker.backend.Env
-import com.malliina.boattracker.backend.HttpClient
+import com.malliina.boattracker.backend.BoatClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,12 +27,10 @@ class TracksViewModel(val app: Application): AndroidViewModel(app) {
     }
 
     private fun loadTracks(token: IdToken) {
-        val http = HttpClient.getInstance(app)
-        http.token = token
+        val http = BoatClient.build(app, token)
         uiScope.launch {
             try {
-                val response = http.getData(Env.baseUrl.append("/tracks"))
-                tracks.value = TrackRef.parseList(response)
+                tracks.value = http.tracks()
             } catch(e: Exception) {
                 Timber.e(e, "Failed to load tracks. Token was $token")
             }
