@@ -37,8 +37,8 @@ class BoatsActivity: AppCompatActivity() {
         }
         Timber.i("Loading boats...")
         val token: IdToken = intent.getParcelableExtra(IdToken.key)
-        viewModel = ViewModelProviders.of(this).get(BoatsViewModel::class.java)
-        viewModel.getBoats(token).observe(this, Observer<BoatUser> { user ->
+        viewModel = ViewModelProviders.of(this, BoatsViewModelFactory(application, token)).get(BoatsViewModel::class.java)
+        viewModel.getBoats().observe(this, Observer<BoatUser> { user ->
             boatsAdapter.boats = user?.boats ?: emptyList()
             boatsAdapter.notifyDataSetChanged()
         })

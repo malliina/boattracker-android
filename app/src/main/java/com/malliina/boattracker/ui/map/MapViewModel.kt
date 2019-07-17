@@ -17,10 +17,23 @@ import timber.log.Timber
 data class MapState(val user: UserInfo?, val track: TrackName?)
 
 class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
-    private lateinit var mapState: MutableLiveData<MapState>
-    private lateinit var coords: MutableLiveData<CoordsData>
-    private lateinit var conf: MutableLiveData<ClientConf>
-    private lateinit var profile: MutableLiveData<BoatUser>
+    private val mapState: MutableLiveData<MapState> by lazy {
+        MutableLiveData<MapState>().also {
+            // https://developers.google.com/identity/sign-in/android/backend-auth
+            signInSilently(app.applicationContext)
+        }
+    }
+    private val coords: MutableLiveData<CoordsData> by lazy {
+        MutableLiveData<CoordsData>()
+    }
+    private val conf: MutableLiveData<ClientConf> by lazy {
+        MutableLiveData<ClientConf>().also {
+            loadConf()
+        }
+    }
+    private val profile: MutableLiveData<BoatUser> by lazy {
+        MutableLiveData<BoatUser>()
+    }
 
     private val google = Google.instance
     private val viewModelJob = Job()
@@ -29,33 +42,18 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     private var socket: BoatSocket? = null
 
     fun getUser(): LiveData<MapState> {
-        if (!::mapState.isInitialized) {
-            mapState = MutableLiveData()
-            // https://developers.google.com/identity/sign-in/android/backend-auth
-            signInSilently(app.applicationContext)
-        }
         return mapState
     }
 
     fun getConf(): LiveData<ClientConf> {
-        if (!::conf.isInitialized) {
-            conf = MutableLiveData()
-            loadConf()
-        }
         return conf
     }
 
     fun getCoords(): LiveData<CoordsData> {
-        if (!::coords.isInitialized) {
-            coords = MutableLiveData()
-        }
         return coords
     }
 
     fun getProfile(): LiveData<BoatUser> {
-        if (!::profile.isInitialized) {
-            profile = MutableLiveData()
-        }
         return profile
     }
 

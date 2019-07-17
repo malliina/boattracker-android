@@ -1,9 +1,7 @@
 package com.malliina.boattracker.ui.tracks
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.backend.BoatClient
@@ -13,16 +11,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class TracksViewModel(val app: Application): AndroidViewModel(app) {
+class TracksViewModelFactory(val app: Application, val token: IdToken): ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return TracksViewModel(app, token) as T
+    }
+}
+
+class TracksViewModel(val app: Application, val token: IdToken): AndroidViewModel(app) {
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-    private lateinit var tracks: MutableLiveData<List<TrackRef>>
-
-    fun getTracks(token: IdToken): LiveData<List<TrackRef>> {
-        if (!::tracks.isInitialized) {
-            tracks = MutableLiveData()
+    private val tracks: MutableLiveData<List<TrackRef>> by lazy {
+        MutableLiveData<List<TrackRef>>().also {
             loadTracks(token)
         }
+    }
+
+    fun getTracks(): LiveData<List<TrackRef>> {
         return tracks
     }
 

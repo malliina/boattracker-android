@@ -12,23 +12,23 @@ import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
 
 class ProfileViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
-    private lateinit var loadState: MutableLiveData<LoadState>
-    private lateinit var current: MutableLiveData<TrackRef>
+    private val loadState: MutableLiveData<LoadState> by lazy {
+        MutableLiveData<LoadState>().also {
+            it.value = LoadState.NotLoaded
+        }
+    }
+
+    private val current: MutableLiveData<TrackRef> by lazy {
+        MutableLiveData<TrackRef>()
+    }
 
     private var socket: BoatSocket? = null
 
     fun getState(): LiveData<LoadState> {
-        if(!::loadState.isInitialized) {
-            loadState = MutableLiveData()
-            loadState.value = LoadState.NotLoaded
-        }
         return loadState
     }
 
     fun getCurrent(): LiveData<TrackRef> {
-        if (!::current.isInitialized) {
-            current = MutableLiveData()
-        }
         return current
     }
 

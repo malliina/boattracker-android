@@ -1,9 +1,7 @@
 package com.malliina.boattracker.ui.boats
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
@@ -15,21 +13,31 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class BoatsViewModel(val app: Application): AndroidViewModel(app) {
+/**
+ * See [StackOverflow answer](https://stackoverflow.com/a/46704702)
+ */
+class BoatsViewModelFactory(val app: Application, val token: IdToken): ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return BoatsViewModel(app, token) as T
+    }
+}
+
+class BoatsViewModel(val app: Application, val token: IdToken): AndroidViewModel(app) {
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private lateinit var boats: MutableLiveData<BoatUser>
+    var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
 
-    fun getBoats(token: IdToken): LiveData<BoatUser> {
-        if(!::boats.isInitialized) {
-            boats = MutableLiveData()
+    private val boats: MutableLiveData<BoatUser> by lazy {
+        MutableLiveData<BoatUser>().also {
             loadBoats(token)
         }
-        return boats
     }
 
-    var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
+    fun getBoats(): LiveData<BoatUser> {
+        return boats
+    }
 
     fun toggleNotifications(isOn: Boolean) {
         PushService.getInstance(app).toggleNotifications(isOn)

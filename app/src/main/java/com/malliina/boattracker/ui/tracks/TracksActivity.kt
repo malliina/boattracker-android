@@ -44,8 +44,8 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
         }
         Timber.i("Loading tracks...")
         val token: IdToken = intent.getParcelableExtra(IdToken.key)
-        viewModel = ViewModelProviders.of(this).get(TracksViewModel::class.java)
-        viewModel.getTracks(token).observe(this, Observer<List<TrackRef>> { tracks ->
+        viewModel = ViewModelProviders.of(this, TracksViewModelFactory(application, token)).get(TracksViewModel::class.java)
+        viewModel.getTracks().observe(this, Observer<List<TrackRef>> { tracks ->
             viewAdapter.tracks = tracks ?: emptyList()
             viewAdapter.notifyDataSetChanged()
         })
