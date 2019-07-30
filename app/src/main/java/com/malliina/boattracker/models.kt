@@ -21,6 +21,7 @@ class PrimitiveAdapter {
     @FromJson fun id(s: String): IdToken = IdToken(s)
     @FromJson fun user(s: String): Username = Username(s)
     @FromJson fun track(s: String): TrackName = TrackName(s)
+    @FromJson fun title(s: String): TrackTitle = TrackTitle(s)
     @FromJson fun boat(s: String): BoatName = BoatName(s)
     @FromJson fun token(s: String): BoatToken = BoatToken(s)
     @FromJson fun speed(s: Double): Speed = Speed(s)
@@ -67,6 +68,11 @@ data class TrackName(val name: String): Parcelable, Primitive {
     companion object {
         const val key = "trackName"
     }
+    override val value: String get() = name
+    override fun toString(): String = name
+}
+
+data class TrackTitle(val name: String): Primitive {
     override val value: String get() = name
     override fun toString(): String = name
 }
@@ -154,6 +160,7 @@ data class Timing(val date: String,
 data class Times(val start: Timing, val end: Timing, val range: String)
 
 data class TrackRef(val trackName: TrackName,
+                    val trackTitle: TrackTitle?,
                     val boatName: BoatName,
                     val times: Times,
                     val distanceMeters: Distance,

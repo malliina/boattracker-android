@@ -84,7 +84,11 @@ data class TrackLang(val track: String,
                      val waterTemp: String,
                      val date: String,
                      val trackHistory: String,
-                     val graph: String): Parcelable
+                     val graph: String): Parcelable {
+    companion object {
+        val key = "track.lang"
+    }
+}
 
 @Parcelize
 data class MarkTypeLang(val lateral: String, val cardinal: String, val unknown: String): Parcelable

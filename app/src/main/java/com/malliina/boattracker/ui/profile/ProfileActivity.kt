@@ -1,5 +1,6 @@
 package com.malliina.boattracker.ui.profile
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -28,6 +29,7 @@ class ProfileActivity: AppCompatActivity() {
         const val refreshSignIn = "com.malliina.boattracker.ui.profile.refreshSignIn"
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.profile_activity)
@@ -43,7 +45,7 @@ class ProfileActivity: AppCompatActivity() {
             ref?.let { update(it) }
         })
         client = Google.instance.client(this)
-        findViewById<TextView>(R.id.userEmailMessage).text = getString(R.string.signedInAs, profile.email)
+        findViewById<TextView>(R.id.userEmailMessage).text = "${profile.lang.profile.signedInAs} ${profile.email}"
     }
 
     private fun toggleSummary(state: LoadState) {
@@ -85,6 +87,7 @@ class ProfileActivity: AppCompatActivity() {
     fun tracksClicked(button: View) {
         val intent = Intent(this, TracksActivity::class.java).apply {
             putExtra(IdToken.key, token)
+            putExtra(TrackLang.key, profile.lang.track)
         }
         startActivity(intent)
     }

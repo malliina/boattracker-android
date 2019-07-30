@@ -85,7 +85,7 @@ class MapActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         viewModel.getUser().observe(this, Observer { mapState ->
             mapState?.let { state ->
-                Timber.i("Got ${state.user?.email ?: "no email"} with track ${state.track}")
+                Timber.i("Got ${state.user?.email ?: "no email"} with track ${state.track ?: "no track"}")
                 this.mapState = state
                 viewModel.openSocket(state.user?.idToken, state.track)
                 findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
