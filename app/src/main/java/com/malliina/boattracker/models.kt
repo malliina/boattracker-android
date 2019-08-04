@@ -143,6 +143,8 @@ enum class Language(val code: String) {
     }
 }
 
+data class ChangeLanguage(val language: String)
+
 data class BoatUser(val id: Int,
                     val username: Username,
                     val email: String?,
@@ -224,6 +226,8 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String):
         }
     }
 }
+
+data class SimpleMessage(val message: String)
 
 data class SingleError(val key: String, val message: String)
 

@@ -26,6 +26,8 @@
         <activity android:name=".ui.tracks.TracksActivity" />
         <activity android:name=".ui.boats.BoatsActivity" />
         <activity android:name=".ui.attributions.AttributionsActivity"/>
+        <activity android:name=".ui.language.LanguagesActivity" />
+
         <service android:name=".push.FirebaseService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

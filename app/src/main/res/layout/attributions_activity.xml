@@ -8,11 +8,11 @@
     <androidx.appcompat.widget.Toolbar
             style="@style/BoatToolbar"
             android:id="@+id/attributions_toolbar"
-            app:title="@string/boat_tracker"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:title="Attributions"/>
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/attributions_list"
             android:scrollbars="vertical"
@@ -20,5 +20,5 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/attributions_toolbar"
             tools:listitem="@layout/attribution_item"
-            tools:itemCount="5"/>
+            tools:itemCount="3"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

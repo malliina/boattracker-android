@@ -7,6 +7,7 @@ import kotlinx.android.parcel.Parcelize
 data class ProfileInfo(val email: Email,
                        val token: IdToken,
                        val lang: Lang,
+                       val language: Language,
                        val trackName: TrackName?): Parcelable {
     companion object {
         const val key = "profile"
@@ -170,7 +171,11 @@ data class ProfileLang(val username: String,
                        val language: String,
                        val finnish: String,
                        val swedish: String,
-                       val english: String): Parcelable
+                       val english: String): Parcelable {
+    companion object {
+        val key = "lang.profile"
+    }
+}
 
 @Parcelize
 data class MessagesLang(val loading: String,
@@ -205,7 +210,11 @@ data class SettingsLang(val welcome: String,
                         val done: String,
                         val back: String,
                         val noTracksHelp: String,
-                        val formats: FormatsLang): Parcelable
+                        val formats: FormatsLang): Parcelable {
+    companion object {
+        val key = "lang.settings"
+    }
+}
 
 @Parcelize
 data class LimitTypes(val speedLimit: String,

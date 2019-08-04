@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,9 +22,11 @@ class AttributionsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.attributions_activity)
+
         viewManager = LinearLayoutManager(this)
         attrs = intent.getParcelableExtra(AttributionInfo.key)
         attributionsAdapter = AttributionsAdapter(attrs.attributions)
+        findViewById<Toolbar>(R.id.attributions_toolbar).title = attrs.title
         findViewById<RecyclerView>(R.id.attributions_list).apply {
             setHasFixedSize(false)
             layoutManager = viewManager

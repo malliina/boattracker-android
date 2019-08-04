@@ -7,14 +7,17 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.material.button.MaterialButton
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.attributions.AttributionsActivity
 import com.malliina.boattracker.ui.boats.BoatsActivity
+import com.malliina.boattracker.ui.language.LanguagesActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
 
 class ProfileActivity: AppCompatActivity() {
@@ -22,6 +25,8 @@ class ProfileActivity: AppCompatActivity() {
     private lateinit var client: GoogleSignInClient
 
     private lateinit var profile: ProfileInfo
+    private val lang: Lang get() = profile.lang
+
     val token get() = profile.token
     private val trackName get() = profile.trackName
 
@@ -45,7 +50,13 @@ class ProfileActivity: AppCompatActivity() {
             ref?.let { update(it) }
         })
         client = Google.instance.client(this)
-        findViewById<TextView>(R.id.userEmailMessage).text = "${profile.lang.profile.signedInAs} ${profile.email}"
+        findViewById<Toolbar>(R.id.profile_toolbar).title = lang.appName
+        findViewById<MaterialButton>(R.id.tracks_link).text = lang.track.trackHistory
+        findViewById<MaterialButton>(R.id.boats_link).text = lang.track.boats
+        findViewById<MaterialButton>(R.id.languages_link).text = lang.profile.language
+        findViewById<MaterialButton>(R.id.licenses_link).text = lang.attributions.title
+        findViewById<TextView>(R.id.userEmailMessage).text = "${lang.profile.signedInAs} ${profile.email}"
+        findViewById<MaterialButton>(R.id.logout).text = lang.profile.logout
     }
 
     private fun toggleSummary(state: LoadState) {
@@ -81,13 +92,13 @@ class ProfileActivity: AppCompatActivity() {
     }
 
     private fun update(track: TrackRef) {
-        findViewById<TrackSummaryBox>(R.id.track_summary).fill(track)
+        findViewById<TrackSummaryBox>(R.id.track_summary).fill(track, lang.messages)
     }
 
     fun tracksClicked(button: View) {
         val intent = Intent(this, TracksActivity::class.java).apply {
             putExtra(IdToken.key, token)
-            putExtra(TrackLang.key, profile.lang.track)
+            putExtra(Lang.key, lang)
         }
         startActivity(intent)
     }
@@ -95,13 +106,21 @@ class ProfileActivity: AppCompatActivity() {
     fun boatsClicked(button: View) {
         val intent = Intent(this, BoatsActivity::class.java).apply {
             putExtra(IdToken.key, token)
+            putExtra(Lang.key, lang)
+        }
+        startActivity(intent)
+    }
+
+    fun languagesClicked(button: View) {
+        val intent = Intent(this, LanguagesActivity::class.java).apply {
+            putExtra(ProfileInfo.key, profile)
         }
         startActivity(intent)
     }
 
     fun licensesClicked(button: View) {
         val intent = Intent(this, AttributionsActivity::class.java).apply {
-            putExtra(AttributionInfo.key, profile.lang.attributions)
+            putExtra(AttributionInfo.key, lang.attributions)
         }
         startActivity(intent)
     }

@@ -6,14 +6,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
-import com.malliina.boattracker.R
-import com.malliina.boattracker.UserInfo
+import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.profile.ProfileActivity
 import timber.log.Timber
@@ -30,8 +30,12 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.login_toolbar))
         setContentView(R.layout.login_activity)
+
         client = Google.instance.client(this)
+
+        val settingsLang: SettingsLang = intent.getParcelableExtra(SettingsLang.key)
         findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener(this)
+        findViewById<Toolbar>(R.id.login_toolbar).title = settingsLang.signIn
     }
 
     override fun onStart() {

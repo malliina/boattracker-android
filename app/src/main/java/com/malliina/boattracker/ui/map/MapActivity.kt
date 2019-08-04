@@ -47,17 +47,14 @@ class MapActivity: AppCompatActivity() {
     private lateinit var viewModel: MapViewModel
     private var map: MapboxMap? = null
     private val style: Style? get() = map?.style
+
     private var mapState: MapState = MapState(null, null)
-    private var conf: ClientConf? = null
-    private var profile: BoatUser? = null
+    private val settings: UserSettings get() = UserSettings.instance
+    private val conf: ClientConf? get() = settings.conf
+    private val lang: Lang? get() = settings.lang
+
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
-    private val lang: Lang? get() = when (profile?.language) {
-        Language.Swedish -> conf?.languages?.swedish
-        Language.Finnish -> conf?.languages?.finnish
-        Language.English -> conf?.languages?.english
-        else -> conf?.languages?.english
-    }
 
     enum class MapMode {
         Fit, Follow, Stay
@@ -93,14 +90,14 @@ class MapActivity: AppCompatActivity() {
         })
         viewModel.getConf().observe(this, Observer { conf ->
             Timber.i("Got conf.")
-            this.conf = conf
+            UserSettings.instance.conf = conf
         })
         viewModel.getCoords().observe(this, Observer { coords ->
             coords?.let { cs -> map?.let { m -> onCoords(cs, m) }  }
         })
         viewModel.getProfile().observe(this, Observer { profile ->
             Timber.i("Using language ${profile.language}")
-            this.profile = profile
+            settings.profile = profile
         })
     }
 
@@ -264,18 +261,22 @@ class MapActivity: AppCompatActivity() {
     fun profileClicked(button: View) {
         val u = mapState.user
         val c = conf
-        if (u != null && c != null && lang != null) {
-            lang?.let { l ->
+
+        lang?.let {
+            if (u != null && c != null) {
+                val language = settings.currentLanguage
                 Timber.i("Opening profile for ${u.email}...")
                 val intent = Intent(this, ProfileActivity::class.java).apply {
-                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, l, mapState.track))
+                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, it, language, mapState.track))
+                }
+                startActivityForResult(intent, profileCode)
+            } else {
+                Timber.i("Opening login screen...")
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    putExtra(SettingsLang.key, it.settings)
                 }
                 startActivityForResult(intent, profileCode)
             }
-        } else {
-            Timber.i("Opening login screen...")
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivityForResult(intent, profileCode)
         }
     }
 

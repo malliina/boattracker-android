@@ -49,8 +49,18 @@ class HttpClient(ctx: Context) {
         return adapter.readUrl(json.toString(), url)
     }
 
-    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject =
-        makeWithRetry(RequestConf(Request.Method.POST, url, token, data))
+    suspend fun <T, U> post(url: FullUrl, payload: T, request: JsonAdapter<T>, response: JsonAdapter<U>): U {
+        val json = send(url, Request.Method.PUT, JSONObject(request.toJson(payload)))
+        return response.read(json.toString())
+    }
+
+    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject {
+        return makeWithRetry(RequestConf(Request.Method.POST, url, token, data))
+    }
+
+    suspend fun send(url: FullUrl, method: Int, data: JSONObject): JSONObject {
+        return makeWithRetry(RequestConf(method, url, token, data))
+    }
 
     private suspend fun makeWithRetry(conf: RequestConf): JSONObject =
         try {
@@ -84,8 +94,9 @@ class HttpClient(ctx: Context) {
             } catch(e: Exception) {}
             cont.resumeWithException(exception)
         }) {
+        private val httpMethod = conf.method
         private val csrf =
-            if (conf.method == Request.Method.POST) mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
+            if (httpMethod == Method.POST || httpMethod == Method.PUT || httpMethod == Method.DELETE) mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
             else emptyMap()
         override fun getHeaders(): Map<String, String> = headers(conf.token).plus(csrf)
     }
