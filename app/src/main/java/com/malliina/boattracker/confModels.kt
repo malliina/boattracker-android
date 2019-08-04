@@ -6,8 +6,6 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class ProfileInfo(val email: Email,
                        val token: IdToken,
-                       val lang: Lang,
-                       val language: Language,
                        val trackName: TrackName?): Parcelable {
     companion object {
         const val key = "profile"

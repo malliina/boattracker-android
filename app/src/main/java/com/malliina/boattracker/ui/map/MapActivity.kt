@@ -264,10 +264,10 @@ class MapActivity: AppCompatActivity() {
 
         lang?.let {
             if (u != null && c != null) {
-                val language = settings.currentLanguage
                 Timber.i("Opening profile for ${u.email}...")
                 val intent = Intent(this, ProfileActivity::class.java).apply {
-                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, it, language, mapState.track))
+                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, mapState.track))
+                    putExtra(Lang.key, it)
                 }
                 startActivityForResult(intent, profileCode)
             } else {

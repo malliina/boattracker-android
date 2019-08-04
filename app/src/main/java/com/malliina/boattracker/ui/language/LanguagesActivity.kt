@@ -7,18 +7,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.malliina.boattracker.Language
-import com.malliina.boattracker.ProfileInfo
-import com.malliina.boattracker.R
-import com.malliina.boattracker.UserSettings
+import com.malliina.boattracker.*
 import timber.log.Timber
 
 class LanguagesActivity: AppCompatActivity() {
-    private lateinit var data: ProfileInfo
+    private lateinit var token: IdToken
+    private lateinit var lang: Lang
+
     private lateinit var languagesView: ListView
-
     private lateinit var viewModel: LanguagesViewModel
-
     private lateinit var items: List<LanguageItem>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,11 +23,12 @@ class LanguagesActivity: AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.languages_toolbar))
         setContentView(R.layout.languages_activity)
 
-        data = intent.getParcelableExtra(ProfileInfo.key)
+        token = intent.getParcelableExtra(IdToken.key)
+        lang = intent.getParcelableExtra(Lang.key)
 
-        viewModel = ViewModelProviders.of(this, LanguagesViewModelFactory(application, data.token)).get(LanguagesViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, LanguagesViewModelFactory(application, token))
+            .get(LanguagesViewModel::class.java)
 
-        val lang = data.lang
         val profileLang = lang.profile
         findViewById<Toolbar>(R.id.languages_toolbar).title = profileLang.language
         items = listOf(
@@ -42,7 +40,7 @@ class LanguagesActivity: AppCompatActivity() {
         languagesView = findViewById<ListView>(R.id.language_list_view).apply {
             choiceMode = ListView.CHOICE_MODE_SINGLE
             adapter = listAdapter
-            setItemChecked(items.indexOfFirst { it.language == data.language }, true)
+            setItemChecked(items.indexOfFirst { it.language == lang.language }, true)
         }
         languagesView.setOnItemClickListener { _, _, position, _ ->
             val selected = items[position]
@@ -50,13 +48,11 @@ class LanguagesActivity: AppCompatActivity() {
             viewModel.changeLanguage(selected.language)
         }
         viewModel.getLanguage().observe(this, Observer { language ->
-            // Update views
             UserSettings.instance.lang?.let {
                 findViewById<Toolbar>(R.id.languages_toolbar).title = it.profile.language
             }
         })
     }
 }
-
 
 data class LanguageItem(val language: Language, val title: String)
