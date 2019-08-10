@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.JsonObject
 import com.malliina.boattracker.*
-import com.malliina.boattracker.ui.Callouts
+import com.malliina.boattracker.ui.callouts.Callouts
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
@@ -65,7 +65,6 @@ class MapActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        layoutInflater
         Timber.i("Hello, using token %s", BuildConfig.MapboxAccessToken)
         Mapbox.getInstance(this, BuildConfig.MapboxAccessToken)
         setContentView(R.layout.map_activity)

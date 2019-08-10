@@ -16,24 +16,6 @@ import org.json.JSONException
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
-class PrimitiveAdapter {
-    @FromJson fun push(s: String): PushToken = PushToken(s)
-    @FromJson fun email(s: String): Email = Email(s)
-    @FromJson fun id(s: String): IdToken = IdToken(s)
-    @FromJson fun user(s: String): Username = Username(s)
-    @FromJson fun track(s: String): TrackName = TrackName(s)
-    @FromJson fun title(s: String): TrackTitle = TrackTitle(s)
-    @FromJson fun boat(s: String): BoatName = BoatName(s)
-    @FromJson fun token(s: String): BoatToken = BoatToken(s)
-    @FromJson fun speed(s: Double): Speed = Speed(s)
-    @ToJson fun writeSpeed(s: Speed): Double = s.knots
-    @FromJson fun distance(d: Double): Distance = Distance(d)
-    @FromJson fun duration(d: Double): Duration = Duration(d)
-    @FromJson fun temp(t: Double): Temperature = Temperature(t)
-    @FromJson fun language(l: String): Language = Language.parse(l)
-    @FromJson fun url(url: String): FullUrl = FullUrl.build(url) ?: throw JsonDataException("Value '$url' cannot be converted to FullUrl")
-}
-
 interface Primitive {
     val value: String
 }

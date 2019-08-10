@@ -25,13 +25,14 @@ class LanguagesViewModel(val app: Application, val token: IdToken): AndroidViewM
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private val language: MutableLiveData<Language> by lazy {
-        MutableLiveData<Language>().also { it.value = UserSettings.instance.currentLanguage }
+        MutableLiveData<Language>().also {
+            it.value = UserSettings.instance.currentLanguage
+        }
     }
 
     fun getLanguage(): LiveData<Language> {
         return language
     }
-
 
     fun changeLanguage(to: Language) {
         val http = BoatClient.build(app, token)

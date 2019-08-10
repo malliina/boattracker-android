@@ -38,4 +38,22 @@
         <item name="android:elevation">4dp</item>
         <item name="android:theme">@style/ThemeOverlay.AppCompat.ActionBar</item>
     </style>
+
+    <style name="SubtitleText" parent="android:Widget.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceListItem</item>
+        <item name="android:textColor">@color/darkGray</item>
+        <item name="android:textSize">@dimen/text_sub</item>
+    </style>
+    <style name="ValueText" parent="android:Widget.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceListItem</item>
+        <item name="android:textSize">@dimen/text_sub</item>
+    </style>
 </resources>
