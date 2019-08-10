@@ -10,6 +10,7 @@ import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.ToJson
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
 import java.nio.charset.Charset
@@ -25,6 +26,7 @@ class PrimitiveAdapter {
     @FromJson fun boat(s: String): BoatName = BoatName(s)
     @FromJson fun token(s: String): BoatToken = BoatToken(s)
     @FromJson fun speed(s: Double): Speed = Speed(s)
+    @ToJson fun writeSpeed(s: Speed): Double = s.knots
     @FromJson fun distance(d: Double): Distance = Distance(d)
     @FromJson fun duration(d: Double): Duration = Duration(d)
     @FromJson fun temp(t: Double): Temperature = Temperature(t)
@@ -89,6 +91,7 @@ data class BoatToken(val token: String): Primitive {
 
 data class Speed(val knots: Double) {
     companion object {
+        val key = "speed"
         fun format(s: Speed): String = "%.2f kn".format(s.knots)
     }
 

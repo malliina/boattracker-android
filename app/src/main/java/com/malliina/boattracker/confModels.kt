@@ -264,6 +264,16 @@ data class ShipTypesLang(val wingInGround: String,
                          val unknown: String): Parcelable
 
 @Parcelize
+data class AisLayers(val vessel: String, val trail: String, val vesselIcon: String): Parcelable
+
+@Parcelize
+data class Layers(val marks: List<String>,
+                  val fairways: List<String>,
+                  val fairwayAreas: List<String>,
+                  val limits: List<String>,
+                  val ais: AisLayers): Parcelable
+
+@Parcelize
 data class Lang(val language: Language,
                 val appName: String,
                 val map: String,
@@ -291,4 +301,4 @@ data class Lang(val language: Language,
 data class Languages(val finnish: Lang, val swedish: Lang, val english: Lang): Parcelable
 
 @Parcelize
-data class ClientConf(val languages: Languages): Parcelable
+data class ClientConf(val languages: Languages, val layers: Layers): Parcelable

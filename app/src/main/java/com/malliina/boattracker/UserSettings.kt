@@ -6,7 +6,7 @@ class UserSettings {
     }
 
     var conf: ClientConf? = null
-    val languages: Languages? get() = conf?.languages
+    private val languages: Languages? get() = conf?.languages
     var profile: BoatUser? = null
         set(value)  {
             field = value

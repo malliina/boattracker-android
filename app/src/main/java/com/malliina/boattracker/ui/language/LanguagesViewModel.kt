@@ -32,6 +32,7 @@ class LanguagesViewModel(val app: Application, val token: IdToken): AndroidViewM
         return language
     }
 
+
     fun changeLanguage(to: Language) {
         val http = BoatClient.build(app, token)
         uiScope.launch {

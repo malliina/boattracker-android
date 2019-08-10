@@ -1,9 +1,6 @@
 package com.malliina.boattracker.ui.map
 
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -11,16 +8,17 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.gson.JsonObject
 import com.malliina.boattracker.*
+import com.malliina.boattracker.ui.Callouts
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
+import com.mapbox.geojson.Feature
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -33,7 +31,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import timber.log.Timber
-import androidx.core.content.ContextCompat
 
 class MapActivity: AppCompatActivity() {
     companion object {
@@ -41,8 +38,8 @@ class MapActivity: AppCompatActivity() {
         const val BoatIconId = "boat-resized-opt-30"
         const val BoatIconSize: Float = 0.7f
         const val profileCode = 101
-//        const val TrophyIconId = "trophy-14"
     }
+
     private lateinit var mapView: MapView
     private lateinit var viewModel: MapViewModel
     private var map: MapboxMap? = null
@@ -56,6 +53,8 @@ class MapActivity: AppCompatActivity() {
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
+    private var callouts: Callouts? = null
+
     enum class MapMode {
         Fit, Follow, Stay
     }
@@ -66,6 +65,7 @@ class MapActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        layoutInflater
         Timber.i("Hello, using token %s", BuildConfig.MapboxAccessToken)
         Mapbox.getInstance(this, BuildConfig.MapboxAccessToken)
         setContentView(R.layout.map_activity)
@@ -73,9 +73,12 @@ class MapActivity: AppCompatActivity() {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { map ->
             this.map = map
-            map.setStyle(Style.Builder().fromUri(StyleUrl), Style.OnStyleLoaded {
-
-            })
+            map.setStyle(Style.Builder().fromUri(StyleUrl)) {
+                viewModel.getConf().observe(this, Observer { conf ->
+                    callouts?.clear()
+                    callouts = Callouts(mapView, map, it, this, conf.layers)
+                })
+            }
         }
 
         // Observer code happens on the main thread
@@ -173,19 +176,20 @@ class MapActivity: AppCompatActivity() {
                 }
             }
             // Updates trophy
-            topSpeedMarkers[meta.trackName]?.let { active ->
-                val top = from.topPoint
-                if (active.topPoint.speed.knots < top.speed.knots) {
-                    fill(active.marker, top)
-                }
-            }
+//            style?.getSourceAs<GeoJsonSource>(meta.trophySource)?.let { source ->
+//                val top = from.topPoint
+//                source.querySourceFeatures(null).firstOrNull()?.let {
+//                    val oldSpeed = it.getNumberProperty(Speed.key).toDouble()
+//                    if (oldSpeed < top.speed.knots) {
+//                        updateTrophy(source, top)
+//                    }
+//                }
+//            }
         }
     }
 
-    private fun fill(marker: Marker, with: CoordBody) {
-        marker.title = with.speed.toString()
-        marker.snippet = with.boatTime
-        marker.position = with.coord.latLng()
+    private fun updateTrophy(src: GeoJsonSource, with: CoordBody) {
+        src.setGeoJson(topFeature(with))
     }
 
     private fun asLatLng(p: Point): LatLng = LatLng(p.latitude(), p.longitude())
@@ -215,23 +219,27 @@ class MapActivity: AppCompatActivity() {
                 style?.addLayer(symbol)
             }
             // Adds trophy
-            val icons = IconFactory.getInstance(this)
-            val options = MarkerOptions()
-                .position(topSpeed.coord.latLng())
-                .title(topSpeed.speed.formatted())
-                .snippet(topSpeed.boatTime)
-            val bitmap = svgToBitmap(this, R.drawable.ic_trophy)
-            val trophyOptions = if (bitmap != null) options.icon(icons.fromBitmap(bitmap)) else options
-            val marker = map.addMarker(trophyOptions)
-            topSpeedMarkers[meta.trackName] = ActiveMarker(marker, topSpeed)
+//            val icons = IconFactory.getInstance(this)
+//            val options = MarkerOptions()
+//                .position(topSpeed.coord.latLng())
+//                .title(topSpeed.speed.formatted())
+//                .snippet(topSpeed.boatTime)
+//            val bitmap = svgToBitmap(this, R.drawable.ic_trophy)
+//            val trophyOptions = if (bitmap != null) options.icon(icons.fromBitmap(bitmap)) else options
+//            val marker = map.addMarker(trophyOptions)
+
             // Adds trophy 2
-//            val trophySrcId = trophySourceId(trackName)
-//            val trophySource = GeoJsonSource(trophySrcId, topSpeed.coord.point())
-//            map.addSource(trophySource)
-//            val trophyId = trophyLayerId(trackName)
-//            val trophySymbol = SymbolLayer(trophyId, trophySrcId)
+//            val trophySrcId = meta.trophySource
+//            val trophySource = GeoJsonSource(trophySrcId, topFeature(topSpeed))
+//            style?.addSource(trophySource)
+//            val trophySymbol = SymbolLayer(meta.trophyLayer, trophySrcId)
 //                .withProperties(PropertyFactory.iconImage(TrophyIconId), PropertyFactory.iconSize(1.0f))
-//            map.addLayer(trophySymbol)
+//            style?.addLayer(trophySymbol)
+
+            // Adds trophy 3
+            callouts?.createTrophy(topSpeed)
+//            val opts = SymbolOptions().withLatLng(topSpeed.coord.latLng()).withIconImage(TrophyIconId)
+//            callouts?.create(opts)
             lineString
         } else {
             old.coordinates().addAll(coords)
@@ -239,24 +247,12 @@ class MapActivity: AppCompatActivity() {
         }
     }
 
-    // TODO move elsewhere
-    private fun svgToBitmap(context: Context, drawableId: Int): Bitmap? {
-        val drawable = ContextCompat.getDrawable(context, drawableId)
-        return if (drawable != null) {
-            val bitmap = Bitmap.createBitmap(
-                drawable.intrinsicWidth,
-                drawable.intrinsicHeight,
-                Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-            bitmap
-        } else {
-            null
+    private fun topFeature(top: CoordBody): Feature {
+        val json = JsonObject().apply {
+            addProperty(Speed.key, top.speed.knots)
         }
+        return Feature.fromGeometry(top.coord.point(), json)
     }
-
 
     fun profileClicked(button: View) {
         val u = mapState.user

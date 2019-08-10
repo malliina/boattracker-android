@@ -17,7 +17,7 @@ class BoatClient(val http: HttpClient) {
             val http = HttpClient.getInstance(ctx)
             return BoatClient(http)
         }
-        private val moshi: Moshi = Moshi.Builder().add(PrimitiveAdapter()).build()
+        private val moshi: Moshi = Json.moshi
         val userAdapter: JsonAdapter<UserResponse> = moshi.adapter(UserResponse::class.java)
         val confAdapter: JsonAdapter<ClientConf> = moshi.adapter(ClientConf::class.java)
         val tracksAdapter: JsonAdapter<TracksResponse> = moshi.adapter(TracksResponse::class.java)
@@ -33,7 +33,7 @@ class BoatClient(val http: HttpClient) {
     }
 
     suspend fun changeLanguage(to: Language): SimpleMessage {
-        return http.post(Env.baseUrl.append("/users/me"), ChangeLanguage(to.code), languageAdapter, messageAdapter)
+        return http.put(Env.baseUrl.append("/users/me"), ChangeLanguage(to.code), languageAdapter, messageAdapter)
     }
 
     suspend fun conf(): ClientConf {

@@ -49,16 +49,16 @@ class HttpClient(ctx: Context) {
         return adapter.readUrl(json.toString(), url)
     }
 
-    suspend fun <T, U> post(url: FullUrl, payload: T, request: JsonAdapter<T>, response: JsonAdapter<U>): U {
+    suspend fun <T, U> put(url: FullUrl, payload: T, request: JsonAdapter<T>, response: JsonAdapter<U>): U {
         val json = send(url, Request.Method.PUT, JSONObject(request.toJson(payload)))
         return response.read(json.toString())
     }
 
-    suspend fun postData(url: FullUrl, data: JSONObject): JSONObject {
+    suspend fun post(url: FullUrl, data: JSONObject): JSONObject {
         return makeWithRetry(RequestConf(Request.Method.POST, url, token, data))
     }
 
-    suspend fun send(url: FullUrl, method: Int, data: JSONObject): JSONObject {
+    private suspend fun send(url: FullUrl, method: Int, data: JSONObject): JSONObject {
         return makeWithRetry(RequestConf(method, url, token, data))
     }
 
