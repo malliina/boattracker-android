@@ -24,9 +24,12 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonClass
+import com.squareup.moshi.JsonDataException
 import kotlinx.coroutines.*
-import timber.log.Timber
+import kotlin.math.min
 
+@JsonClass(generateAdapter = true)
 data class TopSpeedInfo(val speed: Speed, val dateTime: String)
 
 class Callouts(mapView: MapView,
@@ -108,11 +111,11 @@ class Callouts(mapView: MapView,
     private suspend fun handleTrophyTap(latLng: LatLng): Boolean {
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
         features.firstOrNull { it.geometry()?.type() == "Point" }?.let {
-            speedAdapter.fromJson(
+            speedAdapter.readOpt(
                 gson.toJson(it.properties()?.getAsJsonObject(CustomDataKey)))?.let { info ->
                 val callout: BubbleLayout = activity.layoutInflater.inflate(R.layout.trophy, null) as BubbleLayout
-                callout.findViewById<TextView>(R.id.trophy_speed_text).text = info.speed.formatted()
-                callout.findViewById<TextView>(R.id.trophy_datetime_text).text = info.dateTime
+                callout.fill(R.id.trophy_speed_text, info.speed.formatted())
+                callout.fill(R.id.trophy_datetime_text, info.dateTime)
                 showCallout(latLng, callout)
                 return true
             }
@@ -124,20 +127,38 @@ class Callouts(mapView: MapView,
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng), *layers.marks.toTypedArray())
         features.map { f ->
             UserSettings.instance.lang?.let {lang ->
-                marineSymbolAdapter.fromJson(gson.toJson(f.properties()))?.let {
+                val jsonString = gson.toJson(f.properties())
+                marineSymbolAdapter.readOpt(jsonString)?.let {
                     val callout: BubbleLayout = activity.layoutInflater.inflate(R.layout.marine_symbol, null) as BubbleLayout
                     val markLang = lang.mark
 
-                    callout.findViewById<TextView>(R.id.mark_type_label).text = markLang.aidType
-                    callout.findViewById<TextView>(R.id.mark_nav_label).text = markLang.navigation
-                    callout.findViewById<TextView>(R.id.mark_location_label).text = markLang.location
-                    callout.findViewById<TextView>(R.id.mark_owner_label).text = markLang.owner
+                    callout.fill(R.id.mark_name_text, it.name(lang.language)?.value ?: "")
 
-                    callout.findViewById<TextView>(R.id.mark_name_text).text = it.name(lang.language)?.value ?: ""
-                    callout.findViewById<TextView>(R.id.mark_type_text).text = it.aidType.translate(markLang.aidTypes)
-                    callout.findViewById<TextView>(R.id.mark_nav_text).text = it.navMark.translate(markLang.navTypes)
-                    callout.findViewById<TextView>(R.id.mark_location_text).text = it.location(lang.language)?.value ?: ""
-                    callout.findViewById<TextView>(R.id.mark_owner_text).text = it.owner
+                    callout.fill(R.id.mark_type_label, markLang.aidType)
+                    callout.fill(R.id.mark_type_text, it.aidType.translate(markLang.aidTypes))
+
+                    it.construction?.let { construction ->
+                        callout.fill(R.id.mark_construction_label, markLang.construction)
+                        callout.fill(R.id.mark_construction_text, construction.translate(markLang.structures))
+                    }
+                    val constructionVisibility = if (it.construction == null) View.GONE else View.VISIBLE
+                    callout.findViewById<TextView>(R.id.mark_construction_label).visibility = constructionVisibility
+                    callout.findViewById<TextView>(R.id.mark_construction_text).visibility = constructionVisibility
+
+                    callout.fill(R.id.mark_nav_label, markLang.navigation)
+                    callout.fill(R.id.mark_nav_text, it.navMark.translate(markLang.navTypes))
+
+                    val loc = it.location(lang.language)
+                    loc?.let { location ->
+                        callout.fill(R.id.mark_location_label, markLang.location)
+                        callout.fill(R.id.mark_location_text, location.value)
+                    }
+                    val locationVisibility = if (loc == null) View.GONE else View.VISIBLE
+                    callout.findViewById<TextView>(R.id.mark_location_label).visibility = locationVisibility
+                    callout.findViewById<TextView>(R.id.mark_location_text).visibility = locationVisibility
+
+                    callout.fill(R.id.mark_owner_label, markLang.owner)
+                    callout.fill(R.id.mark_owner_text, it.owner)
 
                     showCallout(latLng, callout)
                     return true
@@ -145,6 +166,22 @@ class Callouts(mapView: MapView,
             }
         }
         return false
+    }
+
+    fun <T> JsonAdapter<T>.readOpt(jsonString: String): T? {
+        return try {
+            this.read(jsonString)
+        } catch (e: JsonDataException) {
+            null
+        }
+    }
+
+    fun <T> JsonAdapter<T>.read(jsonString: String): T {
+        return this.fromJson(jsonString) ?: throw JsonDataException("Moshi returned null for '$jsonString'.")
+    }
+
+    fun BubbleLayout.fill(id: Int, text: String) {
+        this.findViewById<TextView>(id).text = text
     }
 
     private suspend fun showCallout(latLng: LatLng, callout: BubbleLayout) {
@@ -180,8 +217,11 @@ class Callouts(mapView: MapView,
         val measuredWidth = view.measuredWidth
         val measuredHeight = view.measuredHeight
 
-        view.layout(0, 0, measuredWidth, measuredHeight)
-        val bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+        val w = min(measuredWidth, activity.resources.displayMetrics.widthPixels)
+//        val h = min(measuredHeight, 200)
+        val h = measuredHeight
+        view.layout(0, 0, w, h)
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.TRANSPARENT)
         val canvas = Canvas(bitmap)
         view.draw(canvas)

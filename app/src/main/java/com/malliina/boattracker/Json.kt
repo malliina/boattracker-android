@@ -15,7 +15,10 @@ class Json {
         val moshi: Moshi get() = instance.moshi
     }
 
-    val moshi: Moshi = Moshi.Builder().add(PrimitiveAdapter()).add(MarineAdapter()).build()
+    val moshi: Moshi = Moshi.Builder()
+        .add(PrimitiveAdapter())
+        .add(MarineAdapter())
+        .build()
 }
 
 class PrimitiveAdapter {

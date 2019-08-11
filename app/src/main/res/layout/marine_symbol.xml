@@ -2,7 +2,8 @@
 <com.mapbox.mapboxsdk.annotations.BubbleLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
+    android:layout_weight="1"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="6dp"
@@ -47,16 +48,30 @@
             tools:text="Prick" />
 
         <TextView style="@style/SubtitleText"
+            android:id="@+id/mark_construction_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mark_type_text"
+            tools:text="Struktur" />
+
+        <TextView style="@style/ValueText"
+            android:id="@+id/mark_construction_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintTop_toBottomOf="@id/mark_type_text"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Isboj" />
+
+        <TextView style="@style/SubtitleText"
             android:id="@+id/mark_nav_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mark_type_label"
+            app:layout_constraintTop_toBottomOf="@id/construction_barrier"
             tools:text="Navigering" />
 
         <TextView style="@style/ValueText"
             android:id="@+id/mark_nav_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/barrier"
-            app:layout_constraintTop_toBottomOf="@id/mark_type_text"
+            app:layout_constraintTop_toBottomOf="@id/construction_barrier"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Lateral" />
 
@@ -74,11 +89,10 @@
             app:layout_constraintHorizontal_bias="0"
             tools:text="NO om Melkö" />
 
-        <TextView
-            style="@style/SubtitleText"
+        <TextView style="@style/SubtitleText"
             android:id="@+id/mark_owner_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mark_location_label"
+            app:layout_constraintTop_toBottomOf="@id/location_barrier"
             tools:text="Ägare" />
 
         <TextView style="@style/ValueText"
@@ -86,7 +100,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/barrier"
-            app:layout_constraintTop_toBottomOf="@id/mark_location_text"
+            app:layout_constraintTop_toBottomOf="@id/location_barrier"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Helsingfors stad" />
 
@@ -95,6 +109,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="end"
-            app:constraint_referenced_ids="mark_type_label,mark_nav_label,mark_location_label,mark_owner_label"/>
+            app:constraint_referenced_ids="mark_type_label,mark_construction_label,mark_nav_label,mark_location_label,mark_owner_label"/>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/construction_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="mark_type_text,mark_construction_text"/>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/location_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="mark_location_label,mark_nav_label"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.mapbox.mapboxsdk.annotations.BubbleLayout>
