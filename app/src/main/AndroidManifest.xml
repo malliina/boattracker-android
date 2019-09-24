@@ -33,7 +33,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <!-- https://firebase.google.com/docs/cloud-messaging/android/client -->
+        <!-- https://firebase.google.com/docs/cloud-messaging/android/client#prevent-auto-init -->
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
             android:value="false" />

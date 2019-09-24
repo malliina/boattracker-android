@@ -4,6 +4,9 @@ import android.os.Parcelable
 import com.squareup.moshi.JsonClass
 import kotlinx.android.parcel.Parcelize
 
+@JsonClass(generateAdapter = true)
+data class Foo(val bar: String)
+
 @Parcelize
 @JsonClass(generateAdapter = true)
 data class ProfileInfo(val email: Email,
