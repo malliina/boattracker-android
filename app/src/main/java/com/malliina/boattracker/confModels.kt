@@ -1,12 +1,16 @@
 package com.malliina.boattracker
 
 import android.os.Parcelable
+import com.squareup.moshi.JsonClass
 import kotlinx.android.parcel.Parcelize
 
+@JsonClass(generateAdapter = true)
+data class Foo(val bar: String)
+
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class ProfileInfo(val email: Email,
                        val token: IdToken,
-                       val lang: Lang,
                        val trackName: TrackName?): Parcelable {
     companion object {
         const val key = "profile"
@@ -14,14 +18,17 @@ data class ProfileInfo(val email: Email,
 }
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class Link(val text: String, val url: FullUrl): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class AppAttribution(val title: String,
                           val text: String?,
                           val links: List<Link>): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class AttributionInfo(val title: String,
                            val attributions: List<AppAttribution>): Parcelable {
     companion object {
@@ -30,6 +37,7 @@ data class AttributionInfo(val title: String,
 }
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class FairwayStateLang(val confirmed: String,
                             val aihio: String,
                             val mayChange: String,
@@ -38,9 +46,11 @@ data class FairwayStateLang(val confirmed: String,
                             val removed: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class ZonesLang(val area: String, val fairway: String, val areaAndFairway: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class FairwayTypesLang(val navigation: String,
                             val anchoring: String,
                             val meetup: String,
@@ -56,6 +66,7 @@ data class FairwayTypesLang(val navigation: String,
                             val pilot: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class FairwayLang(val fairwayType: String,
                        val fairwayDepth: String,
                        val harrowDepth: String,
@@ -67,9 +78,11 @@ data class FairwayLang(val fairwayType: String,
                        val types: FairwayTypesLang): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class AisLang(val draft: String, val destination: String, val shipType: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class TrackLang(val track: String,
                      val boats: String,
                      val tracks: String,
@@ -91,9 +104,11 @@ data class TrackLang(val track: String,
 }
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class MarkTypeLang(val lateral: String, val cardinal: String, val unknown: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class AidTypeLang(val unknown: String,
                        val lighthouse: String,
                        val sectorLight: String,
@@ -109,6 +124,7 @@ data class AidTypeLang(val unknown: String,
                        val cairn: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class NavMarkLang(val left: String,
                        val right: String,
                        val north: String,
@@ -122,6 +138,7 @@ data class NavMarkLang(val left: String,
                        val unknown: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class ConstructionLang(val buoyBeacon: String,
                             val iceBuoy: String,
                             val beaconBuoy: String,
@@ -143,6 +160,7 @@ data class ConstructionLang(val buoyBeacon: String,
                             val tower: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class MarkLang(val markType: String,
                     val aidType: String,
                     val navigation: String,
@@ -156,6 +174,7 @@ data class MarkLang(val markType: String,
                     val aidTypes: AidTypeLang): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class SpecialWords(val transportAgency: String,
                         val defenceForces: String,
                         val portOfHelsinki: String,
@@ -163,6 +182,7 @@ data class SpecialWords(val transportAgency: String,
                         val cityOfEspoo: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class ProfileLang(val username: String,
                        val signedInAs: String,
                        val logout: String,
@@ -170,21 +190,28 @@ data class ProfileLang(val username: String,
                        val language: String,
                        val finnish: String,
                        val swedish: String,
-                       val english: String): Parcelable
+                       val english: String): Parcelable {
+    companion object {
+        val key = "lang.profile"
+    }
+}
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class MessagesLang(val loading: String,
                         val failedToLoadProfile: String,
                         val noSavedTracks: String,
                         val notAvailable: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class FormatsLang(val date: String,
                        val time: String,
                        val timeShort: String,
                        val dateTime: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class SettingsLang(val welcome: String,
                         val welcomeText: String,
                         val laterText: String,
@@ -205,9 +232,14 @@ data class SettingsLang(val welcome: String,
                         val done: String,
                         val back: String,
                         val noTracksHelp: String,
-                        val formats: FormatsLang): Parcelable
+                        val formats: FormatsLang): Parcelable {
+    companion object {
+        val key = "lang.settings"
+    }
+}
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class LimitTypes(val speedLimit: String,
                       val noWaves: String,
                       val noWindSurfing: String,
@@ -221,6 +253,7 @@ data class LimitTypes(val speedLimit: String,
                       val speedRecommendation: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class LimitLang(val limit: String,
                      val magnitude: String,
                      val length: String,
@@ -230,6 +263,7 @@ data class LimitLang(val limit: String,
                      val types: LimitTypes): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class SpecialCategory(val fishing: String,
                            val tug: String,
                            val dredger: String,
@@ -239,6 +273,7 @@ data class SpecialCategory(val fishing: String,
                            val pleasureCraft: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class ShipTypesLang(val wingInGround: String,
                          val highSpeedCraft: String,
                          val pilotVessel: String,
@@ -257,6 +292,19 @@ data class ShipTypesLang(val wingInGround: String,
                          val unknown: String): Parcelable
 
 @Parcelize
+@JsonClass(generateAdapter = true)
+data class AisLayers(val vessel: String, val trail: String, val vesselIcon: String): Parcelable
+
+@Parcelize
+@JsonClass(generateAdapter = true)
+data class Layers(val marks: List<String>,
+                  val fairways: List<String>,
+                  val fairwayAreas: List<String>,
+                  val limits: List<String>,
+                  val ais: AisLayers): Parcelable
+
+@Parcelize
+@JsonClass(generateAdapter = true)
 data class Lang(val language: Language,
                 val appName: String,
                 val map: String,
@@ -281,7 +329,9 @@ data class Lang(val language: Language,
 }
 
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class Languages(val finnish: Lang, val swedish: Lang, val english: Lang): Parcelable
 
 @Parcelize
-data class ClientConf(val languages: Languages): Parcelable
+@JsonClass(generateAdapter = true)
+data class ClientConf(val languages: Languages, val layers: Layers): Parcelable

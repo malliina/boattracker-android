@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.malliina.boattracker.MessagesLang
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackLang
 import com.malliina.boattracker.TrackRef
@@ -61,8 +62,8 @@ class TrackSummaryBox: ConstraintLayout {
         date.label = trackLang.date
     }
 
-    fun fill(track: TrackRef) {
-        val na = context.getString(R.string.na)
+    fun fill(track: TrackRef, messages: MessagesLang) {
+        val na = messages.notAvailable
         duration.value = track.duration.formatted()
         distance.value = track.distanceMeters.formatted()
         topSpeed.value = track.topSpeed?.formatted() ?: na

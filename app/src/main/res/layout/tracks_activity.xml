@@ -6,13 +6,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     <androidx.appcompat.widget.Toolbar
-            style="@style/BoatToolbar"
-            android:id="@+id/tracks_toolbar"
-            app:title="@string/tracks"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+        style="@style/BoatToolbar"
+        android:id="@+id/tracks_toolbar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:title="Tracks"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tracks_view"
         android:scrollbars="vertical"

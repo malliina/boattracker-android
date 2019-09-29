@@ -51,7 +51,7 @@ class PushService(ctx: Context) {
         val path = if (isEnabled) "/users/notifications" else "/users/notifications/disable"
         scope.launch {
             try {
-                val response = http.postData(Env.baseUrl.append(path), payload(token))
+                val response = http.post(Env.baseUrl.append(path), payload(token))
                 Timber.i("Toggled notifications to $isEnabled, response was '$response'. Token was '$token'.")
             } catch(e: ResponseException) {
                 Timber.e(e, "HTTP errors: ${e.errors()}")

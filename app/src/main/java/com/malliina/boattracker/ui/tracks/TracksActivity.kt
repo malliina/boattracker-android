@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -23,21 +24,19 @@ interface TrackDelegate {
 class TracksActivity: AppCompatActivity(), TrackDelegate {
     private lateinit var viewAdapter: TracksAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
-
     private lateinit var viewModel: TracksViewModel
-
-    private lateinit var trackLang: TrackLang
+    private lateinit var lang: Lang
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.tracks_toolbar))
         setContentView(R.layout.tracks_activity)
 
-        trackLang = intent.getParcelableExtra(TrackLang.key)
+        lang = intent.getParcelableExtra(Lang.key)
         val token: IdToken = intent.getParcelableExtra(IdToken.key)
 
         viewManager = LinearLayoutManager(this)
-        viewAdapter = TracksAdapter(emptyList(), this, trackLang)
+        viewAdapter = TracksAdapter(emptyList(), this, lang)
         findViewById<RecyclerView>(R.id.tracks_view).apply {
             setHasFixedSize(false)
             layoutManager = viewManager
@@ -50,6 +49,7 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
             viewAdapter.tracks = tracks ?: emptyList()
             viewAdapter.notifyDataSetChanged()
         })
+        findViewById<Toolbar>(R.id.tracks_toolbar).title = lang.track.tracks
     }
 
     // https://stackoverflow.com/a/1124988
@@ -62,8 +62,12 @@ class TracksActivity: AppCompatActivity(), TrackDelegate {
     }
 }
 
-class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDelegate, val lang: TrackLang): RecyclerView.Adapter<TracksAdapter.TrackHolder>() {
+class TracksAdapter(var tracks: List<TrackRef>,
+                    private val delegate: TrackDelegate,
+                    private val lang: Lang): RecyclerView.Adapter<TracksAdapter.TrackHolder>() {
     class TrackHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
+
+    private val trackLang = lang.track
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
         val layout = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false) as ConstraintLayout
@@ -71,7 +75,6 @@ class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDeleg
     }
 
     override fun onBindViewHolder(th: TrackHolder, position: Int) {
-        val ctx = th.itemView.context
         val track = tracks[position]
         val layout = th.layout
         layout.setOnClickListener {
@@ -79,9 +82,9 @@ class TracksAdapter(var tracks: List<TrackRef>, private val delegate: TrackDeleg
         }
         layout.date_text.text = track.times.start.date
         layout.title_text.text = track.trackTitle?.name ?: ""
-        layout.first.fill(lang.distance, track.distanceMeters.formatted())
-        layout.second.fill(lang.duration, track.duration.formatted())
-        layout.third.fill(lang.topSpeed, track.topSpeed?.formatted() ?: ctx.getString(R.string.na))
+        layout.first.fill(trackLang.distance, track.distanceMeters.formatted())
+        layout.second.fill(trackLang.duration, track.duration.formatted())
+        layout.third.fill(trackLang.topSpeed, track.topSpeed?.formatted() ?: lang.messages.notAvailable)
     }
 
     override fun getItemCount(): Int = tracks.size
