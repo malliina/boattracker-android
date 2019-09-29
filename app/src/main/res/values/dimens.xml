@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="date_text">18sp</dimen>
+    <dimen name="text_xl">18sp</dimen>
     <dimen name="text_sub">14sp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="stat_margin">8dp</dimen>

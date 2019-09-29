@@ -35,7 +35,7 @@
         tools:text="Evening ride"/>
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
+        android:id="@+id/label_end_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/second"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier"/>
+        app:layout_constraintTop_toBottomOf="@id/label_end_barrier"/>
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/second"

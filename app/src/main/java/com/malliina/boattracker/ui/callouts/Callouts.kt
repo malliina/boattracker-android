@@ -32,6 +32,7 @@ import kotlin.math.min
 @JsonClass(generateAdapter = true)
 data class TopSpeedInfo(val speed: Speed, val dateTime: String)
 
+// https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
 class Callouts(mapView: MapView,
                val map: MapboxMap,
                val style: Style,
@@ -168,7 +169,7 @@ class Callouts(mapView: MapView,
         return false
     }
 
-    fun <T> JsonAdapter<T>.readOpt(jsonString: String): T? {
+    private fun <T> JsonAdapter<T>.readOpt(jsonString: String): T? {
         return try {
             this.read(jsonString)
         } catch (e: JsonDataException) {
@@ -176,11 +177,11 @@ class Callouts(mapView: MapView,
         }
     }
 
-    fun <T> JsonAdapter<T>.read(jsonString: String): T {
+    private fun <T> JsonAdapter<T>.read(jsonString: String): T {
         return this.fromJson(jsonString) ?: throw JsonDataException("Moshi returned null for '$jsonString'.")
     }
 
-    fun BubbleLayout.fill(id: Int, text: String) {
+    private fun BubbleLayout.fill(id: Int, text: String) {
         this.findViewById<TextView>(id).text = text
     }
 
@@ -202,29 +203,29 @@ class Callouts(mapView: MapView,
 
     private suspend fun calloutBitmap(callout: BubbleLayout): Bitmap {
         return withContext(Dispatchers.IO) {
-            val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            callout.measure(measureSpec, measureSpec)
-            val measuredWidth = callout.measuredWidth
-            callout.arrowPosition = 1.0f * measuredWidth / 2 - 5
             toBitmap(callout)
         }
     }
 
-    private fun toBitmap(view: View): Bitmap {
-        val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        view.measure(measureSpec, measureSpec)
+    private fun toBitmap(callout: BubbleLayout): Bitmap {
+        val display = activity.resources.displayMetrics
+        val displayWidth = display.widthPixels
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(displayWidth, View.MeasureSpec.AT_MOST)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(display.heightPixels, View.MeasureSpec.AT_MOST)
+        callout.measure(widthSpec, heightSpec)
 
-        val measuredWidth = view.measuredWidth
-        val measuredHeight = view.measuredHeight
+        val measuredWidth = callout.measuredWidth
+        val measuredHeight = callout.measuredHeight
 
-        val w = min(measuredWidth, activity.resources.displayMetrics.widthPixels)
-//        val h = min(measuredHeight, 200)
+        val w = min(measuredWidth, displayWidth)
+        // In the middle, I guess.
+        callout.arrowPosition = 1.0f * w / 2 - 5
         val h = measuredHeight
-        view.layout(0, 0, w, h)
+        callout.layout(0, 0, w, h)
         val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.TRANSPARENT)
         val canvas = Canvas(bitmap)
-        view.draw(canvas)
+        callout.draw(canvas)
         return bitmap
     }
 

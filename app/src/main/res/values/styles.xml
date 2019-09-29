@@ -56,4 +56,12 @@
         <item name="android:textAppearance">?attr/textAppearanceListItem</item>
         <item name="android:textSize">@dimen/text_sub</item>
     </style>
+    <style name="BigValueText" parent="android:Widget.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceListItem</item>
+        <item name="android:textSize">@dimen/text_xl</item>
+    </style>
 </resources>

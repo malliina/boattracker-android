@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.mapbox.mapboxsdk.annotations.BubbleLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.mapbox.mapboxsdk.annotations.BubbleLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
@@ -13,7 +14,6 @@
     android:paddingStart="8dp"
     app:mapbox_bl_arrowDirection="bottom"
     app:mapbox_bl_arrowHeight="8dp"
-    app:mapbox_bl_arrowPosition="16dp"
     app:mapbox_bl_arrowWidth="8dp"
     app:mapbox_bl_bubbleColor="@android:color/white"
     app:mapbox_bl_cornersRadius="6dp"
@@ -26,11 +26,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp">
 
-        <TextView style="@style/ValueText"
+        <TextView style="@style/BigValueText"
             android:id="@+id/mark_name_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:paddingBottom="8dp"
             tools:text="Melkörev" />
 
         <TextView style="@style/SubtitleText"
@@ -42,7 +43,7 @@
         <TextView style="@style/ValueText"
             android:id="@+id/mark_type_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/mark_name_text"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Prick" />
@@ -56,7 +57,7 @@
         <TextView style="@style/ValueText"
             android:id="@+id/mark_construction_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/mark_type_text"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Isboj" />
@@ -70,7 +71,7 @@
         <TextView style="@style/ValueText"
             android:id="@+id/mark_nav_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/barrier"
+            app:layout_constraintStart_toStartOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/construction_barrier"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Lateral" />
@@ -83,11 +84,11 @@
 
         <TextView style="@style/ValueText"
             android:id="@+id/mark_location_text"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/barrier"
             app:layout_constraintTop_toBottomOf="@id/mark_nav_text"
             app:layout_constraintHorizontal_bias="0"
-            tools:text="NO om Melkö" />
+            tools:text="NO om Melkö jdshfdks hfdkshf dksjhfds df df sdf df sdfdsf dsfs fdsf dsf dsfsd fds" />
 
         <TextView style="@style/SubtitleText"
             android:id="@+id/mark_owner_label"
@@ -97,15 +98,15 @@
 
         <TextView style="@style/ValueText"
             android:id="@+id/mark_owner_text"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/barrier"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/location_barrier"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Helsingfors stad" />
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier"
+            android:id="@+id/label_end_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="end"
@@ -115,12 +116,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="mark_type_text,mark_construction_text"/>
+            app:constraint_referenced_ids="mark_construction_label,mark_construction_text"/>
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/location_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="mark_location_label,mark_nav_label"/>
+            app:constraint_referenced_ids="mark_location_label,mark_location_text"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.mapbox.mapboxsdk.annotations.BubbleLayout>
