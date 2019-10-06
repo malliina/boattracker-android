@@ -96,8 +96,10 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
 
     fun openSocket(token: IdToken?, trackName: TrackName?) {
         socket?.disconnect()
-        socket = BoatSocket.token(token, trackName, this)
-        socket?.connect()
+        socket = BoatSocket.token(token, trackName, this, app.applicationContext)
+        uiScope.launch {
+            socket?.connectWithRetry()
+        }
     }
 
     fun reconnect() {

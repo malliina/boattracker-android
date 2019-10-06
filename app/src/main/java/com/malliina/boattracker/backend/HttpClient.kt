@@ -20,9 +20,11 @@ import kotlin.coroutines.resumeWithException
 
 class HttpClient(ctx: Context) {
     companion object {
+        const val Authorization = "Authorization"
+
         fun headers(token: IdToken?): Map<String, String> {
-            val acceptPair = "Accept" to "application/vnd.musicpimp.v2+json"
-            return if (token != null) mapOf("Authorization" to "bearer $token", acceptPair) else mapOf(acceptPair)
+            val acceptPair = "Accept" to "application/json"
+            return if (token != null) mapOf(Authorization to "bearer $token", acceptPair) else mapOf(acceptPair)
         }
 
         @Volatile
@@ -96,8 +98,10 @@ class HttpClient(ctx: Context) {
         }) {
         private val httpMethod = conf.method
         private val csrf =
-            if (httpMethod == Method.POST || httpMethod == Method.PUT || httpMethod == Method.DELETE) mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
-            else emptyMap()
+            if (httpMethod == Method.POST || httpMethod == Method.PUT || httpMethod == Method.DELETE)
+                mapOf("Csrf-Token" to "nocheck", "Content-Type" to "application/json")
+            else
+                emptyMap()
         override fun getHeaders(): Map<String, String> = headers(conf.token).plus(csrf)
     }
 }
