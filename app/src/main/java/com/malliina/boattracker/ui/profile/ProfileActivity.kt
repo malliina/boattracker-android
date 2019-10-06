@@ -5,12 +5,12 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.button.MaterialButton
 import com.malliina.boattracker.*
@@ -65,21 +65,18 @@ class ProfileActivity: AppCompatActivity() {
 
     private fun toggleSummary(state: LoadState) {
         val summary = findViewById<TrackSummaryBox>(R.id.track_summary)
-        val shimmer = findViewById<ShimmerFrameLayout>(R.id.shimmer_view_container)
+        val progress = findViewById<ProgressBar>(R.id.summary_progressbar)
         when (state) {
             LoadState.Loading -> {
-                shimmer.startShimmer()
+                progress.visibility = View.VISIBLE
                 summary.visibility = View.INVISIBLE
-                shimmer.visibility = View.VISIBLE
             }
             LoadState.Loaded -> {
-                shimmer.stopShimmer()
-                shimmer.visibility = View.INVISIBLE
+                progress.visibility = View.INVISIBLE
                 summary.visibility = View.VISIBLE
             }
             LoadState.NotLoaded -> {
-                shimmer.stopShimmer()
-                shimmer.visibility = View.INVISIBLE
+                progress.visibility = View.INVISIBLE
                 summary.visibility = View.INVISIBLE
             }
         }

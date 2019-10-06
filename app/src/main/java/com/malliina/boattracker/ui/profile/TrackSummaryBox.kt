@@ -36,22 +36,12 @@ class TrackSummaryBox: ConstraintLayout {
     private fun init() {
         View.inflate(context, R.layout.track_summary, this)
         duration = findViewById(R.id.duration)
-//        initLabel(duration, R.string.duration)
         distance = findViewById(R.id.distance)
-//        initLabel(distance, R.string.distance)
         topSpeed = findViewById(R.id.topSpeed)
-//        initLabel(topSpeed, R.string.topSpeed)
         avgSpeed = findViewById(R.id.avgSpeed)
-//        initLabel(avgSpeed, R.string.avgSpeed)
         waterTemp = findViewById(R.id.waterTemp)
-//        initLabel(waterTemp, R.string.waterTemp)
         date = findViewById(R.id.date)
-//        initLabel(date, R.string.date)
     }
-
-//    private fun initLabel(box: StatBox, labelRes: Int) {
-//        box.label = context.getString(labelRes)
-//    }
 
     fun fillLabels(trackLang: TrackLang) {
         duration.label = trackLang.duration

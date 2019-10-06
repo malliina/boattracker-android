@@ -17,18 +17,15 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             tools:title="Boat-Tracker"/>
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmer_view_container"
+        <ProgressBar
+            android:id="@+id/summary_progressbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:indeterminate="true"
             android:visibility="invisible"
             app:layout_constraintTop_toBottomOf="@id/profile_toolbar"
-            app:shimmer_auto_start="false">
-            <com.malliina.boattracker.ui.profile.TrackSummaryBox
-                android:id="@+id/summary_template"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </com.facebook.shimmer.ShimmerFrameLayout>
+            app:layout_constraintBottom_toTopOf="@id/tracks_link"
+            />
         <com.malliina.boattracker.ui.profile.TrackSummaryBox
             android:id="@+id/track_summary"
             android:layout_width="match_parent"
@@ -42,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:onClick="tracksClicked"
-            app:layout_constraintTop_toBottomOf="@id/shimmer_view_container"
+            app:layout_constraintTop_toBottomOf="@id/track_summary"
             app:layout_constraintBottom_toTopOf="@id/boats_link"
             app:layout_constraintVertical_chainStyle="spread_inside"
             tools:text="Tracks"/>

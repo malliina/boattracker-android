@@ -12,6 +12,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
@@ -55,7 +56,7 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Timber.i("Got activity result with $requestCode.")
+        Timber.i("Got activity result of request $requestCode. Result code $resultCode.")
         if (requestCode == requestCodeSignIn) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
@@ -69,7 +70,8 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
             Timber.i("Sign in success.")
             updateUI(user)
         } catch (e: ApiException) {
-            Timber.w(e, "Sign in failed. Code ${e.statusCode}.")
+            val str = CommonStatusCodes.getStatusCodeString(e.statusCode)
+            Timber.w(e, "Sign in failed. Code ${e.statusCode}. $str.")
             updateFeedback("Sign in failed.")
         }
     }
