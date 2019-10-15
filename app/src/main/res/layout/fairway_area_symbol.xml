@@ -43,7 +43,7 @@
         <TextView style="@style/ValueText"
             android:id="@+id/fairway_area_type_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/fairway_area_owner_text"
             app:layout_constraintHorizontal_bias="0"
             tools:text="Navigeringsområde" />
@@ -53,11 +53,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fairway_area_type_text"
             tools:text="Farledens djup" />
-
         <TextView style="@style/ValueText"
             android:id="@+id/fairway_area_depth_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/fairway_area_type_text"
             app:layout_constraintHorizontal_bias="0"
             tools:text="1.2m" />
@@ -66,18 +65,62 @@
             android:id="@+id/fairway_area_harrow_depth_label"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fairway_area_depth_text"
-            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Ramat djup" />
-
         <TextView style="@style/ValueText"
             android:id="@+id/fairway_area_harrow_depth_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/fairway_area_depth_text"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0"
             tools:text="1.8m" />
 
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_area_limits_label"
+            app:layout_constraintTop_toBottomOf="@id/fairway_area_harrow_depth_text"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Begränsningar" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_area_limits_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/fairway_area_harrow_depth_text"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Hastighetsbegränsning" />
+
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_area_speed_limit_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fairway_area_limits_label"
+            tools:text="Farledens djup" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_area_speed_limit_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/fairway_area_limits_text"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="30 km/h" />
+
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_area_limit_name_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/speed_barrier"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Farledens namn" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_area_limit_name_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/speed_barrier"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Helsingin Länsisatama farled" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/speed_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="fairway_area_speed_limit_label,fairway_area_speed_limit_text"/>
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/label_end_barrier"
             android:layout_width="wrap_content"

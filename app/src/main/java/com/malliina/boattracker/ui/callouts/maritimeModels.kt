@@ -295,7 +295,7 @@ data class LimitAreaJson(
     val VAY_NIMISU: String,
     val IRROTUS_PV: String
 ) {
-    fun toDouble(d: String): Double = try {
+    private fun toDouble(d: String): Double = try {
         d.toDouble()
     } catch(e: NumberFormatException) {
         fail("Expected double, got: '$d'.")
@@ -304,7 +304,7 @@ data class LimitAreaJson(
     fun toLimitArea() = LimitArea(
         RAJOITUSTY.split(", ").map { LimitType.limitType(it) },
         toDouble(SUURUUS).kmh(),
-        toDouble(PITUUS).meters(),
+        if (PITUUS.isEmpty()) null else toDouble(PITUUS).meters(),
         MERK_VAST,
         NIMI_SIJAI,
         VAY_NIMISU,

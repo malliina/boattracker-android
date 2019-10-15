@@ -70,6 +70,9 @@ data class BoatToken(val token: String) : Primitive {
 }
 
 data class Speed(val knots: Double): Comparable<Speed> {
+    var inKmh = knots * knotInKmh
+    fun formatKmh(): String = "%.1f km/h".format(inKmh)
+    fun formatKmhInt(): String = "%.0f km/h".format(inKmh)
     override fun compareTo(other: Speed): Int {
         return compareValuesBy(this, other, { it.knots})
     }

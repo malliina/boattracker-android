@@ -57,6 +57,8 @@ class Callouts(
             Json.moshi.adapter(MarineSymbol::class.java)
         val fairwayAreaAdapter: JsonAdapter<FairwayArea> =
             Json.moshi.adapter(FairwayArea::class.java)
+        val limitAreaAdapter: JsonAdapter<LimitArea> =
+            Json.moshi.adapter(LimitArea::class.java)
     }
 
     private val calloutImages: MutableMap<String, Bitmap> = mutableMapOf()
@@ -116,7 +118,7 @@ class Callouts(
     private suspend fun onMapClick(latLng: LatLng): Boolean {
         val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
         if (maybePrevious == null) {
-            val callout = trophyCallout(latLng) ?: marksCallout(latLng) ?: areaCallout(latLng)
+            val callout = trophyCallout(latLng) ?: marksCallout(latLng) ?: areaCallout(latLng) ?: limitCallout(latLng)
             callout?.let {
                 showCallout(latLng, it)
             }
@@ -173,10 +175,29 @@ class Callouts(
                         R.layout.fairway_area_symbol,
                         null
                     ) as FairwayAreaCallout
-                callout.fill(area, lang.fairway)
+                callout.fill(area, limitAreaInfo(latLng), lang)
                 return callout
             }
         }
+        return null
+    }
+
+    private fun limitCallout(latLng: LatLng): FairwayLimitCallout? {
+        limitAreaInfo(latLng)?.let { limit ->
+            val callout: FairwayLimitCallout =
+                activity.layoutInflater.inflate(R.layout.fairway_limit_symbol, null) as FairwayLimitCallout
+            callout.fill(limit, lang.limits)
+            return callout
+        }
+        return null
+    }
+
+    private fun limitAreaInfo(latLng: LatLng): LimitArea? {
+        val features = map.queryRenderedFeatures(
+            map.projection.toScreenLocation(latLng),
+            *layers.limits.toTypedArray()
+        )
+        features.map { f -> limitAreaAdapter.readOpt(gson.toJson(f.properties()))?.let { return it } }
         return null
     }
 

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.malliina.boattracker.ui.callouts.FairwayLimitCallout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_weight="1"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="6dp"
+    android:paddingEnd="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingStart="8dp"
+    app:mapbox_bl_arrowDirection="bottom"
+    app:mapbox_bl_arrowHeight="8dp"
+    app:mapbox_bl_arrowWidth="8dp"
+    app:mapbox_bl_bubbleColor="@android:color/white"
+    app:mapbox_bl_cornersRadius="6dp"
+    app:mapbox_bl_strokeColor="@android:color/darker_gray"
+    app:mapbox_bl_strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_limits_label"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Begränsningar" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_limits_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Hastighetsbegränsning" />
+
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_speed_limit_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fairway_limits_label"
+            tools:text="Farledens djup" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_speed_limit_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/fairway_limits_text"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="30 km/h" />
+
+        <TextView style="@style/SubtitleText"
+            android:id="@+id/fairway_limit_name_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/speed_barrier"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Farledens namn" />
+        <TextView style="@style/ValueText"
+            android:id="@+id/fairway_limit_name_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/speed_barrier"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Helsingin Länsisatama farled" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/label_end_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="fairway_limits_label,fairway_speed_limit_label,fairway_limit_name_label"/>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/speed_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="fairway_speed_limit_label,fairway_speed_limit_text"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.malliina.boattracker.ui.callouts.FairwayLimitCallout>
