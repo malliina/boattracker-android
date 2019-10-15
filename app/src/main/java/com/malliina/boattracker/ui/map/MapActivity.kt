@@ -32,7 +32,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import timber.log.Timber
 
-class MapActivity: AppCompatActivity() {
+class MapActivity : AppCompatActivity() {
     companion object {
         const val StyleUrl = "mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
         const val BoatIconId = "boat-resized-opt-30"
@@ -65,8 +65,9 @@ class MapActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.i("Hello, using token %s", BuildConfig.MapboxAccessToken)
-        Mapbox.getInstance(this, BuildConfig.MapboxAccessToken)
+        val token = BuildConfig.MapboxAccessToken
+        Timber.i("Hello, using token %s", token)
+        Mapbox.getInstance(this, token)
         setContentView(R.layout.map_activity)
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
@@ -74,8 +75,11 @@ class MapActivity: AppCompatActivity() {
             this.map = map
             map.setStyle(Style.Builder().fromUri(StyleUrl)) {
                 viewModel.getConf().observe(this, Observer { conf ->
-                    callouts?.clear()
-                    callouts = Callouts(mapView, map, it, this, conf.layers)
+                    viewModel.getProfile().observe(this, Observer { profile ->
+                        val lang = settings.selectLanguage(profile.language, conf.languages)
+                        callouts?.clear()
+                        callouts = Callouts(mapView, map, it, this, conf.layers, lang)
+                    })
                 })
             }
         }
@@ -84,7 +88,9 @@ class MapActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         viewModel.getUser().observe(this, Observer { mapState ->
             mapState?.let { state ->
-                Timber.i("Got ${state.user?.email ?: "no email"} with track ${state.track ?: "no track"}")
+                Timber.i(
+                    "Got ${state.user?.email ?: "no email"} with track ${state.track ?: "no track"}"
+                )
                 this.mapState = state
                 viewModel.openSocket(state.user?.idToken, state.track)
                 findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
@@ -95,7 +101,7 @@ class MapActivity: AppCompatActivity() {
             UserSettings.instance.conf = conf
         })
         viewModel.getCoords().observe(this, Observer { coords ->
-            coords?.let { cs -> map?.let { m -> onCoords(cs, m) }  }
+            coords?.let { cs -> map?.let { m -> onCoords(cs, m) } }
         })
         viewModel.getProfile().observe(this, Observer { profile ->
             Timber.i("Using language ${profile.language}")
@@ -141,7 +147,7 @@ class MapActivity: AppCompatActivity() {
         val meta = TrackMeta(from.trackName)
 
         // Updates track
-        val lineString = updateOrCreateTrail(meta, coords.from.topPoint, newPoints, map)
+        val lineString = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)
         val trailSource = style?.getSourceAs<GeoJsonSource>(meta.trailSource)
         trailSource?.setGeoJson(lineString)
         val latLngs = lineString.coordinates().map { asLatLng(it) }
@@ -153,12 +159,16 @@ class MapActivity: AppCompatActivity() {
                         val bounds = LatLngBounds.Builder().includes(latLngs).build()
                         val durationMs = 2000
                         val padding = 20
-                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding), durationMs)
+                        map.animateCamera(
+                            CameraUpdateFactory.newLatLngBounds(bounds, padding),
+                            durationMs
+                        )
                         mapMode = MapMode.Follow
                     }
                 }
                 MapMode.Follow ->
-                    map.cameraPosition = CameraPosition.Builder().target(asLatLng(newPoints.last())).build()
+                    map.cameraPosition =
+                        CameraPosition.Builder().target(asLatLng(newPoints.last())).build()
                 MapMode.Stay ->
                     Unit
             }
@@ -171,29 +181,28 @@ class MapActivity: AppCompatActivity() {
                 val lastTwo = latLngs.takeLast(2)
                 if (lastTwo.size == 2) {
                     style?.getLayerAs<SymbolLayer>(meta.iconLayer)
-                        ?.setProperties(PropertyFactory.iconRotate(Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()))
+                        ?.setProperties(
+                            PropertyFactory.iconRotate(
+                                Geo.instance.bearing(
+                                    lastTwo[0],
+                                    lastTwo[1]
+                                ).toFloat()
+                            )
+                        )
                 }
             }
             // Updates trophy
-//            style?.getSourceAs<GeoJsonSource>(meta.trophySource)?.let { source ->
-//                val top = from.topPoint
-//                source.querySourceFeatures(null).firstOrNull()?.let {
-//                    val oldSpeed = it.getNumberProperty(Speed.key).toDouble()
-//                    if (oldSpeed < top.speed.knots) {
-//                        updateTrophy(source, top)
-//                    }
-//                }
-//            }
+            callouts?.updateIfFaster(from.topPoint, meta.trackName)
         }
-    }
-
-    private fun updateTrophy(src: GeoJsonSource, with: CoordBody) {
-        src.setGeoJson(topFeature(with))
     }
 
     private fun asLatLng(p: Point): LatLng = LatLng(p.latitude(), p.longitude())
 
-    private fun updateOrCreateTrail(meta: TrackMeta, topSpeed: CoordBody, coords: List<Point>, map: MapboxMap): LineString {
+    private fun updateOrCreateTrail(
+        meta: TrackMeta,
+        topSpeed: CoordBody,
+        coords: List<Point>
+    ): LineString {
         val old = trails[meta]
         return if (old == null) {
             // Adds trail
@@ -214,31 +223,14 @@ class MapActivity: AppCompatActivity() {
                 style?.addSource(iconSource)
                 val layerId = meta.iconLayer
                 val symbol = SymbolLayer(layerId, iconSourceId)
-                    .withProperties(PropertyFactory.iconImage(BoatIconId), PropertyFactory.iconSize(BoatIconSize))
+                    .withProperties(
+                        PropertyFactory.iconImage(BoatIconId),
+                        PropertyFactory.iconSize(BoatIconSize)
+                    )
                 style?.addLayer(symbol)
             }
             // Adds trophy
-//            val icons = IconFactory.getInstance(this)
-//            val options = MarkerOptions()
-//                .position(topSpeed.coord.latLng())
-//                .title(topSpeed.speed.formatted())
-//                .snippet(topSpeed.boatTime)
-//            val bitmap = svgToBitmap(this, R.drawable.ic_trophy)
-//            val trophyOptions = if (bitmap != null) options.icon(icons.fromBitmap(bitmap)) else options
-//            val marker = map.addMarker(trophyOptions)
-
-            // Adds trophy 2
-//            val trophySrcId = meta.trophySource
-//            val trophySource = GeoJsonSource(trophySrcId, topFeature(topSpeed))
-//            style?.addSource(trophySource)
-//            val trophySymbol = SymbolLayer(meta.trophyLayer, trophySrcId)
-//                .withProperties(PropertyFactory.iconImage(TrophyIconId), PropertyFactory.iconSize(1.0f))
-//            style?.addLayer(trophySymbol)
-
-            // Adds trophy 3
-            callouts?.createTrophy(topSpeed)
-//            val opts = SymbolOptions().withLatLng(topSpeed.coord.latLng()).withIconImage(TrophyIconId)
-//            callouts?.create(opts)
+            callouts?.createTrophy(topSpeed, meta.trackName)
             lineString
         } else {
             old.coordinates().addAll(coords)
@@ -284,7 +276,8 @@ class MapActivity: AppCompatActivity() {
                     viewModel.signInSilently(this)
                 }
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 

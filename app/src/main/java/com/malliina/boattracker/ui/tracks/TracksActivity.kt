@@ -82,7 +82,7 @@ class TracksAdapter(var tracks: List<TrackRef>,
         }
         layout.date_text.text = track.times.start.date
         layout.title_text.text = track.trackTitle?.name ?: ""
-        layout.first.fill(trackLang.distance, track.distanceMeters.formatted())
+        layout.first.fill(trackLang.distance, track.distanceMeters.formatKilometers())
         layout.second.fill(trackLang.duration, track.duration.formatted())
         layout.third.fill(trackLang.topSpeed, track.topSpeed?.formatted() ?: lang.messages.notAvailable)
     }

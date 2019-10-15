@@ -55,7 +55,7 @@ class TrackSummaryBox: ConstraintLayout {
     fun fill(track: TrackRef, messages: MessagesLang) {
         val na = messages.notAvailable
         duration.value = track.duration.formatted()
-        distance.value = track.distanceMeters.formatted()
+        distance.value = track.distanceMeters.formatKilometers()
         topSpeed.value = track.topSpeed?.formatted() ?: na
         avgSpeed.value = track.avgSpeed?.formatted() ?: na
         waterTemp.value = track.avgWaterTemp?.formatted() ?: na

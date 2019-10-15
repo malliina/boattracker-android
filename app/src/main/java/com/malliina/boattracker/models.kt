@@ -8,9 +8,6 @@ import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.backend.read
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.ToJson
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
 import java.nio.charset.Charset
@@ -25,13 +22,13 @@ data class PushToken(val token: String) {
 }
 
 @Parcelize
-data class Email(val email: String): Parcelable, Primitive {
+data class Email(val email: String) : Parcelable, Primitive {
     override val value: String get() = email
     override fun toString(): String = email
 }
 
 @Parcelize
-data class IdToken(val token: String): Parcelable, Primitive {
+data class IdToken(val token: String) : Parcelable, Primitive {
     companion object {
         const val key = "idToken"
     }
@@ -42,51 +39,63 @@ data class IdToken(val token: String): Parcelable, Primitive {
 
 data class UserInfo(val email: Email, val idToken: IdToken)
 
-data class Username(val name: String): Primitive {
+data class Username(val name: String) : Primitive {
     override val value: String get() = name
     override fun toString(): String = name
 }
 
 @Parcelize
-data class TrackName(val name: String): Parcelable, Primitive {
+data class TrackName(val name: String) : Parcelable, Primitive {
     companion object {
         const val key = "trackName"
     }
+
     override val value: String get() = name
     override fun toString(): String = name
 }
 
-data class TrackTitle(val name: String): Primitive {
+data class TrackTitle(val name: String) : Primitive {
     override val value: String get() = name
     override fun toString(): String = name
 }
 
-data class BoatName(val name: String): Primitive {
+data class BoatName(val name: String) : Primitive {
     override val value: String get() = name
     override fun toString() = name
 }
 
-data class BoatToken(val token: String): Primitive {
+data class BoatToken(val token: String) : Primitive {
     override val value: String get() = token
     override fun toString() = token
 }
 
-data class Speed(val knots: Double) {
+data class Speed(val knots: Double): Comparable<Speed> {
+    override fun compareTo(other: Speed): Int {
+        return compareValuesBy(this, other, { it.knots})
+    }
+
     companion object {
-        val key = "speed"
+        const val key = "speed"
+        const val knotInKmh = 1.852
         fun format(s: Speed): String = "%.2f kn".format(s.knots)
     }
 
     fun formatted(): String = format(this)
 
     override fun toString() = formatted()
+
 }
+
+fun Double.kmh(): Speed = Speed(this / Speed.knotInKmh)
 
 data class Distance(val meters: Double) {
-    fun formatted(): String = "%.2f km".format(meters / 1000)
+    fun formatKilometers(): String = "%.2f km".format(meters / 1000)
+    fun formatMeters(): String = "%.1f m".format(meters)
 
-    override fun toString() = formatted()
+    override fun toString() = formatKilometers()
 }
+
+fun Double.meters(): Distance = Distance(this)
 
 data class Duration(val seconds: Double) {
     companion object {
@@ -130,41 +139,49 @@ enum class Language(val code: String) {
 
 data class ChangeLanguage(val language: String)
 
-data class BoatUser(val id: Int,
-                    val username: Username,
-                    val email: String?,
-                    val language: Language,
-                    val boats: List<Boat>,
-                    val addedMillis: Long)
+data class BoatUser(
+    val id: Int,
+    val username: Username,
+    val email: String?,
+    val language: Language,
+    val boats: List<Boat>,
+    val addedMillis: Long
+)
 
 data class UserResponse(val user: BoatUser)
 
-data class Timing(val date: String,
-                  val time: String,
-                  val dateTime: String,
-                  val millis: Long)
+data class Timing(
+    val date: String,
+    val time: String,
+    val dateTime: String,
+    val millis: Long
+)
 
 data class Times(val start: Timing, val end: Timing, val range: String)
 
-data class TrackRef(val trackName: TrackName,
-                    val trackTitle: TrackTitle?,
-                    val boatName: BoatName,
-                    val times: Times,
-                    val distanceMeters: Distance,
-                    val topSpeed: Speed?,
-                    val avgSpeed: Speed?,
-                    val avgWaterTemp: Temperature?,
-                    val duration: Duration,
-                    val topPoint: CoordBody)
+data class TrackRef(
+    val trackName: TrackName,
+    val trackTitle: TrackTitle?,
+    val boatName: BoatName,
+    val times: Times,
+    val distanceMeters: Distance,
+    val topSpeed: Speed?,
+    val avgSpeed: Speed?,
+    val avgWaterTemp: Temperature?,
+    val duration: Duration,
+    val topPoint: CoordBody
+)
 
 data class TracksResponse(val tracks: List<TrackRef>)
 
-data class CoordBody(val coord: Coord,
-                     val boatTime: String,
-                     val boatTimeMillis: Long,
-                     val speed: Speed,
-                     val depthMeters: Distance,
-                     val waterTemp: Temperature)
+data class CoordBody(
+    val coord: Coord,
+    val boatTime: String,
+    val boatTimeMillis: Long,
+    val speed: Speed,
+    val depthMeters: Distance,
+    val waterTemp: Temperature
+)
 
 data class Coord(val lat: Double, val lng: Double) {
     fun latLng(): LatLng = LatLng(lat, lng)
@@ -174,7 +191,7 @@ data class Coord(val lat: Double, val lng: Double) {
 data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
 @Parcelize
-data class FullUrl(val proto: String, val hostAndPort: String, val uri: String): Parcelable {
+data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) : Parcelable {
     val host = hostAndPort.takeWhile { c -> c != ':' }
     val protoAndHost = "$proto://$hostAndPort"
     val url = "$protoAndHost$uri"
@@ -193,7 +210,8 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String):
         fun wss(domain: String, uri: String): FullUrl = FullUrl("wss", domain, uri)
 
         fun parse(input: String): FullUrl {
-            return build(input) ?: throw JSONException("Value $input cannot be converted to FullUrl")
+            return build(input)
+                ?: throw JSONException("Value $input cannot be converted to FullUrl")
         }
 
         fun build(input: String): FullUrl? {
@@ -218,7 +236,7 @@ data class SingleError(val key: String, val message: String)
 
 data class Errors(val errors: List<SingleError>)
 
-data class ResponseException(val error: VolleyError): Exception("Invalid response", error.cause) {
+data class ResponseException(val error: VolleyError) : Exception("Invalid response", error.cause) {
     val response: NetworkResponse = error.networkResponse
 
     fun errors(): Errors {

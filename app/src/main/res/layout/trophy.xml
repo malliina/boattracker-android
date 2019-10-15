@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.mapbox.mapboxsdk.annotations.BubbleLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.malliina.boattracker.ui.callouts.TrophyCallout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
@@ -50,4 +51,4 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="01.08.2019 10:28:12"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</com.mapbox.mapboxsdk.annotations.BubbleLayout>
+</com.malliina.boattracker.ui.callouts.TrophyCallout>

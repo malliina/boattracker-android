@@ -1,24 +1,38 @@
 package com.malliina.boattracker.ui.callouts
 
-import com.malliina.boattracker.AidTypeLang
-import com.malliina.boattracker.ConstructionLang
-import com.malliina.boattracker.Language
-import com.malliina.boattracker.NavMarkLang
+import com.malliina.boattracker.*
+import com.malliina.boattracker.Json.Companion.fail
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass
-import com.squareup.moshi.JsonDataException
 import timber.log.Timber
+import java.lang.NumberFormatException
 
 class MarineAdapter {
-    @FromJson fun navMark(d: Double): NavMark {
+    @FromJson
+    fun navMark(d: Double): NavMark {
         return NavMark.navMark(d)
     }
-    @FromJson fun aidType(d: Double): AidType {
+
+    @FromJson
+    fun aidType(d: Double): AidType {
         return AidType.aidType(d)
     }
-    @FromJson fun construction(d: Double): ConstructionInfo? {
-        return try { ConstructionInfo.build(d) }
-        catch (e: Exception) {
+
+    @FromJson
+    fun fairwayAreaType(d: Double): FairwayType? {
+        return FairwayType.fairwayType(d.toInt())
+    }
+
+    @FromJson
+    fun markType(d: Double): MarkType {
+        return MarkType.markType(d.toInt())
+    }
+
+    @FromJson
+    fun construction(d: Double): ConstructionInfo? {
+        return try {
+            ConstructionInfo.build(d)
+        } catch (e: Exception) {
             Timber.i(e.message ?: "JSON error.")
             null
         }
@@ -131,26 +145,97 @@ enum class AidType {
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class MarineSymbolRaw(val NIMIR: NonEmptyString?,
-                           val NIMIS: NonEmptyString?,
-                           val SIJAINTIS: NonEmptyString?,
-                           val SIJAINTIR: NonEmptyString?,
-                           val TY_JNR: AidType,
-                           val RAKT_TYYP: ConstructionInfo?,
-                           val NAVL_TYYP: NavMark,
-                           val OMISTAJA: String) {
-    fun toSymbol() = MarineSymbol(NIMIS, NIMIR, SIJAINTIS, SIJAINTIR, TY_JNR, RAKT_TYYP, NAVL_TYYP, OMISTAJA)
+enum class FairwayType {
+    Navigaton, Anchoring, Meetup, HarborPool, Turn, Channel, CoastTraffic, Core, Special, Lock, ConfirmedExtra, Helcom, Pilot;
+
+    fun translate(lang: FairwayTypesLang): String {
+        return when (this) {
+            Navigaton -> lang.navigation
+            Anchoring -> lang.anchoring
+            Meetup -> lang.meetup
+            HarborPool -> lang.harborPool
+            Turn -> lang.turn
+            Channel -> lang.channel
+            CoastTraffic -> lang.coastTraffic
+            Core -> lang.core
+            Special -> lang.special
+            Lock -> lang.lock
+            ConfirmedExtra -> lang.confirmedExtra
+            Helcom -> lang.helcom
+            Pilot -> lang.pilot
+        }
+    }
+
+    companion object {
+        fun fairwayType(i: Int): FairwayType? {
+            return when (i) {
+                1 -> Navigaton
+                2 -> Anchoring
+                3 -> Meetup
+                4 -> HarborPool
+                5 -> Turn
+                6 -> Channel
+                7 -> CoastTraffic
+                8 -> Core
+                9 -> Special
+                10 -> Lock
+                11 -> ConfirmedExtra
+                12 -> Helcom
+                13 -> Pilot
+                else -> fail("Invalid fairway type: '$i'.")
+            }
+        }
+    }
 }
 
-data class MarineSymbol(val nameFi: NonEmptyString?,
-                        val nameSe: NonEmptyString?,
-                        val locationFi: NonEmptyString?,
-                        val locationSe: NonEmptyString?,
-                        val aidType: AidType,
-                        val construction: ConstructionInfo?,
-                        val navMark: NavMark,
-                        val owner: String) {
+enum class MarkType {
+    Unknown, Lateral, Cardinal;
+
+    fun translate(lang: MarkTypeLang): String {
+        return when (this) {
+            Unknown -> lang.unknown
+            Lateral -> lang.lateral
+            Cardinal -> lang.cardinal
+        }
+    }
+
+    companion object {
+        fun markType(i: Int): MarkType {
+            return when (i) {
+                0 -> Unknown
+                1 -> Lateral
+                2 -> Cardinal
+                else -> fail("Invalid mark type: '$i'.")
+            }
+        }
+    }
+}
+
+@JsonClass(generateAdapter = true)
+data class MarineSymbolRaw(
+    val NIMIR: NonEmptyString?,
+    val NIMIS: NonEmptyString?,
+    val SIJAINTIS: NonEmptyString?,
+    val SIJAINTIR: NonEmptyString?,
+    val TY_JNR: AidType,
+    val RAKT_TYYP: ConstructionInfo?,
+    val NAVL_TYYP: NavMark,
+    val OMISTAJA: String
+) {
+    fun toSymbol() =
+        MarineSymbol(NIMIS, NIMIR, SIJAINTIS, SIJAINTIR, TY_JNR, RAKT_TYYP, NAVL_TYYP, OMISTAJA)
+}
+
+data class MarineSymbol(
+    val nameFi: NonEmptyString?,
+    val nameSe: NonEmptyString?,
+    val locationFi: NonEmptyString?,
+    val locationSe: NonEmptyString?,
+    val aidType: AidType,
+    val construction: ConstructionInfo?,
+    val navMark: NavMark,
+    val owner: String
+) {
     fun name(lang: Language) =
         if (lang == Language.Finnish) (nameFi ?: nameSe)
         else (nameSe ?: nameFi)
@@ -159,6 +244,103 @@ data class MarineSymbol(val nameFi: NonEmptyString?,
         if (lang == Language.Finnish) (locationFi ?: locationSe)
         else (locationSe ?: locationFi)
 }
+
+enum class LimitType {
+    SpeedLimit, NoWaves, NoWindSurfing, NoJetSkiing, NoMotorPower, NoAnchoring, NoStopping, NoAttachment,
+    NoOvertaking, NoRendezVous, SpeedRecommendation;
+
+    fun translate(lang: LimitTypes): String {
+        return when (this) {
+            SpeedLimit -> lang.speedLimit
+            NoWaves -> lang.noWaves
+            NoWindSurfing -> lang.noWindSurfing
+            NoJetSkiing -> lang.noJetSkiing
+            NoMotorPower -> lang.noMotorPower
+            NoAnchoring -> lang.noAnchoring
+            NoStopping -> lang.noStopping
+            NoAttachment -> lang.noAttachment
+            NoOvertaking -> lang.noOvertaking
+            NoRendezVous -> lang.noRendezVous
+            SpeedRecommendation -> lang.speedRecommendation
+        }
+    }
+
+    companion object {
+        fun limitType(s: String): LimitType {
+            return when (s) {
+                "01" -> SpeedLimit
+                "02" -> NoWaves
+                "03" -> NoWindSurfing
+                "04" -> NoJetSkiing
+                "05" -> NoMotorPower
+                "06" -> NoAnchoring
+                "07" -> NoStopping
+                "08" -> NoAttachment
+                "09" -> NoOvertaking
+                "10" -> NoRendezVous
+                "11" -> SpeedRecommendation
+                else -> fail("Unknown limit type: '$s'.")
+            }
+        }
+    }
+}
+
+@JsonClass(generateAdapter = true)
+data class LimitAreaJson(
+    val RAJOITUSTY: String,
+    val SUURUUS: String,
+    val PITUUS: String,
+    val MERK_VAST: NonEmptyString?,
+    val NIMI_SIJAI: NonEmptyString?,
+    val VAY_NIMISU: String,
+    val IRROTUS_PV: String
+) {
+    fun toDouble(d: String): Double = try {
+        d.toDouble()
+    } catch(e: NumberFormatException) {
+        fail("Expected double, got: '$d'.")
+    }
+
+    fun toLimitArea() = LimitArea(
+        RAJOITUSTY.split(", ").map { LimitType.limitType(it) },
+        toDouble(SUURUUS).kmh(),
+        toDouble(PITUUS).meters(),
+        MERK_VAST,
+        NIMI_SIJAI,
+        VAY_NIMISU,
+        IRROTUS_PV
+    )
+}
+
+data class LimitArea(
+    val types: List<LimitType>,
+    val limit: Speed?,
+    val length: Distance?,
+    val responsible: NonEmptyString?,
+    val location: NonEmptyString?,
+    val fairwayName: String,
+    val publishDate: String
+)
+
+
+@JsonClass(generateAdapter = true)
+data class FairwayAreaJson(
+    val OMISTAJA: NonEmptyString,
+    val VAYALUE_TY: FairwayType,
+    val VAYALUE_SY: Distance,
+    val HARAUS_SYV: Distance,
+    val MERK_LAJI: MarkType?
+) {
+    fun toFairway() = FairwayArea(OMISTAJA, VAYALUE_TY, VAYALUE_SY, HARAUS_SYV, MERK_LAJI)
+}
+
+data class FairwayArea(
+    val owner: NonEmptyString,
+    val fairwayType: FairwayType,
+    val fairwayDepth: Distance,
+    val harrowDepth: Distance,
+    val markType: MarkType?
+)
 
 enum class ConstructionInfo {
     BuoyBeacon,
@@ -227,7 +409,7 @@ enum class ConstructionInfo {
                 18 -> BorderLineMark
                 19 -> ChannelEdgeLight
                 20 -> Tower
-                else -> throw JsonDataException("Invalid construction value: '$d'.")
+                else -> fail("Invalid construction value: '$d'.")
             }
         }
     }
