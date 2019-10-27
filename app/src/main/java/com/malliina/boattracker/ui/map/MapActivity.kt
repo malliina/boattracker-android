@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.gson.JsonObject
 import com.malliina.boattracker.*
 import com.malliina.boattracker.ui.callouts.Callouts
+import com.malliina.boattracker.ui.callouts.TopSpeedInfo
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileActivity
 import com.malliina.boattracker.ui.tracks.TracksActivity
@@ -36,6 +37,7 @@ class MapActivity : AppCompatActivity() {
     companion object {
         const val StyleUrl = "mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
         const val BoatIconId = "boat-resized-opt-30"
+        const val TrophyIconId = "trophy-gold-path"
         const val BoatIconSize: Float = 0.7f
         const val profileCode = 101
     }
@@ -66,7 +68,7 @@ class MapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val token = BuildConfig.MapboxAccessToken
-        Timber.i("Hello, using token %s", token)
+        Timber.i("Using token %s", token)
         Mapbox.getInstance(this, token)
         setContentView(R.layout.map_activity)
         mapView = findViewById(R.id.mapView)
@@ -183,16 +185,14 @@ class MapActivity : AppCompatActivity() {
                     style?.getLayerAs<SymbolLayer>(meta.iconLayer)
                         ?.setProperties(
                             PropertyFactory.iconRotate(
-                                Geo.instance.bearing(
-                                    lastTwo[0],
-                                    lastTwo[1]
-                                ).toFloat()
+                                Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
                             )
                         )
                 }
             }
             // Updates trophy
-            callouts?.updateIfFaster(from.topPoint, meta.trackName)
+            style?.getSourceAs<GeoJsonSource>(meta.trophySource)
+                ?.setGeoJson(topFeature(from.topPoint))
         }
     }
 
@@ -222,15 +222,21 @@ class MapActivity : AppCompatActivity() {
                 val iconSource = GeoJsonSource(iconSourceId, latLng)
                 style?.addSource(iconSource)
                 val layerId = meta.iconLayer
-                val symbol = SymbolLayer(layerId, iconSourceId)
-                    .withProperties(
-                        PropertyFactory.iconImage(BoatIconId),
-                        PropertyFactory.iconSize(BoatIconSize)
-                    )
+                val symbol = SymbolLayer(layerId, iconSourceId).withProperties(
+                    PropertyFactory.iconImage(BoatIconId),
+                    PropertyFactory.iconSize(BoatIconSize)
+                )
                 style?.addLayer(symbol)
             }
-            // Adds trophy
-            callouts?.createTrophy(topSpeed, meta.trackName)
+            // Adds trophy using GeoJSON manually instead of using SymbolManager in order to make
+            // z-index work as desired (i.e. trophy is shown on top of trails)
+            val feature = topFeature(topSpeed)
+            val trophySource = GeoJsonSource(meta.trophySource, feature)
+            style?.addSource(trophySource)
+            val symbol = SymbolLayer(meta.trophyLayer, meta.trophySource).withProperties(
+                PropertyFactory.iconImage(TrophyIconId)
+            )
+            style?.addLayer(symbol)
             lineString
         } else {
             old.coordinates().addAll(coords)
@@ -239,10 +245,12 @@ class MapActivity : AppCompatActivity() {
     }
 
     private fun topFeature(top: CoordBody): Feature {
-        val json = JsonObject().apply {
-            addProperty(Speed.key, top.speed.knots)
-        }
-        return Feature.fromGeometry(top.coord.point(), json)
+        return Feature.fromGeometry(top.coord.point(), trophyJson(top))
+    }
+
+    private fun trophyJson(top: CoordBody): JsonObject {
+        val str = Callouts.speedAdapter.toJson(TopSpeedInfo(top.speed, top.boatTime))
+        return Callouts.gson.fromJson(str, JsonObject::class.java)
     }
 
     fun profileClicked(button: View) {

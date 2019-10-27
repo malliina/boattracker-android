@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.malliina.boattracker.*
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -16,9 +15,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
@@ -33,8 +29,6 @@ import kotlin.math.min
 @JsonClass(generateAdapter = true)
 data class TopSpeedInfo(val speed: Speed, val dateTime: String)
 
-data class TrophyInfo(val track: TrackName, val top: CoordBody, val symbol: Symbol)
-
 // https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
 class Callouts(
     mapView: MapView,
@@ -48,8 +42,6 @@ class Callouts(
         const val CalloutImageName = "callout-image"
         const val CalloutLayerId = "callout-layer"
         const val CalloutSourceId = "callout-source"
-        const val CustomDataKey = "custom_data"
-        const val TrophyIconId = "trophy-gold-path"
 
         val gson = Gson()
         val speedAdapter: JsonAdapter<TopSpeedInfo> = Json.moshi.adapter(TopSpeedInfo::class.java)
@@ -63,17 +55,12 @@ class Callouts(
 
     private val calloutImages: MutableMap<String, Bitmap> = mutableMapOf()
     private val calloutViews: MutableMap<String, View> = mutableMapOf()
-    private val trophies: MutableMap<TrackName, TrophyInfo> = mutableMapOf()
 
     private val calloutProps = arrayOf(
         PropertyFactory.iconImage(CalloutImageName),
         PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
         PropertyFactory.iconOffset(arrayOf(-2f, -2f))
     )
-
-    private val symbolManager = SymbolManager(mapView, map, style).apply {
-        iconAllowOverlap = true
-    }
 
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -84,35 +71,6 @@ class Callouts(
             true
         }
         style.addSource(GeoJsonSource(CalloutSourceId, FeatureCollection.fromFeatures(emptyList())))
-    }
-
-    fun createTrophy(top: CoordBody, track: TrackName) {
-        val opts = SymbolOptions()
-            .withLatLng(top.coord.latLng())
-            .withIconImage(TrophyIconId)
-            .withData(trophyJson(top))
-        trophies[track] = TrophyInfo(track, top, symbolManager.create(opts))
-    }
-
-    fun updateIfFaster(top: CoordBody, track: TrackName) {
-        trophies[track]?.let { old ->
-            if (old.top.speed < top.speed) {
-                old.symbol.latLng = top.coord.latLng()
-                old.symbol.data = trophyJson(top)
-                trophies[track] = TrophyInfo(track, top, old.symbol)
-                symbolManager.update(old.symbol)
-            }
-        }
-    }
-
-    private fun trophyJson(top: CoordBody): JsonObject {
-        val str = speedAdapter.toJson(
-            TopSpeedInfo(
-                top.speed,
-                top.boatTime
-            )
-        )
-        return gson.fromJson(str, JsonObject::class.java)
     }
 
     private suspend fun onMapClick(latLng: LatLng): Boolean {
@@ -132,7 +90,7 @@ class Callouts(
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
         features.firstOrNull { it.geometry()?.type() == "Point" }?.let {
             speedAdapter.readOpt(
-                gson.toJson(it.properties()?.getAsJsonObject(CustomDataKey))
+                gson.toJson(it.properties())
             )?.let { info ->
                 val callout: TrophyCallout =
                     activity.layoutInflater.inflate(R.layout.trophy, null) as TrophyCallout
@@ -268,7 +226,5 @@ class Callouts(
         style.getSource(CalloutSourceId)?.let {
             style.removeSource(it)
         }
-        trophies.clear()
-        symbolManager.deleteAll()
     }
 }
