@@ -12,7 +12,6 @@ import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.annotations.BubbleLayout
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.Property
@@ -31,7 +30,6 @@ data class TopSpeedInfo(val speed: Speed, val dateTime: String)
 
 // https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
 class Callouts(
-    mapView: MapView,
     val map: MapboxMap,
     val style: Style,
     private val activity: Activity,
@@ -51,6 +49,8 @@ class Callouts(
             Json.moshi.adapter(FairwayArea::class.java)
         val limitAreaAdapter: JsonAdapter<LimitArea> =
             Json.moshi.adapter(LimitArea::class.java)
+        val trafficSignAdapter: JsonAdapter<TrafficSign> =
+            Json.moshi.adapter(TrafficSign::class.java)
     }
 
     private val calloutImages: MutableMap<String, Bitmap> = mutableMapOf()
@@ -76,7 +76,7 @@ class Callouts(
     private suspend fun onMapClick(latLng: LatLng): Boolean {
         val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
         if (maybePrevious == null) {
-            val callout = trophyCallout(latLng) ?: marksCallout(latLng) ?: areaCallout(latLng) ?: limitCallout(latLng)
+            val callout = pointCallout(latLng) ?: marksCallout(latLng) ?: areaCallout(latLng) ?: limitCallout(latLng)
             callout?.let {
                 showCallout(latLng, it)
             }
@@ -86,15 +86,21 @@ class Callouts(
         return true
     }
 
-    private fun trophyCallout(latLng: LatLng): TrophyCallout? {
+    private fun pointCallout(latLng: LatLng): BoatCallout? {
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
         features.firstOrNull { it.geometry()?.type() == "Point" }?.let {
-            speedAdapter.readOpt(
-                gson.toJson(it.properties())
-            )?.let { info ->
+            val speedInfo = speedAdapter.readOpt(gson.toJson(it.properties()))
+            speedInfo?.let { info ->
                 val callout: TrophyCallout =
                     activity.layoutInflater.inflate(R.layout.trophy, null) as TrophyCallout
                 callout.fill(info)
+                return callout
+            }
+            val trafficInfo = trafficSignAdapter.readOpt(gson.toJson(it.properties()))
+            trafficInfo?.let { sign ->
+                val callout: TrafficSignCallout =
+                    activity.layoutInflater.inflate(R.layout.traffic_sign, null) as TrafficSignCallout
+                callout.fill(sign, lang)
                 return callout
             }
         }

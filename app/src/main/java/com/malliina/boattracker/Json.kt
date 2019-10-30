@@ -45,4 +45,5 @@ class PrimitiveAdapter {
     @FromJson fun marineSymbol(raw: MarineSymbolRaw): MarineSymbol = raw.toSymbol()
     @FromJson fun fairwayArea(raw: FairwayAreaJson): FairwayArea = raw.toFairway()
     @FromJson fun limitArea(raw: LimitAreaJson): LimitArea = raw.toLimitArea()
+    @FromJson fun trafficSign(raw: TrafficSignRaw): TrafficSign = raw.toSign()
 }

@@ -37,6 +37,10 @@ class MarineAdapter {
             null
         }
     }
+    @FromJson
+    fun trafficSignInfo(d: Double): TrafficSignInfo? {
+        return TrafficSignInfo.trafficSign(d)
+    }
 }
 
 data class NonEmptyString(val value: String)
@@ -211,6 +215,160 @@ enum class MarkType {
     }
 }
 
+enum class TrafficSignInfo {
+    Unknown,
+    NoAnchoring,
+    NoParking,
+    NoAttachment,
+    NoOvertaking,
+    NoRendezVous,
+    NoWaves,
+    NoWaterSkiing,
+    NoWindSurfing,
+    NoMotorPower,
+    NoJetSkiing,
+    SpeedLimit,
+    StopSign,
+    GeneralWarning,
+    SignalMandatory,
+    HeightLimit,
+    DepthLimit,
+    WidthLimit,
+    StrongCurrent,
+    FairwaySide,
+    SwimmingWarning,
+    UseRadio,
+    ParkingAllowed,
+    AttachmentAllowed,
+    AirCable,
+    Phone,
+    CableFerryCrossing,
+    FerryCrossing,
+    RadioPossibility,
+    DrinkingPoint,
+    LimitEnds,
+    CableSign,
+    WireSign,
+    DirectionUpper,
+    DirectionLower;
+
+    fun translate(limits: TrafficSignLimitsLang, info: TrafficSignInfoLang): String {
+        return when (this) {
+            Unknown -> limits.unknown
+            NoAnchoring -> limits.noAnchoring
+            NoParking -> limits.noParking
+            NoAttachment -> limits.noAttachment
+            NoOvertaking -> limits.noOvertaking
+            NoRendezVous -> limits.noRendezVous
+            NoWaves -> limits.noWaves
+            NoWaterSkiing -> limits.noWaterSkiing
+            NoWindSurfing -> limits.noWindSurfing
+            NoMotorPower -> limits.noMotorPower
+            NoJetSkiing -> limits.noJetSkiing
+            SpeedLimit -> limits.speedLimit
+            StopSign -> limits.stopSign
+            GeneralWarning -> limits.generalWarning
+            SignalMandatory -> limits.signalMandatory
+            HeightLimit -> limits.heightLimit
+            DepthLimit -> limits.depthLimit
+            WidthLimit -> limits.widthLimit
+            StrongCurrent -> info.strongCurrent
+            FairwaySide -> info.fairwaySide
+            SwimmingWarning -> info.swimmingWarning
+            UseRadio -> info.useRadio
+            ParkingAllowed -> info.parkingAllowed
+            AttachmentAllowed -> info.attachmentAllowed
+            AirCable -> info.airCable
+            Phone -> info.phone
+            CableFerryCrossing -> info.cableFerryCrossing
+            FerryCrossing -> info.ferryCrossing
+            RadioPossibility -> info.radioPossibility
+            DrinkingPoint -> info.drinkingPoint
+            LimitEnds -> info.limitEnds
+            CableSign -> info.cableSign
+            WireSign -> info.wireSign
+            DirectionUpper -> info.directionUpper
+            DirectionLower -> info.directionLower
+        }
+    }
+
+    companion object {
+        fun trafficSign(d: Double): TrafficSignInfo {
+            return when (d.toInt()) {
+                0 -> Unknown
+                1 -> NoAnchoring
+                2 -> NoParking
+                3 -> NoAttachment
+                4 -> NoOvertaking
+                5 -> NoRendezVous
+                6 -> NoWaves
+                7 -> NoWaterSkiing
+                8 -> NoWindSurfing
+                9 -> NoMotorPower
+                10 -> NoJetSkiing
+                11 -> SpeedLimit
+                12 -> StopSign
+                13 -> GeneralWarning
+                14 -> SignalMandatory
+                15 -> HeightLimit
+                16 -> DepthLimit
+                17 -> WidthLimit
+                18 -> StrongCurrent
+                19 -> FairwaySide
+                20 -> SwimmingWarning
+                21 -> UseRadio
+                22 -> ParkingAllowed
+                23 -> AttachmentAllowed
+                24 -> AirCable
+                25 -> Phone
+                26 -> CableFerryCrossing
+                27 -> FerryCrossing
+                28 -> RadioPossibility
+                29 -> DrinkingPoint
+                30 -> LimitEnds
+                31 -> CableSign
+                32 -> WireSign
+                33 -> DirectionUpper
+                34 -> DirectionLower
+                else -> fail("Unknown traffic sign type: '$d'.")
+            }
+        }
+    }
+}
+
+// {"VAIKUTUSAL":"A","SIJAINTIR":"","SIJAINTIS":"Lauttasaaren vattuniemerannan aallonmurtajan päässä","TKLNUMERO":54.0,"VAYLALAJI":"","VLM_TYYPPI":1.0,"PATA_TYYP":53.0,"PAATOS":"","PAKO_TYYP":5.0,"OMISTAJA":"Tuntematon","NIMIS":"HKI77A","TUNNISTE":1760.0,"VLM_LAJI":6.0,"MITTAUSPVM":"19981127","LK_TEKSTIS":"","NIMIR":"","LK_TEKSTIR":"","RA_ARVO_T":"","LISATIETOS":"","LISATIETOR":"","LISAKILPI":"","IRROTUS_PV":"2018-04-29T00:50:55"}
+@JsonClass(generateAdapter = true)
+data class TrafficSignRaw(
+    val NIMIR: NonEmptyString?,
+    val NIMIS: NonEmptyString?,
+    val SIJAINTIS: NonEmptyString?,
+    val SIJAINTIR: NonEmptyString?,
+    val VLM_TYYPPI: Double,
+    val VLM_LAJI: TrafficSignInfo
+) {
+    fun toSign() =
+        TrafficSign(NIMIR, NIMIS, SIJAINTIS, SIJAINTIR, VLM_TYYPPI, VLM_LAJI)
+}
+
+data class TrafficSign(
+    val nameFi: NonEmptyString?,
+    val nameSe: NonEmptyString?,
+    val locationFi: NonEmptyString?,
+    val locationSe: NonEmptyString?,
+    val signType: Double,
+    val sign: TrafficSignInfo
+) {
+    fun nameOrEmpty(lang: Language) = name(lang)?.value ?: ""
+
+    fun name(lang: Language) =
+        if (lang == Language.Finnish) (nameFi ?: nameSe)
+        else (nameSe ?: nameFi)
+
+    fun location(lang: Language): NonEmptyString? =
+        if (lang == Language.Finnish) (locationFi ?: locationSe)
+        else (locationSe ?: locationFi)
+}
+
 @JsonClass(generateAdapter = true)
 data class MarineSymbolRaw(
     val NIMIR: NonEmptyString?,
@@ -297,7 +455,7 @@ data class LimitAreaJson(
 ) {
     private fun toDouble(d: String): Double = try {
         d.toDouble()
-    } catch(e: NumberFormatException) {
+    } catch (e: NumberFormatException) {
         fail("Expected double, got: '$d'.")
     }
 

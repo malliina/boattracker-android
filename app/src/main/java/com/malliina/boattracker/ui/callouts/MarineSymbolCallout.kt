@@ -2,13 +2,8 @@ package com.malliina.boattracker.ui.callouts
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
-import android.widget.TextView
-import com.malliina.boattracker.FairwayLang
 import com.malliina.boattracker.Lang
-import com.malliina.boattracker.MarkLang
 import com.malliina.boattracker.R
-import com.mapbox.mapboxsdk.annotations.BubbleLayout
 
 class MarineSymbolCallout : BoatCallout {
     constructor(ctx: Context) : super(ctx)

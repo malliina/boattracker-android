@@ -80,7 +80,7 @@ class MapActivity : AppCompatActivity() {
                     viewModel.getProfile().observe(this, Observer { profile ->
                         val lang = settings.selectLanguage(profile.language, conf.languages)
                         callouts?.clear()
-                        callouts = Callouts(mapView, map, it, this, conf.layers, lang)
+                        callouts = Callouts(map, it, this, conf.layers, lang)
                     })
                 })
             }
