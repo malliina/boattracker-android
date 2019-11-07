@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.malliina.boattracker.ui.callouts.MarineSymbolCallout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.malliina.boattracker.ui.callouts.MarineSymbolCallout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
-    android:layout_weight="1"
     android:layout_height="wrap_content"
+    android:layout_weight="1"
     android:orientation="vertical"
-    android:paddingBottom="6dp"
-    android:paddingEnd="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
     android:paddingStart="8dp"
+    android:paddingLeft="8dp"
+    android:paddingEnd="8dp"
+    android:paddingRight="8dp"
+    android:paddingBottom="6dp"
     app:mapbox_bl_arrowDirection="bottom"
     app:mapbox_bl_arrowHeight="8dp"
     app:mapbox_bl_arrowWidth="8dp"
@@ -26,83 +25,96 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp">
 
-        <TextView style="@style/BigValueText"
+        <TextView
             android:id="@+id/mark_name_text"
+            style="@style/BigValueText"
+            android:paddingBottom="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:paddingBottom="8dp"
             tools:text="Melkörev" />
 
-        <TextView style="@style/SubtitleText"
+        <TextView
             android:id="@+id/mark_type_label"
+            style="@style/SubtitleText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/mark_name_text"
             tools:text="Typ" />
 
-        <TextView style="@style/ValueText"
+        <TextView
             android:id="@+id/mark_type_text"
+            style="@style/ValueText"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/mark_name_text"
-            app:layout_constraintHorizontal_bias="0"
             tools:text="Prick" />
 
-        <TextView style="@style/SubtitleText"
+        <TextView
             android:id="@+id/mark_construction_label"
+            style="@style/SubtitleText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/mark_type_text"
             tools:text="Struktur" />
 
-        <TextView style="@style/ValueText"
+        <TextView
             android:id="@+id/mark_construction_text"
+            style="@style/ValueText"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@+id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/mark_type_text"
-            app:layout_constraintHorizontal_bias="0"
             tools:text="Isboj" />
 
-        <TextView style="@style/SubtitleText"
+        <TextView
             android:id="@+id/mark_nav_label"
+            style="@style/SubtitleText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/construction_barrier"
             tools:text="Navigering" />
 
-        <TextView style="@style/ValueText"
+        <TextView
             android:id="@+id/mark_nav_text"
+            style="@style/ValueText"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/construction_barrier"
-            app:layout_constraintHorizontal_bias="0"
             tools:text="Lateral" />
 
-        <TextView style="@style/SubtitleText"
+        <TextView
             android:id="@+id/mark_location_label"
+            style="@style/SubtitleText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/navigation_barrier"
+            app:layout_constraintBottom_toTopOf="@id/mark_owner_label"
             tools:text="Plats" />
 
-        <TextView style="@style/ValueText"
+        <TextView
             android:id="@+id/mark_location_text"
-            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
+            style="@style/ValueText"
+            android:layout_width="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/navigation_barrier"
             app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/label_end_barrier"
+            app:layout_constraintTop_toBottomOf="@id/navigation_barrier"
             tools:text="NO om Melkö" />
 
-        <TextView style="@style/SubtitleText"
+        <TextView
             android:id="@+id/mark_owner_label"
+            style="@style/SubtitleText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/location_barrier"
             tools:text="Ägare" />
 
-        <TextView style="@style/ValueText"
+        <TextView
             android:id="@+id/mark_owner_text"
-            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/ValueText"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/label_end_barrier"
             app:layout_constraintTop_toBottomOf="@id/location_barrier"
-            app:layout_constraintHorizontal_bias="0"
             tools:text="Helsingfors stad" />
 
         <androidx.constraintlayout.widget.Barrier
@@ -110,24 +122,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="end"
-            app:constraint_referenced_ids="mark_type_label,mark_construction_label,mark_nav_label,mark_location_label,mark_owner_label"/>
+            app:constraint_referenced_ids="mark_type_label,mark_construction_label,mark_nav_label,mark_location_label,mark_owner_label" />
+
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/construction_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="mark_construction_label,mark_construction_text"/>
+            app:constraint_referenced_ids="mark_construction_label,mark_construction_text" />
+
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/navigation_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="mark_nav_label,mark_nav_text"/>
+            app:constraint_referenced_ids="mark_nav_label,mark_nav_text" />
+
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/location_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="mark_location_label,mark_location_text"/>
+            app:constraint_referenced_ids="mark_location_label,mark_location_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.malliina.boattracker.ui.callouts.MarineSymbolCallout>
