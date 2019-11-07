@@ -58,6 +58,10 @@ enum class NavMark {
     Special,
     NotApplicable;
 
+    fun isKnown(): Boolean {
+        return !(this == Unknown || this == NotApplicable)
+    }
+
     fun translate(lang: NavMarkLang): String {
         return when (this) {
             Left -> lang.left

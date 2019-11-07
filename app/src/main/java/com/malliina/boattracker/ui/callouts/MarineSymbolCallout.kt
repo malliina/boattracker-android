@@ -26,6 +26,12 @@ class MarineSymbolCallout : BoatCallout {
             lang.construction,
             data.construction?.translate(lang.structures)
         )
+        fillOrHide(
+            R.id.mark_nav_label,
+            R.id.mark_nav_text,
+            lang.navigation,
+            if (data.navMark.isKnown()) data.navMark.translate(lang.navTypes) else null
+        )
         fillText(R.id.mark_nav_label, lang.navigation)
         fillText(R.id.mark_nav_text, data.navMark.translate(lang.navTypes))
         fillOrHide(

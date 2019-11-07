@@ -19,6 +19,10 @@ abstract class BoatCallout : BubbleLayout {
         findViewById<TextView>(id).text = value
     }
 
+    /**
+     * Fills the label and text if the provided text value is non-null, otherise hides both
+     * elements.
+     */
     protected fun fillOrHide(label: Int, text: Int, labelValue: String, textValue: String?) {
         val visibility = if (textValue == null) View.GONE else View.VISIBLE
         val labelView = findViewById<TextView>(label)
