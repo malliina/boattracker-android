@@ -34,9 +34,9 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     private val profile: MutableLiveData<BoatUser> by lazy {
         MutableLiveData<BoatUser>()
     }
-    private val language: MutableLiveData<Language> by lazy {
-        MutableLiveData<Language>()
-    }
+//    private val language: MutableLiveData<Language> by lazy {
+//        MutableLiveData<Language>()
+//    }
 
     private val google = Google.instance
     private val viewModelJob = Job()
@@ -77,7 +77,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
             try {
                 conf.value = http.conf()
             } catch(e: Exception) {
-                Timber.e(e, "Failed to load conf.")
+                Timber.e(e, "Failed to load configuration.")
             }
         }
     }
@@ -98,7 +98,11 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         socket?.disconnect()
         socket = BoatSocket.token(token, trackName, this, app.applicationContext)
         uiScope.launch {
-            socket?.connectWithRetry()
+            try {
+                socket?.connectWithRetry()
+            } catch(e: Exception)  {
+                Timber.e(e, "Failed to connect to socket.")
+            }
         }
     }
 

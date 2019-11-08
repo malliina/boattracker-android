@@ -33,8 +33,7 @@ class Callouts(
     val map: MapboxMap,
     val style: Style,
     private val activity: Activity,
-    private val layers: Layers,
-    private val lang: Lang
+    private val layers: Layers
 ) {
     companion object {
         const val CalloutImageName = "callout-image"
@@ -76,9 +75,11 @@ class Callouts(
     private suspend fun onMapClick(latLng: LatLng): Boolean {
         val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
         if (maybePrevious == null) {
-            val callout = pointCallout(latLng) ?: marksCallout(latLng) ?: areaCallout(latLng) ?: limitCallout(latLng)
-            callout?.let {
-                showCallout(latLng, it)
+            UserSettings.instance.lang?.let { lang ->
+                val callout = pointCallout(latLng, lang) ?: marksCallout(latLng, lang) ?: areaCallout(latLng, lang) ?: limitCallout(latLng, lang)
+                callout?.let {
+                    showCallout(latLng, it)
+                }
             }
         } else {
             style.removeLayer(CalloutLayerId)
@@ -86,7 +87,7 @@ class Callouts(
         return true
     }
 
-    private fun pointCallout(latLng: LatLng): BoatCallout? {
+    private fun pointCallout(latLng: LatLng, lang: Lang): BoatCallout? {
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
         features.firstOrNull { it.geometry()?.type() == "Point" }?.let {
             val speedInfo = speedAdapter.readOpt(gson.toJson(it.properties()))
@@ -107,7 +108,7 @@ class Callouts(
         return null
     }
 
-    private fun marksCallout(latLng: LatLng): MarineSymbolCallout? {
+    private fun marksCallout(latLng: LatLng, lang: Lang): MarineSymbolCallout? {
         val features = map.queryRenderedFeatures(
             map.projection.toScreenLocation(latLng),
             *layers.marks.toTypedArray()
@@ -126,7 +127,7 @@ class Callouts(
         return null
     }
 
-    private fun areaCallout(latLng: LatLng): FairwayAreaCallout? {
+    private fun areaCallout(latLng: LatLng, lang: Lang): FairwayAreaCallout? {
         val features = map.queryRenderedFeatures(
             map.projection.toScreenLocation(latLng),
             *layers.fairwayAreas.toTypedArray()
@@ -146,7 +147,7 @@ class Callouts(
         return null
     }
 
-    private fun limitCallout(latLng: LatLng): FairwayLimitCallout? {
+    private fun limitCallout(latLng: LatLng, lang: Lang): FairwayLimitCallout? {
         limitAreaInfo(latLng)?.let { limit ->
             val callout: FairwayLimitCallout =
                 activity.layoutInflater.inflate(R.layout.fairway_limit_symbol, null) as FairwayLimitCallout

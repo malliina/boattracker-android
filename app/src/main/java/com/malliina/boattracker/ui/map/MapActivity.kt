@@ -77,10 +77,9 @@ class MapActivity : AppCompatActivity() {
             this.map = map
             map.setStyle(Style.Builder().fromUri(StyleUrl)) {
                 viewModel.getConf().observe(this, Observer { conf ->
-                    viewModel.getProfile().observe(this, Observer { profile ->
-                        val lang = settings.selectLanguage(profile.language, conf.languages)
+                    viewModel.getProfile().observe(this, Observer { _ ->
                         callouts?.clear()
-                        callouts = Callouts(map, it, this, conf.layers, lang)
+                        callouts = Callouts(map, it, this, conf.layers)
                     })
                 })
             }
@@ -95,12 +94,14 @@ class MapActivity : AppCompatActivity() {
                 )
                 this.mapState = state
                 viewModel.openSocket(state.user?.idToken, state.track)
-                findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
             }
         })
         viewModel.getConf().observe(this, Observer { conf ->
             Timber.i("Got conf.")
             UserSettings.instance.conf = conf
+            viewModel.getUser().observe(this, Observer { mapState ->
+                findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
+            })
         })
         viewModel.getCoords().observe(this, Observer { coords ->
             coords?.let { cs -> map?.let { m -> onCoords(cs, m) } }

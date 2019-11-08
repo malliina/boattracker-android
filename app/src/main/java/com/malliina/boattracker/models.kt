@@ -5,11 +5,13 @@ import com.android.volley.NetworkResponse
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
 import com.malliina.boattracker.backend.BoatClient
+import com.malliina.boattracker.backend.RequestConf
 import com.malliina.boattracker.backend.read
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
+import timber.log.Timber
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
@@ -69,12 +71,12 @@ data class BoatToken(val token: String) : Primitive {
     override fun toString() = token
 }
 
-data class Speed(val knots: Double): Comparable<Speed> {
+data class Speed(val knots: Double) : Comparable<Speed> {
     var inKmh = knots * knotInKmh
     fun formatKmh(): String = "%.1f km/h".format(inKmh)
     fun formatKmhInt(): String = "%.0f km/h".format(inKmh)
     override fun compareTo(other: Speed): Int {
-        return compareValuesBy(this, other, { it.knots})
+        return compareValuesBy(this, other, { it.knots })
     }
 
     companion object {
@@ -195,8 +197,8 @@ data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
 @Parcelize
 data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) : Parcelable {
-    val host = hostAndPort.takeWhile { c -> c != ':' }
-    val protoAndHost = "$proto://$hostAndPort"
+    private val host = hostAndPort.takeWhile { c -> c != ':' }
+    private val protoAndHost = "$proto://$hostAndPort"
     val url = "$protoAndHost$uri"
 
     fun append(more: String) = copy(uri = this.uri + more)
@@ -237,16 +239,34 @@ data class SimpleMessage(val message: String)
 
 data class SingleError(val key: String, val message: String)
 
-data class Errors(val errors: List<SingleError>)
+data class Errors(val errors: List<SingleError>) {
+    companion object {
+        fun input(message: String) = single("input", message)
+        fun single(key: String, message: String): Errors = Errors(listOf(SingleError(key, message)))
+    }
+}
 
-data class ResponseException(val error: VolleyError) : Exception("Invalid response", error.cause) {
-    val response: NetworkResponse = error.networkResponse
+data class ResponseException(val error: VolleyError, val req: RequestConf) :
+    Exception("Invalid response", error.cause) {
+    private val url = req.url
+    private val response: NetworkResponse? = error.networkResponse
 
     fun errors(): Errors {
-        val response = response
-        val charset = Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
-        val str = String(response.data, charset)
-        return BoatClient.errorsAdapter.read(str)
+        return if (response != null) {
+            val response = response
+            try {
+                val charset =
+                    Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
+                val str = String(response.data, charset)
+                BoatClient.errorsAdapter.read(str)
+            } catch (e: Exception) {
+                val msg = "Unable to parse response from '$url'."
+                Timber.e(e, msg)
+                Errors.input(msg)
+            }
+        } else {
+            Errors.single("network", "Network error from '$url'.")
+        }
     }
 
     fun isTokenExpired(): Boolean = errors().errors.any { e -> e.key == "token_expired" }

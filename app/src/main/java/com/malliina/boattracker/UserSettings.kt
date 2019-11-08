@@ -19,7 +19,7 @@ class UserSettings {
     val currentLanguage: Language get() = userLanguage ?: Language.English
     val lang: Lang? get() = languages?.let { selectLanguage(currentLanguage, it) }
 
-    fun selectLanguage(lang: Language, available: Languages): Lang {
+    private fun selectLanguage(lang: Language, available: Languages): Lang {
         return when (lang) {
             Language.Finnish -> available.finnish
             Language.Swedish -> available.swedish

@@ -9,25 +9,13 @@ import java.lang.NumberFormatException
 
 class MarineAdapter {
     @FromJson
-    fun navMark(d: Double): NavMark {
-        return NavMark.navMark(d)
-    }
-
+    fun navMark(d: Double): NavMark = NavMark.navMark(d)
     @FromJson
-    fun aidType(d: Double): AidType {
-        return AidType.aidType(d)
-    }
-
+    fun aidType(d: Double): AidType = AidType.aidType(d)
     @FromJson
-    fun fairwayAreaType(d: Double): FairwayType? {
-        return FairwayType.fairwayType(d.toInt())
-    }
-
+    fun fairwayAreaType(d: Double): FairwayType? = FairwayType.fairwayType(d.toInt())
     @FromJson
-    fun markType(d: Double): MarkType {
-        return MarkType.markType(d.toInt())
-    }
-
+    fun markType(d: Double): MarkType = MarkType.markType(d.toInt())
     @FromJson
     fun construction(d: Double): ConstructionInfo? {
         return try {
@@ -38,9 +26,7 @@ class MarineAdapter {
         }
     }
     @FromJson
-    fun trafficSignInfo(d: Double): TrafficSignInfo? {
-        return TrafficSignInfo.trafficSign(d)
-    }
+    fun trafficSignInfo(d: Double): TrafficSignInfo? = TrafficSignInfo.trafficSign(d)
 }
 
 data class NonEmptyString(val value: String)

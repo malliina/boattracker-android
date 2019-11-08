@@ -3,11 +3,9 @@ package com.malliina.boattracker.ui.callouts
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.TextView
 import com.malliina.boattracker.Lang
 import com.malliina.boattracker.LimitLang
 import com.malliina.boattracker.R
-import timber.log.Timber
 
 class FairwayAreaCallout : BoatCallout {
     constructor(ctx: Context) : super(ctx)

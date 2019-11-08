@@ -88,7 +88,7 @@ class HttpClient(ctx: Context) {
         : JsonObjectRequest(conf.method, conf.url.url, conf.payload,
         Response.Listener { cont.resume(it) },
         Response.ErrorListener { error ->
-            val exception = ResponseException(error)
+            val exception = ResponseException(error, conf)
             try {
                 val errors = exception.errors()
                 Timber.e("Request failed with errors $errors.")
