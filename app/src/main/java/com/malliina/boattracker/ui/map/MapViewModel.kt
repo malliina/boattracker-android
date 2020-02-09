@@ -34,9 +34,6 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     private val profile: MutableLiveData<BoatUser> by lazy {
         MutableLiveData<BoatUser>()
     }
-//    private val language: MutableLiveData<Language> by lazy {
-//        MutableLiveData<Language>()
-//    }
 
     private val google = Google.instance
     private val viewModelJob = Job()

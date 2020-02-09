@@ -419,7 +419,7 @@ data class Lang(
     val limits: LimitLang
 ) : Parcelable {
     companion object {
-        val key = "lang"
+        const val key = "lang"
     }
 }
 

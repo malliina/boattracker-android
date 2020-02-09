@@ -4,3 +4,9 @@
 # BoatTracker
 
 The Android app for [BoatTracker](https://www.boat-tracker.com).
+
+## Development
+
+If you get "Sign in failed." errors with error code DEVELOPER_ERROR, make sure that your SHA1 
+certificate fingerprint is added to the Firebase Console. See https://stackoverflow.com/a/44506538
+for details.

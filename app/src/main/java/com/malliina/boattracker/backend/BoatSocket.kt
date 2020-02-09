@@ -9,6 +9,7 @@ import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.backend.HttpClient.Companion.Authorization
 import com.neovisionaries.ws.client.*
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonDataException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
@@ -19,8 +20,10 @@ interface SocketDelegate {
     fun onCoords(newCoords: CoordsData)
 }
 
+@JsonClass(generateAdapter = true)
 data class CoordsMessage(val body: CoordsData)
 
+@JsonClass(generateAdapter = true)
 data class EventName(val event: String)
 
 fun <T> JsonAdapter<T>.read(json: String): T {

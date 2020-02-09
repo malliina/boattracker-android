@@ -9,6 +9,7 @@ import com.malliina.boattracker.backend.RequestConf
 import com.malliina.boattracker.backend.read
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.squareup.moshi.JsonClass
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
 import timber.log.Timber
@@ -125,6 +126,7 @@ data class Temperature(val celsius: Double) {
     fun formatted() = "%.2f ℃".format(celsius)
 }
 
+@JsonClass(generateAdapter = true)
 data class Boat(val id: Int, val name: BoatName, val token: BoatToken, val addedMillis: Long)
 
 enum class Language(val code: String) {
@@ -142,8 +144,10 @@ enum class Language(val code: String) {
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class ChangeLanguage(val language: String)
 
+@JsonClass(generateAdapter = true)
 data class BoatUser(
     val id: Int,
     val username: Username,
@@ -153,8 +157,10 @@ data class BoatUser(
     val addedMillis: Long
 )
 
+@JsonClass(generateAdapter = true)
 data class UserResponse(val user: BoatUser)
 
+@JsonClass(generateAdapter = true)
 data class Timing(
     val date: String,
     val time: String,
@@ -162,8 +168,10 @@ data class Timing(
     val millis: Long
 )
 
+@JsonClass(generateAdapter = true)
 data class Times(val start: Timing, val end: Timing, val range: String)
 
+@JsonClass(generateAdapter = true)
 data class TrackRef(
     val trackName: TrackName,
     val trackTitle: TrackTitle?,
@@ -177,8 +185,10 @@ data class TrackRef(
     val topPoint: CoordBody
 )
 
+@JsonClass(generateAdapter = true)
 data class TracksResponse(val tracks: List<TrackRef>)
 
+@JsonClass(generateAdapter = true)
 data class CoordBody(
     val coord: Coord,
     val boatTime: String,
@@ -188,11 +198,13 @@ data class CoordBody(
     val waterTemp: Temperature
 )
 
+@JsonClass(generateAdapter = true)
 data class Coord(val lat: Double, val lng: Double) {
     fun latLng(): LatLng = LatLng(lat, lng)
     fun point(): Point = Point.fromLngLat(lng, lat)
 }
 
+@JsonClass(generateAdapter = true)
 data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
 @Parcelize
@@ -222,7 +234,9 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) 
         fun build(input: String): FullUrl? {
             val m = pattern.matcher(input)
             return if (m.find() && m.groupCount() == 3) {
-                FullUrl(m.group(1), m.group(2), m.group(3))
+                m.group(1)?.let { proto ->
+                    m.group(2)?.let { host -> m.group(3)?.let { uri -> FullUrl(proto, host, uri) } }
+                }
             } else {
                 null
             }
@@ -235,10 +249,13 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) 
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class SimpleMessage(val message: String)
 
+@JsonClass(generateAdapter = true)
 data class SingleError(val key: String, val message: String)
 
+@JsonClass(generateAdapter = true)
 data class Errors(val errors: List<SingleError>) {
     companion object {
         fun input(message: String) = single("input", message)

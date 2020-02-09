@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +39,7 @@ class BoatsActivity: AppCompatActivity() {
         }
         Timber.i("Loading boats...")
         val token: IdToken = intent.getParcelableExtra(IdToken.key)
-        viewModel = ViewModelProviders.of(this, BoatsViewModelFactory(application, token))
+        viewModel = ViewModelProvider(this, BoatsViewModelFactory(application, token))
             .get(BoatsViewModel::class.java)
         viewModel.getBoats().observe(this, Observer<BoatUser> { user ->
             boatsAdapter.boats = user?.boats ?: emptyList()
