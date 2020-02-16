@@ -13,14 +13,14 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class LanguagesViewModelFactory(val app: Application, val token: IdToken): ViewModelProvider.Factory {
+class LanguagesViewModelFactory(val app: Application): ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return LanguagesViewModel(app, token) as T
+        return LanguagesViewModel(app) as T
     }
 }
 
-class LanguagesViewModel(val app: Application, val token: IdToken): AndroidViewModel(app) {
+class LanguagesViewModel(val app: Application): AndroidViewModel(app) {
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -35,16 +35,19 @@ class LanguagesViewModel(val app: Application, val token: IdToken): AndroidViewM
     }
 
     fun changeLanguage(to: Language) {
-        val http = BoatClient.build(app, token)
-        uiScope.launch {
-            try {
-                val msg = http.changeLanguage(to)
-                UserSettings.instance.userLanguage = to
-                language.postValue(to)
-                Timber.i(msg.message)
-            } catch(e: Exception) {
-                Timber.e(e, "Failed to change language.")
+        UserSettings.instance.token?.let { token ->
+            val http = BoatClient.build(app, token)
+            uiScope.launch {
+                try {
+                    val msg = http.changeLanguage(to)
+                    UserSettings.instance.userLanguage = to
+                    language.postValue(to)
+                    Timber.i(msg.message)
+                } catch(e: Exception) {
+                    Timber.e(e, "Failed to change language.")
+                }
             }
         }
+
     }
 }

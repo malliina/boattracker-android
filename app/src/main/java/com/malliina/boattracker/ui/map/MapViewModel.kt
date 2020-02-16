@@ -16,16 +16,16 @@ import timber.log.Timber
 
 data class MapState(val user: UserInfo?, val track: TrackName?)
 
-class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
+class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate {
+    private val settings: UserSettings get() = UserSettings.instance
+
     private val mapState: MutableLiveData<MapState> by lazy {
         MutableLiveData<MapState>().also {
             // https://developers.google.com/identity/sign-in/android/backend-auth
             signInSilently(app.applicationContext)
         }
     }
-    private val coords: MutableLiveData<CoordsData> by lazy {
-        MutableLiveData<CoordsData>()
-    }
+    private val coords = MutableLiveData<CoordsData?>()
     private val conf: MutableLiveData<ClientConf> by lazy {
         MutableLiveData<ClientConf>().also {
             loadConf()
@@ -49,7 +49,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         return conf
     }
 
-    fun getCoords(): LiveData<CoordsData> {
+    fun getCoords(): LiveData<CoordsData?> {
         return coords
     }
 
@@ -61,8 +61,10 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         val http = BoatClient.build(app, token)
         uiScope.launch {
             try {
-                profile.value = http.me()
-            } catch(e: Exception) {
+                val me = http.me()
+                settings.profile = me
+                profile.value = me
+            } catch (e: Exception) {
                 Timber.e(e, "Failed to load profile.")
             }
         }
@@ -72,14 +74,17 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
         val http = BoatClient.basic(app)
         uiScope.launch {
             try {
-                conf.value = http.conf()
-            } catch(e: Exception) {
+                val data = http.conf()
+                settings.conf = data
+                conf.value = data
+            } catch (e: Exception) {
                 Timber.e(e, "Failed to load configuration.")
             }
         }
     }
 
     fun update(state: MapState) {
+        settings.mapState = state
         mapState.postValue(state)
         state.user?.idToken?.let { token ->
             loadProfile(token)
@@ -93,17 +98,19 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
 
     fun openSocket(token: IdToken?, trackName: TrackName?) {
         socket?.disconnect()
-        socket = BoatSocket.token(token, trackName, this, app.applicationContext)
+        val newSocket = BoatSocket.token(token, trackName, this, app.applicationContext)
+        socket = newSocket
         uiScope.launch {
             try {
-                socket?.connectWithRetry()
-            } catch(e: Exception)  {
+                Timber.i("New conn...")
+                newSocket.connectWithRetry()
+            } catch (e: Exception) {
                 Timber.e(e, "Failed to connect to socket.")
             }
         }
     }
 
-    fun reconnect() {
+    private fun reconnect() {
         val state = mapState.value
         openSocket(state?.user?.idToken, state?.track)
     }
@@ -111,6 +118,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
     fun disconnect() {
         Timber.i("Disconnecting socket...")
         socket?.disconnect()
+        coords.postValue(null)
     }
 
     fun signInSilently(ctx: Context) {
@@ -119,7 +127,7 @@ class MapViewModel(val app: Application): AndroidViewModel(app), SocketDelegate 
                 val user = google.signInSilently(ctx)
                 update(MapState(user, null))
                 Timber.i("Hello, '${user.email}'!")
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 Timber.w(e, "No authenticated profile.")
                 mapState.value = MapState(null, null)
             }

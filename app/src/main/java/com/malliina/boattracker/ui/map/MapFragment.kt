@@ -3,18 +3,21 @@ package com.malliina.boattracker.ui.map
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.gson.JsonObject
 import com.malliina.boattracker.*
 import com.malliina.boattracker.ui.callouts.Callouts
 import com.malliina.boattracker.ui.callouts.TopSpeedInfo
 import com.malliina.boattracker.ui.login.LoginActivity
-import com.malliina.boattracker.ui.profile.ProfileActivity
-import com.malliina.boattracker.ui.tracks.TracksActivity
+import com.malliina.boattracker.ui.profile.ProfileFragment
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
@@ -31,16 +34,19 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.android.synthetic.main.map_activity.view.*
 import timber.log.Timber
 
-class MapActivity : AppCompatActivity() {
+class MapFragment : Fragment() {
     companion object {
         const val StyleUrl = "mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
         const val BoatIconId = "boat-resized-opt-30"
         const val TrophyIconId = "trophy-gold-path"
         const val BoatIconSize: Float = 0.7f
-        const val profileCode = 101
+        const val profileCode = 901
     }
+
+    private val args: MapFragmentArgs by navArgs()
 
     private lateinit var mapView: MapView
     private lateinit var viewModel: MapViewModel
@@ -49,9 +55,6 @@ class MapActivity : AppCompatActivity() {
 
     private var mapState: MapState = MapState(null, null)
     private val settings: UserSettings get() = UserSettings.instance
-    private val conf: ClientConf? get() = settings.conf
-    private val lang: Lang? get() = settings.lang
-
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
@@ -65,90 +68,122 @@ class MapActivity : AppCompatActivity() {
 
     private var mapMode: MapMode = MapMode.Fit
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val token = BuildConfig.MapboxAccessToken
         Timber.i("Using token %s", token)
-        Mapbox.getInstance(this, token)
-        setContentView(R.layout.map_activity)
-        mapView = findViewById(R.id.mapView)
+        Mapbox.getInstance(requireContext(), token)
+        return inflater.inflate(R.layout.map_activity, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (args.fit) {
+            mapMode = MapMode.Fit
+        }
+        mapView = view.mapView
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { map ->
             this.map = map
             map.setStyle(Style.Builder().fromUri(StyleUrl)) {
-                viewModel.getConf().observe(this, Observer { conf ->
-                    viewModel.getProfile().observe(this, Observer { _ ->
+                viewModel.getConf().observe(viewLifecycleOwner) { conf ->
+                    viewModel.getProfile().observe(viewLifecycleOwner) { _ ->
                         callouts?.clear()
-                        callouts = Callouts(map, it, this, conf.layers)
-                    })
-                })
+                        callouts = Callouts(map, it, requireActivity(), conf.layers)
+                    }
+                }
             }
         }
 
         // Observer code happens on the main thread
-        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
-        viewModel.getUser().observe(this, Observer { mapState ->
-            mapState?.let { state ->
-                Timber.i(
-                    "Got ${state.user?.email ?: "no email"} with track ${state.track ?: "no track"}"
-                )
-                this.mapState = state
-                viewModel.openSocket(state.user?.idToken, state.track)
+        viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
+        viewModel.getUser().observe(viewLifecycleOwner) { state ->
+            if (args.fit) {
+                mapMode = MapMode.Fit
             }
-        })
-        viewModel.getConf().observe(this, Observer { conf ->
+            val trackName = args.track ?: state.track
+            val email = state.user?.email ?: "no email"
+            Timber.i("Got $email with track ${trackName ?: "no track"}")
+            this.mapState = state
+            viewModel.openSocket(state.user?.idToken, trackName)
+        }
+        viewModel.getConf().observe(viewLifecycleOwner) { conf ->
             Timber.i("Got conf.")
             UserSettings.instance.conf = conf
-            viewModel.getUser().observe(this, Observer { mapState ->
-                findViewById<Button>(R.id.profile).visibility = Button.VISIBLE
-            })
-        })
-        viewModel.getCoords().observe(this, Observer { coords ->
-            coords?.let { cs -> map?.let { m -> onCoords(cs, m) } }
-        })
-        viewModel.getProfile().observe(this, Observer { profile ->
+            viewModel.getUser().observe(viewLifecycleOwner) { mapState ->
+                Timber.i("Got state $mapState")
+                view.profile.visibility = Button.VISIBLE
+            }
+        }
+        viewModel.getCoords().observe(viewLifecycleOwner) { coords ->
+            coords?.let {
+                map?.let { m ->
+                    onCoords(it, m)
+                }
+            }
+        }
+        viewModel.getProfile().observe(viewLifecycleOwner) { profile ->
             Timber.i("Using language ${profile.language}")
             settings.profile = profile
-        })
+        }
+        view.profile.setOnClickListener { profileButton ->
+            val user = settings.user
+            if (user == null) {
+                launchLogin()
+            } else {
+                val action = MapFragmentDirections.mapToProfile()
+                findNavController().navigate(action)
+            }
+        }
+        view.center.setOnClickListener { centerButton ->
+
+        }
+        if (args.refresh) {
+            viewModel.signInSilently(requireContext())
+        }
+    }
+
+    private fun launchLogin() {
+        Timber.i("Opening login screen...")
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        startActivityForResult(intent, profileCode)
+        // After success, onActivityResult is called?
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Timber.i("Returning with code $requestCode")
+        when (requestCode) {
+            profileCode -> data?.let {
+                if (it.getBooleanExtra(ProfileFragment.refreshSignIn, false)) {
+                    viewModel.signInSilently(requireContext())
+                }
+            }
+            else -> {
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+//        viewModel.reconnect()
     }
 
     override fun onStop() {
-        super.onStop()
-        mapView.onStop()
         viewModel.disconnect()
         clearMap()
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        viewModel.reconnect()
-    }
-
-    /**
-     * Called when the user has selected a track.
-     *
-     * @see TracksActivity
-     */
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        intent?.let { it ->
-            it.getParcelableExtra<TrackName>(TrackName.key)?.let { name ->
-                mapMode = MapMode.Fit
-                viewModel.update(MapState(mapState.user, name))
-            }
-        }
+        super.onStop()
+        mapView.onStop()
     }
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
         val from = coords.from
         val newPoints = coords.coords.map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
         val meta = TrackMeta(from.trackName)
-
         // Updates track
         val lineString = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)
         val trailSource = style?.getSourceAs<GeoJsonSource>(meta.trailSource)
@@ -252,46 +287,6 @@ class MapActivity : AppCompatActivity() {
     private fun trophyJson(top: CoordBody): JsonObject {
         val str = Callouts.speedAdapter.toJson(TopSpeedInfo(top.speed, top.boatTime))
         return Callouts.gson.fromJson(str, JsonObject::class.java)
-    }
-
-    fun profileClicked(button: View) {
-        val u = mapState.user
-        val c = conf
-
-        lang?.let {
-            if (u != null && c != null) {
-                Timber.i("Opening profile for ${u.email}...")
-                val intent = Intent(this, ProfileActivity::class.java).apply {
-                    putExtra(ProfileInfo.key, ProfileInfo(u.email, u.idToken, mapState.track))
-                    putExtra(Lang.key, it)
-                }
-                startActivityForResult(intent, profileCode)
-            } else {
-                Timber.i("Opening login screen...")
-                val intent = Intent(this, LoginActivity::class.java).apply {
-                    putExtra(SettingsLang.key, it.settings)
-                }
-                startActivityForResult(intent, profileCode)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Timber.i("Returning with code $requestCode")
-        when (requestCode) {
-            profileCode -> data?.let {
-                if (it.getBooleanExtra(ProfileActivity.refreshSignIn, false)) {
-                    viewModel.signInSilently(this)
-                }
-            }
-            else -> {
-            }
-        }
-    }
-
-    fun locationClicked(button: View) {
-        Timber.i("Location")
     }
 
     private fun clearMap() {

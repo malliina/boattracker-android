@@ -1,5 +1,7 @@
 package com.malliina.boattracker
 
+import com.malliina.boattracker.ui.map.MapState
+
 class UserSettings {
     companion object {
         val instance = UserSettings()
@@ -13,11 +15,12 @@ class UserSettings {
             userLanguage = value?.language
         }
     var userLanguage: Language? = null
-        set(value: Language?) {
-            field = value
-        }
     val currentLanguage: Language get() = userLanguage ?: Language.English
     val lang: Lang? get() = languages?.let { selectLanguage(currentLanguage, it) }
+
+    var mapState: MapState? = null
+    val user: UserInfo? get() = mapState?.user
+    val token: IdToken? get() = user?.idToken
 
     private fun selectLanguage(lang: Language, available: Languages): Lang {
         return when (lang) {
@@ -25,5 +28,11 @@ class UserSettings {
             Language.Swedish -> available.swedish
             Language.English -> available.english
         }
+    }
+
+    fun clear() {
+        conf = null
+        profile = null
+        mapState = null
     }
 }

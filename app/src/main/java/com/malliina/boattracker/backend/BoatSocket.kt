@@ -11,7 +11,9 @@ import com.neovisionaries.ws.client.*
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonDataException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -27,18 +29,30 @@ data class CoordsMessage(val body: CoordsData)
 data class EventName(val event: String)
 
 fun <T> JsonAdapter<T>.read(json: String): T {
-    return this.fromJson(json) ?: throw JsonDataException("Moshi returned null when reading '$json'.")
+    return this.fromJson(json)
+        ?: throw JsonDataException("Moshi returned null when reading '$json'.")
 }
 
 fun <T> JsonAdapter<T>.readUrl(json: String, url: FullUrl): T {
-    return this.fromJson(json) ?: throw JsonDataException("Moshi returned null for response from '$url': '$json'.")
+    return this.fromJson(json)
+        ?: throw JsonDataException("Moshi returned null for response from '$url': '$json'.")
 }
 
-class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val delegate: SocketDelegate, ctx: Context) {
+class BoatSocket(
+    val url: FullUrl,
+    headers: Map<String, String>,
+    private val delegate: SocketDelegate,
+    ctx: Context
+) {
     companion object {
         private val baseUrl = Env.socketsUrl
 
-        fun token(token: IdToken?, track: TrackName?, delegate: SocketDelegate, ctx: Context): BoatSocket {
+        fun token(
+            token: IdToken?,
+            track: TrackName?,
+            delegate: SocketDelegate,
+            ctx: Context
+        ): BoatSocket {
             val socketUrl = if (track == null) baseUrl else baseUrl.append("?track=$track")
             Timber.i("Setting socketUrl to '$socketUrl'.")
             return BoatSocket(socketUrl, HttpClient.headers(token), delegate, ctx)
@@ -66,7 +80,7 @@ class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val del
     private val sf: WebSocketFactory = WebSocketFactory()
     // var because it's recreated on reconnects
     private var socket = sf.createSocket(url.url, 10000)
-    private val listener = object: WebSocketAdapter() {
+    private val listener = object : WebSocketAdapter() {
         override fun onTextMessage(websocket: WebSocket?, text: String?) {
             try {
                 text?.let { onMessage(it) }
@@ -88,34 +102,39 @@ class BoatSocket(val url: FullUrl, headers: Map<String, String>, private val del
     }
 
 
-
     init {
         socket.addListener(listener)
         headers.forEach { (k, v) -> socket.addHeader(k, v) }
     }
 
     suspend fun connectWithRetry() {
-        try {
-            connect()
-        } catch(e: Exception) {
-            Timber.w(e, "Unable to connect to '$url'. Refreshing token and retrying...")
-            val userInfo = Google.instance.signInSilently(google)
-            socket.removeHeaders(Authorization)
-            socket = socket.recreate()
-            HttpClient.headers(userInfo.idToken).forEach { (k, v) -> socket.addHeader(k, v) }
-            connect()
+        withContext(Dispatchers.IO) {
+            try {
+                connect()
+            } catch (e: Exception) {
+                Timber.w(e, "Unable to connect to '$url'. Refreshing token and retrying...")
+                val userInfo = Google.instance.signInSilently(google)
+                socket.removeHeaders(Authorization)
+                socket = socket.recreate()
+                HttpClient.headers(userInfo.idToken).forEach { (k, v) -> socket.addHeader(k, v) }
+                connect()
+            }
         }
     }
 
-    private suspend fun connect() : WebSocket? =
+    private suspend fun connect(): WebSocket? =
         suspendCancellableCoroutine { cont ->
             Timber.i("Connecting to '$url'...")
             val connectCallback = object : WebSocketAdapter() {
-                override fun onConnected(websocket: WebSocket?, headers: MutableMap<String, MutableList<String>>?) {
+                override fun onConnected(
+                    websocket: WebSocket?,
+                    headers: MutableMap<String, MutableList<String>>?
+                ) {
                     Timber.i("Connected to '$url'.")
                     socket.removeListener(this)
                     cont.resume(websocket)
                 }
+
                 override fun onConnectError(websocket: WebSocket?, exception: WebSocketException?) {
                     Timber.w("Unable to connect to '$url'.")
                     val e = exception ?: Exception("Unable to connect to '$url'.")

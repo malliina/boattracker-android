@@ -16,7 +16,7 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
-import com.malliina.boattracker.ui.profile.ProfileActivity
+import com.malliina.boattracker.ui.profile.ProfileFragment
 import timber.log.Timber
 
 /**
@@ -31,12 +31,9 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.login_toolbar))
         setContentView(R.layout.login_activity)
-
         client = Google.instance.client(this)
-
-        val settingsLang: SettingsLang = intent.getParcelableExtra(SettingsLang.key)
         findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener(this)
-        findViewById<Toolbar>(R.id.login_toolbar).title = settingsLang.signIn
+        findViewById<Toolbar>(R.id.login_toolbar).title = UserSettings.instance.lang?.settings?.signIn!!
     }
 
     override fun onStart() {
@@ -82,7 +79,7 @@ class LoginActivity: AppCompatActivity(), View.OnClickListener {
         user?.let {
             Timber.i("Updating UI with ${user.email} then finishing.")
             val intent = Intent().apply {
-                this.putExtra(ProfileActivity.refreshSignIn, true)
+                this.putExtra(ProfileFragment.refreshSignIn, true)
             }
             setResult(Activity.RESULT_OK, intent)
             finish()

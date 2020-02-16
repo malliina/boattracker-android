@@ -4,30 +4,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.malliina.boattracker.*
+import com.malliina.boattracker.AppAttribution
+import com.malliina.boattracker.Link
+import com.malliina.boattracker.R
+import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.attribution_item.view.*
 import kotlinx.android.synthetic.main.attribution_link_item.view.*
+import kotlinx.android.synthetic.main.attributions_activity.view.*
 
-class AttributionsActivity: AppCompatActivity() {
-    private lateinit var attrs: AttributionInfo
+class AttributionsFragment: ResourceFragment(R.layout.attributions_activity) {
     private lateinit var attributionsAdapter: AttributionsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.attributions_activity)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewManager = LinearLayoutManager(this)
-        attrs = intent.getParcelableExtra(AttributionInfo.key)
-        attributionsAdapter = AttributionsAdapter(attrs.attributions)
-        findViewById<Toolbar>(R.id.attributions_toolbar).title = attrs.title
-        findViewById<RecyclerView>(R.id.attributions_list).apply {
+        viewManager = LinearLayoutManager(context)
+        attributionsAdapter = AttributionsAdapter(lang.attributions.attributions)
+        view.attributions_toolbar.title = lang.attributions.title
+        view.attributions_list.apply {
             setHasFixedSize(false)
             layoutManager = viewManager
             adapter = attributionsAdapter

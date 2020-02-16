@@ -11,7 +11,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.malliina.boattracker.PushToken
 import com.malliina.boattracker.R
-import com.malliina.boattracker.ui.map.MapActivity
+import com.malliina.boattracker.ui.map.MapFragment
 import timber.log.Timber
 
 class FirebaseService : FirebaseMessagingService() {
@@ -24,7 +24,7 @@ class FirebaseService : FirebaseMessagingService() {
         Timber.i("Received remote message.")
         val title = message.data["title"] ?: "Title here"
         val text = message.data["message"] ?: "Message here"
-        val intent = Intent(this, MapActivity::class.java)
+        val intent = Intent(this, MapFragment::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val channelId = "fcm_default_channel"
         val pending = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)

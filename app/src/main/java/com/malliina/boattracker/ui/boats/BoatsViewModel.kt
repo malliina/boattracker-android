@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
+import com.malliina.boattracker.UserSettings
 import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.push.PushService
 import kotlinx.coroutines.CoroutineScope
@@ -16,14 +17,14 @@ import timber.log.Timber
 /**
  * See [StackOverflow answer](https://stackoverflow.com/a/46704702)
  */
-class BoatsViewModelFactory(val app: Application, val token: IdToken): ViewModelProvider.Factory {
+class BoatsViewModelFactory(val app: Application): ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return BoatsViewModel(app, token) as T
+        return BoatsViewModel(app) as T
     }
 }
 
-class BoatsViewModel(val app: Application, val token: IdToken): AndroidViewModel(app) {
+class BoatsViewModel(val app: Application): AndroidViewModel(app) {
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -31,7 +32,9 @@ class BoatsViewModel(val app: Application, val token: IdToken): AndroidViewModel
 
     private val boats: MutableLiveData<BoatUser> by lazy {
         MutableLiveData<BoatUser>().also {
-            loadBoats(token)
+            UserSettings.instance.token?.let {
+                loadBoats(it)
+            }
         }
     }
 

@@ -24,18 +24,12 @@ data class PushToken(val token: String) {
     override fun toString(): String = token
 }
 
-@Parcelize
-data class Email(val email: String) : Parcelable, Primitive {
+data class Email(val email: String): Primitive {
     override val value: String get() = email
     override fun toString(): String = email
 }
 
-@Parcelize
-data class IdToken(val token: String) : Parcelable, Primitive {
-    companion object {
-        const val key = "idToken"
-    }
-
+data class IdToken(val token: String): Primitive {
     override val value: String get() = token
     override fun toString(): String = token
 }
@@ -48,11 +42,7 @@ data class Username(val name: String) : Primitive {
 }
 
 @Parcelize
-data class TrackName(val name: String) : Parcelable, Primitive {
-    companion object {
-        const val key = "trackName"
-    }
-
+data class TrackName(val name: String): Primitive, Parcelable {
     override val value: String get() = name
     override fun toString(): String = name
 }
