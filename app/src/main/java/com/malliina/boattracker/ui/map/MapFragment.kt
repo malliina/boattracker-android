@@ -168,7 +168,7 @@ class MapFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-//        viewModel.reconnect()
+        viewModel.reconnect()
     }
 
     override fun onStop() {

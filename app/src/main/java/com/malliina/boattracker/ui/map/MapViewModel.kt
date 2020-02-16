@@ -115,6 +115,11 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
         coords.postValue(null)
     }
 
+    fun reconnect() {
+        val state = mapState.value
+        openSocket(state?.user?.idToken, state?.track)
+    }
+
     fun signInSilently(ctx: Context) {
         uiScope.launch {
             try {
