@@ -102,17 +102,11 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
         socket = newSocket
         uiScope.launch {
             try {
-                Timber.i("New conn...")
                 newSocket.connectWithRetry()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to connect to socket.")
             }
         }
-    }
-
-    private fun reconnect() {
-        val state = mapState.value
-        openSocket(state?.user?.idToken, state?.track)
     }
 
     fun disconnect() {

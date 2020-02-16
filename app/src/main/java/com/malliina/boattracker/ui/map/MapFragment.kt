@@ -111,10 +111,8 @@ class MapFragment : Fragment() {
             viewModel.openSocket(state.user?.idToken, trackName)
         }
         viewModel.getConf().observe(viewLifecycleOwner) { conf ->
-            Timber.i("Got conf.")
             UserSettings.instance.conf = conf
             viewModel.getUser().observe(viewLifecycleOwner) { mapState ->
-                Timber.i("Got state $mapState")
                 view.profile.visibility = Button.VISIBLE
             }
         }
