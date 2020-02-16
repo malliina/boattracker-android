@@ -11,20 +11,24 @@
         tools:layout="@layout/map_fragment">
         <action
             android:id="@+id/map_to_profile"
-            app:destination="@id/profile" />
+            app:destination="@id/profile"
+            app:enterAnim="@anim/in_from_down"
+            app:exitAnim="@anim/out_to_down"
+            app:popEnterAnim="@anim/in_from_up"
+            app:popExitAnim="@anim/out_to_down" />
         <argument
             android:name="track"
+            android:defaultValue="@null"
             app:argType="com.malliina.boattracker.TrackName"
-            app:nullable="true"
-            android:defaultValue="@null"/>
+            app:nullable="true" />
         <argument
             android:name="fit"
-            app:argType="boolean"
-            android:defaultValue="true"/>
+            android:defaultValue="true"
+            app:argType="boolean" />
         <argument
             android:name="refresh"
-            app:argType="boolean"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            app:argType="boolean" />
     </fragment>
 
     <fragment
@@ -33,24 +37,41 @@
         tools:layout="@layout/profile_activity">
         <action
             android:id="@+id/profile_to_tracks"
-            app:destination="@id/tracks" />
+            app:destination="@id/tracks"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
         <action
             android:id="@+id/profile_to_boats"
-            app:destination="@id/boats" />
+            app:destination="@id/boats"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
         <action
             android:id="@+id/profile_to_languages"
-            app:destination="@id/languages" />
+            app:destination="@id/languages"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
         <action
             android:id="@+id/profile_to_attributions"
-            app:destination="@id/attributions" />
-        <action android:id="@+id/profile_to_map"
+            app:destination="@id/attributions"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile_to_map"
             app:destination="@id/map"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/map"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -58,28 +79,29 @@
         android:name="com.malliina.boattracker.ui.tracks.TracksFragment"
         android:label="{title}"
         tools:layout="@layout/tracks_activity">
-        <action android:id="@+id/tracks_to_map"
+        <action
+            android:id="@+id/tracks_to_map"
             app:destination="@id/map"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/map"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/boats"
         android:name="com.malliina.boattracker.ui.boats.BoatsFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity"/>
+        tools:layout="@layout/tracks_activity" />
     <fragment
         android:id="@+id/languages"
         android:name="com.malliina.boattracker.ui.language.LanguagesFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity"/>
+        tools:layout="@layout/tracks_activity" />
     <fragment
         android:id="@+id/attributions"
         android:name="com.malliina.boattracker.ui.attributions.AttributionsFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity"/>
+        tools:layout="@layout/tracks_activity" />
 </navigation>
