@@ -34,7 +34,8 @@
     <fragment
         android:id="@+id/profile"
         android:name="com.malliina.boattracker.ui.profile.ProfileFragment"
-        tools:layout="@layout/profile_activity">
+        android:label="{title}"
+        tools:layout="@layout/profile_fragment">
         <action
             android:id="@+id/profile_to_tracks"
             app:destination="@id/tracks"
@@ -72,13 +73,16 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/map"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
     </fragment>
 
     <fragment
         android:id="@+id/tracks"
         android:name="com.malliina.boattracker.ui.tracks.TracksFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity">
+        tools:layout="@layout/tracks_fragment">
         <action
             android:id="@+id/tracks_to_map"
             app:destination="@id/map"
@@ -88,20 +92,34 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/map"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/boats"
         android:name="com.malliina.boattracker.ui.boats.BoatsFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity" />
+        tools:layout="@layout/tracks_fragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/languages"
         android:name="com.malliina.boattracker.ui.language.LanguagesFragment"
-        android:label="{title}"
-        tools:layout="@layout/tracks_activity" />
+        tools:layout="@layout/tracks_fragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/attributions"
         android:name="com.malliina.boattracker.ui.attributions.AttributionsFragment"
         android:label="{title}"
-        tools:layout="@layout/tracks_activity" />
+        tools:layout="@layout/tracks_fragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
 </navigation>

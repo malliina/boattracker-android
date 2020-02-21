@@ -14,15 +14,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.malliina.boattracker.Lang
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.ui.Controls
 import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.track_item.view.*
-import kotlinx.android.synthetic.main.tracks_activity.view.*
+import kotlinx.android.synthetic.main.tracks_fragment.view.*
 
 interface TrackDelegate {
     fun onTrack(selected: TrackRef)
 }
 
-class TracksFragment : ResourceFragment(R.layout.tracks_activity), TrackDelegate {
+class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate {
     private lateinit var viewAdapter: TracksAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
     private lateinit var viewModel: TracksViewModel
@@ -41,17 +42,40 @@ class TracksFragment : ResourceFragment(R.layout.tracks_activity), TrackDelegate
             adapter = viewAdapter
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
-
-        viewModel.getTracks().observe(viewLifecycleOwner){ tracks ->
-            viewAdapter.tracks = tracks
-            viewAdapter.notifyDataSetChanged()
+        val ctrl = Controls(view.tracks_loading, view.tracks_view, view.tracks_feedback_text)
+        viewModel.tracks.observe(viewLifecycleOwner) { outcome ->
+            when (outcome.status) {
+                Status.Success -> {
+                    ctrl.showList()
+                    outcome.data?.let { list ->
+                        if (list.isEmpty()) {
+                            settings.lang?.settings?.noTracksHelp?.let {
+                                ctrl.display(it)
+                            }
+                        } else {
+                            viewAdapter.tracks = list
+                            viewAdapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+                Status.Error -> {
+//                    display(getString(R.string.error_generic), ctrl)
+                }
+                Status.Loading -> {
+                    ctrl.enableLoading()
+                }
+            }
         }
-        view.tracks_toolbar.title = lang.track.tracks
+//        view.tracks_toolbar.title = lang.track.tracks
     }
 
     // https://stackoverflow.com/a/1124988
     override fun onTrack(selected: TrackRef) {
-        val action = TracksFragmentDirections.tracksToMap(refresh = false, track = selected.trackName, fit = true)
+        val action = TracksFragmentDirections.tracksToMap(
+            refresh = false,
+            track = selected.trackName,
+            fit = true
+        )
         findNavController().navigate(action)
     }
 }

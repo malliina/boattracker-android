@@ -84,8 +84,6 @@ class BoatSocket(
         override fun onTextMessage(websocket: WebSocket?, text: String?) {
             try {
                 text?.let { onMessage(it) }
-//                val json = JSONObject(text)
-//                onMessage(json)
             } catch (e: Exception) {
                 Timber.e(e, "JSON error.")
             }

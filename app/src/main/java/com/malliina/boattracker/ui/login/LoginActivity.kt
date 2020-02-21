@@ -22,18 +22,18 @@ import timber.log.Timber
 /**
  * See [Google's documentation](https://developers.google.com/identity/sign-in/android/start-integrating)
  */
-class LoginActivity: AppCompatActivity(), View.OnClickListener {
+class LoginActivity : AppCompatActivity(), View.OnClickListener {
     private val requestCodeSignIn = 100
 
     private lateinit var client: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(findViewById(R.id.login_toolbar))
         setContentView(R.layout.login_activity)
         client = Google.instance.client(this)
         findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener(this)
-        findViewById<Toolbar>(R.id.login_toolbar).title = UserSettings.instance.lang?.settings?.signIn!!
+        supportActionBar?.title =
+            UserSettings.instance.lang?.settings?.signIn!!
     }
 
     override fun onStart() {

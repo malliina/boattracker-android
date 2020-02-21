@@ -20,32 +20,28 @@ class ProfileViewModel(val app: Application): AndroidViewModel(app), SocketDeleg
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private val loadState: MutableLiveData<LoadState> by lazy {
-        MutableLiveData<LoadState>().also {
-            it.value = LoadState.NotLoaded
-        }
+    private val loadState = MutableLiveData<LoadState>().apply {
+        value = LoadState.NotLoaded
     }
-
-    private val current: MutableLiveData<TrackRef> by lazy {
-        MutableLiveData<TrackRef>()
-    }
-
+    private val current = MutableLiveData<TrackRef>()
     private var socket: BoatSocket? = null
 
-    fun getState(): LiveData<LoadState> {
-        return loadState
-    }
-
-    fun getCurrent(): LiveData<TrackRef> {
-        return current
-    }
+    val state: LiveData<LoadState> = loadState
+    val currentTrack: LiveData<TrackRef> = current
 
     fun openSocket(token: IdToken?, trackName: TrackName?) {
         socket?.disconnect()
         loadState.value = LoadState.Loading
-        socket = BoatSocket.token(token, trackName, this, app.applicationContext)
+        val newSocket = BoatSocket.token(token, trackName, this, app.applicationContext)
+        socket = newSocket
         uiScope.launch {
-            socket?.connectWithRetry()
+            try {
+                newSocket.connectWithRetry()
+                loadState.postValue(LoadState.NotLoaded)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to connect to socket.")
+                loadState.postValue(LoadState.NotLoaded)
+            }
         }
     }
 

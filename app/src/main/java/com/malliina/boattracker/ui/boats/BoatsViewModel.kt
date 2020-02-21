@@ -30,17 +30,12 @@ class BoatsViewModel(val app: Application): AndroidViewModel(app) {
 
     var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
 
-    private val boats: MutableLiveData<BoatUser> by lazy {
-        MutableLiveData<BoatUser>().also {
-            UserSettings.instance.token?.let {
-                loadBoats(it)
-            }
+    private val boatsData: MutableLiveData<BoatUser> = MutableLiveData<BoatUser>().also {
+        UserSettings.instance.token?.let {
+            loadBoats(it)
         }
     }
-
-    fun getBoats(): LiveData<BoatUser> {
-        return boats
-    }
+    val boats: LiveData<BoatUser> = boatsData
 
     fun toggleNotifications(isOn: Boolean) {
         PushService.getInstance(app).toggleNotifications(isOn)
@@ -51,7 +46,7 @@ class BoatsViewModel(val app: Application): AndroidViewModel(app) {
         uiScope.launch {
             try {
                 val response = http.me()
-                boats.value = response
+                boatsData.value = response
             } catch(e: Exception) {
                 Timber.e(e, "Failed to load boats. Token was $token")
             }

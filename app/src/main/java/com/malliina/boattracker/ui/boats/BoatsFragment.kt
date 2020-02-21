@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.malliina.boattracker.*
 import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.boat_item.view.*
-import kotlinx.android.synthetic.main.boats_activity.view.*
+import kotlinx.android.synthetic.main.boats_fragment.view.*
 import kotlinx.android.synthetic.main.stat_box.view.*
 
-class BoatsFragment: ResourceFragment(R.layout.boats_activity) {
+class BoatsFragment: ResourceFragment(R.layout.boats_fragment) {
     private lateinit var boatsAdapter: BoatsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
     private lateinit var viewModel: BoatsViewModel
@@ -31,7 +31,7 @@ class BoatsFragment: ResourceFragment(R.layout.boats_activity) {
         }
         viewModel = ViewModelProvider(this, BoatsViewModelFactory(requireActivity().application))
             .get(BoatsViewModel::class.java)
-        viewModel.getBoats().observe(viewLifecycleOwner) { user ->
+        viewModel.boats.observe(viewLifecycleOwner) { user ->
             boatsAdapter.boats = user.boats
             boatsAdapter.notifyDataSetChanged()
         }
@@ -40,7 +40,6 @@ class BoatsFragment: ResourceFragment(R.layout.boats_activity) {
         notifications.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleNotifications(isChecked)
         }
-        view.boats_toolbar.title = lang.track.boats
         notifications.text = lang.settings.notifications
         view.notifications_text.text = lang.settings.notificationsText
         view.token_footer.text = lang.settings.tokenText

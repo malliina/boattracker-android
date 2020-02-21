@@ -10,7 +10,7 @@ import com.malliina.boattracker.Lang
 import com.malliina.boattracker.UserInfo
 import com.malliina.boattracker.UserSettings
 
-abstract class ResourceFragment(private val layoutResource: Int): Fragment() {
+abstract class ResourceFragment(private val layoutResource: Int) : Fragment() {
     protected val settings: UserSettings get() = UserSettings.instance
     protected val token: IdToken? get() = settings.token
     protected val lang: Lang get() = settings.lang!!

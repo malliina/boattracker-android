@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
@@ -34,7 +35,7 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.android.synthetic.main.map_activity.view.*
+import kotlinx.android.synthetic.main.map_fragment.view.*
 import timber.log.Timber
 
 class MapFragment : Fragment() {
@@ -76,11 +77,12 @@ class MapFragment : Fragment() {
         val token = BuildConfig.MapboxAccessToken
         Timber.i("Using token %s", token)
         Mapbox.getInstance(requireContext(), token)
-        return inflater.inflate(R.layout.map_activity, container, false)
+        return inflater.inflate(R.layout.map_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.actionBar?.hide()
         if (args.fit) {
             mapMode = MapMode.Fit
         }
@@ -89,8 +91,8 @@ class MapFragment : Fragment() {
         mapView.getMapAsync { map ->
             this.map = map
             map.setStyle(Style.Builder().fromUri(StyleUrl)) {
-                viewModel.getConf().observe(viewLifecycleOwner) { conf ->
-                    viewModel.getProfile().observe(viewLifecycleOwner) { _ ->
+                viewModel.conf.observe(viewLifecycleOwner) { conf ->
+                    viewModel.profile.observe(viewLifecycleOwner) { _ ->
                         callouts?.clear()
                         callouts = Callouts(map, it, requireActivity(), conf.layers)
                     }
@@ -110,20 +112,20 @@ class MapFragment : Fragment() {
             this.mapState = state
             viewModel.openSocket(state.user?.idToken, trackName)
         }
-        viewModel.getConf().observe(viewLifecycleOwner) { conf ->
+        viewModel.conf.observe(viewLifecycleOwner) { conf ->
             UserSettings.instance.conf = conf
             viewModel.getUser().observe(viewLifecycleOwner) { mapState ->
                 view.profile.visibility = Button.VISIBLE
             }
         }
-        viewModel.getCoords().observe(viewLifecycleOwner) { coords ->
+        viewModel.coords.observe(viewLifecycleOwner) { coords ->
             coords?.let {
                 map?.let { m ->
                     onCoords(it, m)
                 }
             }
         }
-        viewModel.getProfile().observe(viewLifecycleOwner) { profile ->
+        viewModel.profile.observe(viewLifecycleOwner) { profile ->
             Timber.i("Using language ${profile.language}")
             settings.profile = profile
         }
@@ -132,7 +134,7 @@ class MapFragment : Fragment() {
             if (user == null) {
                 launchLogin()
             } else {
-                val action = MapFragmentDirections.mapToProfile()
+                val action = MapFragmentDirections.mapToProfile(settings.lang!!.appName)
                 findNavController().navigate(action)
             }
         }
@@ -167,6 +169,7 @@ class MapFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        (activity as AppCompatActivity).supportActionBar?.hide()
         mapView.onStart()
         viewModel.reconnect()
     }

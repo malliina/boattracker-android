@@ -14,9 +14,9 @@ import com.malliina.boattracker.R
 import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.attribution_item.view.*
 import kotlinx.android.synthetic.main.attribution_link_item.view.*
-import kotlinx.android.synthetic.main.attributions_activity.view.*
+import kotlinx.android.synthetic.main.attributions_fragment.view.*
 
-class AttributionsFragment: ResourceFragment(R.layout.attributions_activity) {
+class AttributionsFragment: ResourceFragment(R.layout.attributions_fragment) {
     private lateinit var attributionsAdapter: AttributionsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -25,7 +25,7 @@ class AttributionsFragment: ResourceFragment(R.layout.attributions_activity) {
 
         viewManager = LinearLayoutManager(context)
         attributionsAdapter = AttributionsAdapter(lang.attributions.attributions)
-        view.attributions_toolbar.title = lang.attributions.title
+//        view.attributions_toolbar.title = lang.attributions.title
         view.attributions_list.apply {
             setHasFixedSize(false)
             layoutManager = viewManager

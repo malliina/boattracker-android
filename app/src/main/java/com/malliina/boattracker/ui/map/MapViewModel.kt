@@ -25,16 +25,13 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
             signInSilently(app.applicationContext)
         }
     }
-    private val coords = MutableLiveData<CoordsData?>()
-    private val conf: MutableLiveData<ClientConf> by lazy {
+    private val coordsData = MutableLiveData<CoordsData?>()
+    private val confData: MutableLiveData<ClientConf> by lazy {
         MutableLiveData<ClientConf>().also {
             loadConf()
         }
     }
-    private val profile: MutableLiveData<BoatUser> by lazy {
-        MutableLiveData<BoatUser>()
-    }
-
+    private val boatUser = MutableLiveData<BoatUser>()
     private val google = Google.instance
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -45,17 +42,9 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
         return mapState
     }
 
-    fun getConf(): LiveData<ClientConf> {
-        return conf
-    }
-
-    fun getCoords(): LiveData<CoordsData?> {
-        return coords
-    }
-
-    fun getProfile(): LiveData<BoatUser> {
-        return profile
-    }
+    val conf: LiveData<ClientConf> = confData
+    val coords: LiveData<CoordsData?> = coordsData
+    val profile: LiveData<BoatUser> = boatUser
 
     private fun loadProfile(token: IdToken) {
         val http = BoatClient.build(app, token)
@@ -63,7 +52,7 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
             try {
                 val me = http.me()
                 settings.profile = me
-                profile.value = me
+                boatUser.value = me
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load profile.")
             }
@@ -76,7 +65,7 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
             try {
                 val data = http.conf()
                 settings.conf = data
-                conf.value = data
+                confData.value = data
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load configuration.")
             }
@@ -93,7 +82,7 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
 
     override fun onCoords(newCoords: CoordsData) {
         if (newCoords.coords.isEmpty()) return
-        coords.postValue(newCoords)
+        coordsData.postValue(newCoords)
     }
 
     fun openSocket(token: IdToken?, trackName: TrackName?) {
@@ -112,7 +101,7 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
     fun disconnect() {
         Timber.i("Disconnecting socket...")
         socket?.disconnect()
-        coords.postValue(null)
+        coordsData.postValue(null)
     }
 
     fun reconnect() {

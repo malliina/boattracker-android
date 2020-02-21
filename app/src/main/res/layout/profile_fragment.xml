@@ -9,21 +9,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <androidx.appcompat.widget.Toolbar
-            style="@style/BoatToolbar"
-            android:id="@+id/profile_toolbar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            tools:title="Boat-Tracker"/>
         <ProgressBar
             android:id="@+id/summary_progressbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="invisible"
-            app:layout_constraintTop_toBottomOf="@id/profile_toolbar"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/tracks_link"
             />
         <com.malliina.boattracker.ui.profile.TrackSummaryBox
@@ -31,14 +23,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:layout_constraintTop_toBottomOf="@id/profile_toolbar"/>
+            app:layout_constraintTop_toTopOf="parent"/>
         <com.google.android.material.button.MaterialButton
             style="@style/ProfileButtonStyle"
             android:id="@+id/tracks_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:onClick="tracksClicked"
             app:layout_constraintTop_toBottomOf="@id/track_summary"
             app:layout_constraintBottom_toTopOf="@id/boats_link"
             app:layout_constraintVertical_chainStyle="spread_inside"
