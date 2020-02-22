@@ -90,19 +90,17 @@ class MapFragment : Fragment() {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { map ->
             this.map = map
-            map.setStyle(Style.Builder().fromUri(StyleUrl)) {
+            map.setStyle(Style.Builder().fromUri(StyleUrl)) { style ->
                 viewModel.conf.observe(viewLifecycleOwner) { conf ->
-                    viewModel.profile.observe(viewLifecycleOwner) { _ ->
-                        callouts?.clear()
-                        callouts = Callouts(map, it, requireActivity(), conf.layers)
-                    }
+                    callouts?.clear()
+                    callouts = Callouts(map, style, requireActivity(), conf.layers)
                 }
             }
         }
 
         // Observer code happens on the main thread
         viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
-        viewModel.getUser().observe(viewLifecycleOwner) { state ->
+        viewModel.user.observe(viewLifecycleOwner) { state ->
             if (args.fit) {
                 mapMode = MapMode.Fit
             }
@@ -114,7 +112,7 @@ class MapFragment : Fragment() {
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
             UserSettings.instance.conf = conf
-            viewModel.getUser().observe(viewLifecycleOwner) { mapState ->
+            viewModel.user.observe(viewLifecycleOwner) { mapState ->
                 view.profile.visibility = Button.VISIBLE
             }
         }

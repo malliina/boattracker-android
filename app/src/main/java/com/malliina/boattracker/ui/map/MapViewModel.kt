@@ -38,10 +38,7 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
 
     private var socket: BoatSocket? = null
 
-    fun getUser(): LiveData<MapState> {
-        return mapState
-    }
-
+    val user: LiveData<MapState> = mapState
     val conf: LiveData<ClientConf> = confData
     val coords: LiveData<CoordsData?> = coordsData
     val profile: LiveData<BoatUser> = boatUser
