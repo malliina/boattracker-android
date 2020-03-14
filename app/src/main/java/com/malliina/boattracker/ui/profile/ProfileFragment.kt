@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -17,7 +17,7 @@ import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.profile_fragment.view.*
 
 class ProfileFragment: ResourceFragment(R.layout.profile_fragment) {
-    private lateinit var viewModel: ProfileViewModel
+    private val viewModel: ProfileViewModel by viewModels()
     private lateinit var client: GoogleSignInClient
 
     private var previousLanguage: Language? = null
@@ -28,7 +28,6 @@ class ProfileFragment: ResourceFragment(R.layout.profile_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         viewModel.state.observe(viewLifecycleOwner) { state ->
             toggleSummary(state, view)
         }

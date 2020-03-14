@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.malliina.boattracker.Language
@@ -16,14 +16,11 @@ import timber.log.Timber
 
 class LanguagesFragment : ResourceFragment(R.layout.languages_activity) {
     private lateinit var languagesView: ListView
-    private lateinit var viewModel: LanguagesViewModel
+    private val viewModel: LanguagesViewModel by viewModels()
     private lateinit var items: List<LanguageItem>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel =
-            ViewModelProvider(this, LanguagesViewModelFactory(requireActivity().application))
-                .get(LanguagesViewModel::class.java)
         val profileLang = lang.profile
         items = listOf(
             LanguageItem(Language.Swedish, profileLang.swedish),

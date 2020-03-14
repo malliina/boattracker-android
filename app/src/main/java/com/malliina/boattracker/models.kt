@@ -24,12 +24,12 @@ data class PushToken(val token: String) {
     override fun toString(): String = token
 }
 
-data class Email(val email: String): Primitive {
+data class Email(val email: String) : Primitive {
     override val value: String get() = email
     override fun toString(): String = email
 }
 
-data class IdToken(val token: String): Primitive {
+data class IdToken(val token: String) : Primitive {
     override val value: String get() = token
     override fun toString(): String = token
 }
@@ -42,7 +42,7 @@ data class Username(val name: String) : Primitive {
 }
 
 @Parcelize
-data class TrackName(val name: String): Primitive, Parcelable {
+data class TrackName(val name: String) : Primitive, Parcelable {
     override val value: String get() = name
     override fun toString(): String = name
 }
@@ -123,13 +123,11 @@ enum class Language(val code: String) {
     Swedish("sv-SE"), Finnish("fi-FI"), English("en-US");
 
     companion object {
-        fun parse(s: String): Language {
-            return when (s) {
-                Swedish.code -> Swedish
-                Finnish.code -> Finnish
-                English.code -> English
-                else -> English
-            }
+        fun parse(s: String): Language = when (s) {
+            Swedish.code -> Swedish
+            Finnish.code -> Finnish
+            English.code -> English
+            else -> English
         }
     }
 }

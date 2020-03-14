@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -14,7 +13,9 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
-import com.malliina.boattracker.*
+import com.malliina.boattracker.R
+import com.malliina.boattracker.UserInfo
+import com.malliina.boattracker.UserSettings
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.profile.ProfileFragment
 import timber.log.Timber

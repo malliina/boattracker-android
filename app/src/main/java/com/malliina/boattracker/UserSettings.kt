@@ -10,7 +10,7 @@ class UserSettings {
     var conf: ClientConf? = null
     private val languages: Languages? get() = conf?.languages
     var profile: BoatUser? = null
-        set(value)  {
+        set(value) {
             field = value
             userLanguage = value?.language
         }
@@ -22,12 +22,10 @@ class UserSettings {
     val user: UserInfo? get() = mapState?.user
     val token: IdToken? get() = user?.idToken
 
-    private fun selectLanguage(lang: Language, available: Languages): Lang {
-        return when (lang) {
-            Language.Finnish -> available.finnish
-            Language.Swedish -> available.swedish
-            Language.English -> available.english
-        }
+    private fun selectLanguage(lang: Language, available: Languages): Lang = when (lang) {
+        Language.Finnish -> available.finnish
+        Language.Swedish -> available.swedish
+        Language.English -> available.english
     }
 
     fun clear() {

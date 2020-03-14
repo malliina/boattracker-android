@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +19,7 @@ import kotlinx.android.synthetic.main.stat_box.view.*
 class BoatsFragment: ResourceFragment(R.layout.boats_fragment) {
     private lateinit var boatsAdapter: BoatsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var viewModel: BoatsViewModel
+    private val viewModel: BoatsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,8 +30,6 @@ class BoatsFragment: ResourceFragment(R.layout.boats_fragment) {
             layoutManager = viewManager
             adapter = boatsAdapter
         }
-        viewModel = ViewModelProvider(this, BoatsViewModelFactory(requireActivity().application))
-            .get(BoatsViewModel::class.java)
         viewModel.boats.observe(viewLifecycleOwner) { user ->
             boatsAdapter.boats = user.boats
             boatsAdapter.notifyDataSetChanged()

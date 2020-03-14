@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -26,14 +26,10 @@ interface TrackDelegate {
 class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate {
     private lateinit var viewAdapter: TracksAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var viewModel: TracksViewModel
+    private val viewModel: TracksViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(
-            this,
-            TracksViewModelFactory(requireActivity().application)
-        ).get(TracksViewModel::class.java)
         viewManager = LinearLayoutManager(context)
         viewAdapter = TracksAdapter(emptyList(), this, lang)
         view.tracks_view.apply {

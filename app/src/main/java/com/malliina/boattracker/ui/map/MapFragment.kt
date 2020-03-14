@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -50,7 +50,7 @@ class MapFragment : Fragment() {
     private val args: MapFragmentArgs by navArgs()
 
     private lateinit var mapView: MapView
-    private lateinit var viewModel: MapViewModel
+    private val viewModel: MapViewModel by viewModels()
     private var map: MapboxMap? = null
     private val style: Style? get() = map?.style
 
@@ -99,7 +99,6 @@ class MapFragment : Fragment() {
         }
 
         // Observer code happens on the main thread
-        viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
         viewModel.user.observe(viewLifecycleOwner) { state ->
             if (args.fit) {
                 mapMode = MapMode.Fit
