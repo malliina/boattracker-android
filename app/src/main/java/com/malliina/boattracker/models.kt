@@ -195,6 +195,38 @@ data class Coord(val lat: Double, val lng: Double) {
 @JsonClass(generateAdapter = true)
 data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
+interface Stats {
+    val label: String
+    val distance: Distance
+    val duration: Duration
+    val days: Long
+}
+
+@JsonClass(generateAdapter = true)
+data class MonthlyStats(
+    override val label: String,
+    val year: Int,
+    val month: Int,
+    val trackCount: Long,
+    override val distance: Distance,
+    override val duration: Duration,
+    override val days: Long
+): Stats
+
+@JsonClass(generateAdapter = true)
+data class YearlyStats(
+    override val label: String,
+    val year: Int,
+    val trackCount: Long,
+    override val distance: Distance,
+    override val duration: Duration,
+    override val days: Long,
+    val monthly: List<MonthlyStats>
+): Stats
+
+@JsonClass(generateAdapter = true)
+data class StatsResponse(val yearly: List<YearlyStats>)
+
 @Parcelize
 data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) : Parcelable {
     private val host = hostAndPort.takeWhile { c -> c != ':' }
@@ -241,7 +273,11 @@ data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) 
 data class SimpleMessage(val message: String)
 
 @JsonClass(generateAdapter = true)
-data class SingleError(val key: String, val message: String)
+data class SingleError(val key: String, val message: String) {
+    companion object {
+        fun backend(message: String) = SingleError("backend", message)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class Errors(val errors: List<SingleError>) {

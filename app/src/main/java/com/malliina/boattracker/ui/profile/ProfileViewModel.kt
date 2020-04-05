@@ -10,16 +10,14 @@ import com.malliina.boattracker.TrackName
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
+import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ProfileViewModel(val app: Application): AndroidViewModel(app), SocketDelegate {
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
+class ProfileViewModel(app: Application): BoatViewModel(app), SocketDelegate {
     private val loadState = MutableLiveData<LoadState>().apply {
         value = LoadState.NotLoaded
     }

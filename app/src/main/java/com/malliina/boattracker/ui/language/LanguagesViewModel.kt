@@ -1,28 +1,16 @@
 package com.malliina.boattracker.ui.language
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.Language
 import com.malliina.boattracker.UserSettings
 import com.malliina.boattracker.backend.BoatClient
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-
-class LanguagesViewModelFactory(val app: Application) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return LanguagesViewModel(app) as T
-    }
-}
-
-class LanguagesViewModel(val app: Application) : AndroidViewModel(app) {
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
+class LanguagesViewModel(app: Application) : BoatViewModel(app) {
     private val languageData = MutableLiveData<Language>().apply {
         value = UserSettings.instance.currentLanguage
     }

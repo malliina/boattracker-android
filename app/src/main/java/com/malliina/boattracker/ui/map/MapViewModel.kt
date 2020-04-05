@@ -2,23 +2,20 @@ package com.malliina.boattracker.ui.map
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
-import com.malliina.boattracker.backend.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import com.malliina.boattracker.backend.BoatClient
+import com.malliina.boattracker.backend.BoatSocket
+import com.malliina.boattracker.backend.SocketDelegate
+import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 data class MapState(val user: UserInfo?, val track: TrackName?)
 
-class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate {
-    private val settings: UserSettings get() = UserSettings.instance
-
+class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
     private val mapState: MutableLiveData<MapState> by lazy {
         MutableLiveData<MapState>().also {
             // https://developers.google.com/identity/sign-in/android/backend-auth
@@ -33,8 +30,6 @@ class MapViewModel(val app: Application) : AndroidViewModel(app), SocketDelegate
     }
     private val boatUser = MutableLiveData<BoatUser>()
     private val google = Google.instance
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private var socket: BoatSocket? = null
 

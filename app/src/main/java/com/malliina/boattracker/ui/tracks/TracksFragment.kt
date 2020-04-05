@@ -16,6 +16,7 @@ import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.ui.Controls
 import com.malliina.boattracker.ui.ResourceFragment
+import com.malliina.boattracker.ui.Status
 import kotlinx.android.synthetic.main.track_item.view.*
 import kotlinx.android.synthetic.main.tracks_fragment.view.*
 
@@ -45,9 +46,7 @@ class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate
                     ctrl.showList()
                     outcome.data?.let { list ->
                         if (list.isEmpty()) {
-                            settings.lang?.settings?.noTracksHelp?.let {
-                                ctrl.display(it)
-                            }
+                            ctrl.display(lang.settings.noTracksHelp)
                         } else {
                             viewAdapter.tracks = list
                             viewAdapter.notifyDataSetChanged()
@@ -62,7 +61,6 @@ class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate
                 }
             }
         }
-//        view.tracks_toolbar.title = lang.track.tracks
     }
 
     // https://stackoverflow.com/a/1124988

@@ -22,8 +22,8 @@ class FirebaseService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         Timber.i("Received remote message.")
-        val title = message.data["title"] ?: "Title here"
-        val text = message.data["message"] ?: "Message here"
+        val title = message.data["title"] ?: ""
+        val text = message.data["message"] ?: ""
         val intent = Intent(this, MapFragment::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val channelId = "fcm_default_channel"

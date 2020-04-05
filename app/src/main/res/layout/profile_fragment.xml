@@ -23,24 +23,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
+            android:layout_marginBottom="16dp"
             app:layout_constraintTop_toTopOf="parent"/>
         <com.google.android.material.button.MaterialButton
             style="@style/ProfileButtonStyle"
             android:id="@+id/tracks_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             app:layout_constraintTop_toBottomOf="@id/track_summary"
-            app:layout_constraintBottom_toTopOf="@id/boats_link"
             app:layout_constraintVertical_chainStyle="spread_inside"
             tools:text="Tracks"/>
+        <com.google.android.material.button.MaterialButton
+            style="@style/ProfileButtonStyle"
+            android:id="@+id/statistics_link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tracks_link"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            tools:text="Statistics"/>
         <com.google.android.material.button.MaterialButton
             style="@style/ProfileButtonStyle"
             android:id="@+id/boats_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="60dp"
-            app:layout_constraintTop_toBottomOf="@id/tracks_link"
+            app:layout_constraintTop_toBottomOf="@id/statistics_link"
             tools:text="Boats"/>
         <com.google.android.material.button.MaterialButton
             style="@style/ProfileButtonStyle"

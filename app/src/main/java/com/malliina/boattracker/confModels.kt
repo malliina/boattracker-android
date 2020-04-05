@@ -79,6 +79,7 @@ data class TrackLang(
     val track: String,
     val boats: String,
     val tracks: String,
+    val days: String,
     val speed: String,
     val water: String,
     val depth: String,
@@ -345,6 +346,14 @@ data class Layers(
 )
 
 @JsonClass(generateAdapter = true)
+data class LabelsLang(
+    val statistics: String,
+    val monthly: String,
+    val yearly: String,
+    val allTime: String
+)
+
+@JsonClass(generateAdapter = true)
 data class Lang(
     val language: Language,
     val appName: String,
@@ -356,6 +365,7 @@ data class Lang(
     val specialWords: SpecialWords,
     val fairway: FairwayLang,
     val track: TrackLang,
+    val labels: LabelsLang,
     val mark: MarkLang,
     val ais: AisLang,
     val shipTypes: ShipTypesLang,
@@ -370,4 +380,10 @@ data class Lang(
 data class Languages(val finnish: Lang, val swedish: Lang, val english: Lang)
 
 @JsonClass(generateAdapter = true)
-data class ClientConf(val languages: Languages, val layers: Layers)
+data class IconsConf(val boat: String, val trophy: String)
+
+@JsonClass(generateAdapter = true)
+data class MapConf(val styleId: String, val styleUrl: String, val icons: IconsConf)
+
+@JsonClass(generateAdapter = true)
+data class ClientConf(val map: MapConf, val languages: Languages, val layers: Layers)

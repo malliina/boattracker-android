@@ -8,4 +8,5 @@
     <color name="iconBackground">#99FFFFFF</color>
     <color name="darkGray">#555555</color>
     <color name="lightGray">#d3d3d3</color>
+    <color name="colorWhite">#ffffff</color>
 </resources>

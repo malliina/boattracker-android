@@ -44,6 +44,13 @@
             app:popEnterAnim="@anim/in_from_left"
             app:popExitAnim="@anim/out_to_right" />
         <action
+            android:id="@+id/profile_to_statistics"
+            app:destination="@id/statistics"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
             android:id="@+id/profile_to_boats"
             app:destination="@id/boats"
             app:enterAnim="@anim/in_from_right"
@@ -92,6 +99,15 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/map"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/statistics"
+        android:name="com.malliina.boattracker.ui.statistics.StatisticsFragment"
+        android:label="{title}"
+        tools:layout="@layout/statistics_fragment">
         <argument
             android:name="title"
             app:argType="string" />

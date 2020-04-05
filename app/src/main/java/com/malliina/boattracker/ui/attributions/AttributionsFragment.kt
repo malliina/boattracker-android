@@ -25,7 +25,6 @@ class AttributionsFragment: ResourceFragment(R.layout.attributions_fragment) {
 
         viewManager = LinearLayoutManager(context)
         attributionsAdapter = AttributionsAdapter(lang.attributions.attributions)
-//        view.attributions_toolbar.title = lang.attributions.title
         view.attributions_list.apply {
             setHasFixedSize(false)
             layoutManager = viewManager
@@ -75,7 +74,6 @@ class LinksAdapter(var links: List<Link>): RecyclerView.Adapter<LinksAdapter.Lin
     override fun onBindViewHolder(lh: LinkHolder, position: Int) {
         val link = links[position]
         val layout = lh.layout
-//        layout.attribution_link_text.text = link.text
         layout.attribution_link_url.text = link.url.url
     }
 

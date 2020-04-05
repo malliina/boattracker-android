@@ -1,37 +1,25 @@
 package com.malliina.boattracker.ui.boats
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.BoatUser
 import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.UserSettings
 import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.push.PushService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
  * See [StackOverflow answer](https://stackoverflow.com/a/46704702)
  */
-class BoatsViewModelFactory(val app: Application): ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return BoatsViewModel(app) as T
-    }
-}
-
-class BoatsViewModel(val app: Application): AndroidViewModel(app) {
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
+class BoatsViewModel(app: Application): BoatViewModel(app) {
     var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
 
     private val boatsData: MutableLiveData<BoatUser> = MutableLiveData<BoatUser>().also {
-        UserSettings.instance.token?.let {
+        settings.token?.let {
             loadBoats(it)
         }
     }

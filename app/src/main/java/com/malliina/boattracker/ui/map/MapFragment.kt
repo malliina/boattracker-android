@@ -40,9 +40,6 @@ import timber.log.Timber
 
 class MapFragment : Fragment() {
     companion object {
-        const val StyleUrl = "mapbox://styles/malliina/cjgny1fjc008p2so90sbz8nbv"
-        const val BoatIconId = "boat-resized-opt-30"
-        const val TrophyIconId = "trophy-gold-path"
         const val BoatIconSize: Float = 0.7f
         const val profileCode = 901
     }
@@ -56,6 +53,7 @@ class MapFragment : Fragment() {
 
     private var mapState: MapState = MapState(null, null)
     private val settings: UserSettings get() = UserSettings.instance
+    private val icons: IconsConf? get() = settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
@@ -88,15 +86,6 @@ class MapFragment : Fragment() {
         }
         mapView = view.mapView
         mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync { map ->
-            this.map = map
-            map.setStyle(Style.Builder().fromUri(StyleUrl)) { style ->
-                viewModel.conf.observe(viewLifecycleOwner) { conf ->
-                    callouts?.clear()
-                    callouts = Callouts(map, style, requireActivity(), conf.layers)
-                }
-            }
-        }
 
         // Observer code happens on the main thread
         viewModel.user.observe(viewLifecycleOwner) { state ->
@@ -113,6 +102,17 @@ class MapFragment : Fragment() {
             UserSettings.instance.conf = conf
             viewModel.user.observe(viewLifecycleOwner) { mapState ->
                 view.profile.visibility = Button.VISIBLE
+            }
+            if (this.map == null) {
+                mapView.getMapAsync { map ->
+                    this.map = map
+                    map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
+                        viewModel.conf.observe(viewLifecycleOwner) { conf ->
+                            callouts?.clear()
+                            callouts = Callouts(map, style, requireActivity(), conf.layers)
+                        }
+                    }
+                }
             }
         }
         viewModel.coords.observe(viewLifecycleOwner) { coords ->
@@ -252,25 +252,30 @@ class MapFragment : Fragment() {
             trails[meta] = lineString
             // Adds boat icon
             coords.lastOrNull()?.let { latLng ->
-                val iconSourceId = meta.iconSource
-                val iconSource = GeoJsonSource(iconSourceId, latLng)
-                style?.addSource(iconSource)
-                val layerId = meta.iconLayer
-                val symbol = SymbolLayer(layerId, iconSourceId).withProperties(
-                    PropertyFactory.iconImage(BoatIconId),
-                    PropertyFactory.iconSize(BoatIconSize)
-                )
-                style?.addLayer(symbol)
+                icons?.boat?.let { icon ->
+                    val iconSourceId = meta.iconSource
+                    val iconSource = GeoJsonSource(iconSourceId, latLng)
+                    style?.addSource(iconSource)
+                    val layerId = meta.iconLayer
+                    val symbol = SymbolLayer(layerId, iconSourceId).withProperties(
+                        PropertyFactory.iconImage(icon),
+                        PropertyFactory.iconSize(BoatIconSize)
+                    )
+                    style?.addLayer(symbol)
+                }
+
             }
             // Adds trophy using GeoJSON manually instead of using SymbolManager in order to make
             // z-index work as desired (i.e. trophy is shown on top of trails)
             val feature = topFeature(topSpeed)
             val trophySource = GeoJsonSource(meta.trophySource, feature)
             style?.addSource(trophySource)
-            val symbol = SymbolLayer(meta.trophyLayer, meta.trophySource).withProperties(
-                PropertyFactory.iconImage(TrophyIconId)
-            )
-            style?.addLayer(symbol)
+            icons?.trophy?.let { trophyIcon ->
+                val symbol = SymbolLayer(meta.trophyLayer, meta.trophySource).withProperties(
+                    PropertyFactory.iconImage(trophyIcon)
+                )
+                style?.addLayer(symbol)
+            }
             lineString
         } else {
             old.coordinates().addAll(coords)

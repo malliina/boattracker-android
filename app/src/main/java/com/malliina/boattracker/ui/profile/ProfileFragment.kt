@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.malliina.boattracker.Lang
@@ -16,7 +17,7 @@ import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.profile_fragment.view.*
 
-class ProfileFragment: ResourceFragment(R.layout.profile_fragment) {
+class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
     private val viewModel: ProfileViewModel by viewModels()
     private lateinit var client: GoogleSignInClient
 
@@ -36,34 +37,38 @@ class ProfileFragment: ResourceFragment(R.layout.profile_fragment) {
         }
         client = Google.instance.client(requireContext())
         installTranslations(lang, view)
-        view.tracks_link.setOnClickListener { tracksButton ->
-            val action = ProfileFragmentDirections.profileToTracks(lang.track.tracks)
-            findNavController().navigate(action)
+        view.tracks_link.setOnClickListener {
+            navigate(ProfileFragmentDirections.profileToTracks(lang.track.tracks))
         }
-        view.boats_link.setOnClickListener { boatsButton ->
-            val action = ProfileFragmentDirections.profileToBoats(lang.track.boats)
-            findNavController().navigate(action)
+        view.statistics_link.setOnClickListener {
+            navigate(ProfileFragmentDirections.profileToStatistics(lang.labels.statistics))
         }
-        view.languages_link.setOnClickListener { languagesButton ->
-            val action = ProfileFragmentDirections.profileToLanguages(lang.profile.language)
-            findNavController().navigate(action)
+        view.boats_link.setOnClickListener {
+            navigate(ProfileFragmentDirections.profileToBoats(lang.track.boats))
         }
-        view.licenses_link.setOnClickListener { licensesButton ->
-            val action = ProfileFragmentDirections.profileToAttributions(lang.attributions.title)
-            findNavController().navigate(action)
+        view.languages_link.setOnClickListener {
+            navigate(ProfileFragmentDirections.profileToLanguages(lang.profile.language))
         }
-        view.logout.setOnClickListener { logoutButton ->
+        view.licenses_link.setOnClickListener {
+            navigate(ProfileFragmentDirections.profileToAttributions(lang.attributions.title))
+        }
+        view.logout.setOnClickListener {
             client.signOut().addOnCompleteListener {
                 settings.clear()
                 val action = ProfileFragmentDirections.profileToMap(refresh = true)
-                findNavController().navigate(action)
+                navigate(action)
             }
         }
+    }
+
+    private fun navigate(to: NavDirections) {
+        findNavController().navigate(to)
     }
 
     @SuppressLint("SetTextI18n")
     private fun installTranslations(lang: Lang, view: View) {
         view.tracks_link.text = lang.track.trackHistory
+        view.statistics_link.text = lang.labels.statistics
         view.boats_link.text = lang.track.boats
         view.languages_link.text = lang.profile.language
         view.licenses_link.text = lang.attributions.title
