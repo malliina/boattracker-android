@@ -227,9 +227,8 @@ data class YearlyStats(
 @JsonClass(generateAdapter = true)
 data class StatsResponse(val yearly: List<YearlyStats>)
 
-@Parcelize
-data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) : Parcelable {
-    private val host = hostAndPort.takeWhile { c -> c != ':' }
+data class FullUrl(val proto: String, val hostAndPort: String, val uri: String) {
+    private val host: String = hostAndPort.takeWhile { c -> c != ':' }
     private val protoAndHost = "$proto://$hostAndPort"
     val url = "$protoAndHost$uri"
 

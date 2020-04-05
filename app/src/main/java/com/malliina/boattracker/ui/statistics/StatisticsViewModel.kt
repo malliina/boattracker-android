@@ -15,7 +15,7 @@ import timber.log.Timber
 class StatisticsViewModel(app: Application) : BoatViewModel(app) {
     private val statsData: MutableLiveData<Outcome<StatsResponse>> by lazy {
         MutableLiveData<Outcome<StatsResponse>>().also {
-            settings.token?.let { loadStats(it) }
+            userState.token?.let { loadStats(it) }
         }
     }
     val stats: LiveData<Outcome<StatsResponse>> = statsData

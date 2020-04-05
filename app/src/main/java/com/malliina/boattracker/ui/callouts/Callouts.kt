@@ -33,7 +33,8 @@ class Callouts(
     val map: MapboxMap,
     val style: Style,
     private val activity: Activity,
-    private val layers: Layers
+    private val conf: ClientConf,
+    private val settings: UserSettings
 ) {
     companion object {
         const val CalloutImageName = "callout-image"
@@ -51,6 +52,8 @@ class Callouts(
         val trafficSignAdapter: JsonAdapter<TrafficSign> =
             Json.moshi.adapter(TrafficSign::class.java)
     }
+
+    private val layers = conf.layers
 
     private val calloutImages: MutableMap<String, Bitmap> = mutableMapOf()
     private val calloutViews: MutableMap<String, View> = mutableMapOf()
@@ -75,8 +78,12 @@ class Callouts(
     private suspend fun onMapClick(latLng: LatLng): Boolean {
         val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
         if (maybePrevious == null) {
-            UserSettings.instance.lang?.let { lang ->
-                val callout = pointCallout(latLng, lang) ?: marksCallout(latLng, lang) ?: areaCallout(latLng, lang) ?: limitCallout(latLng, lang)
+            settings.lang?.let { lang ->
+                val callout =
+                    pointCallout(latLng, lang) ?: marksCallout(latLng, lang) ?: areaCallout(
+                        latLng,
+                        lang
+                    ) ?: limitCallout(latLng, lang)
                 callout?.let {
                     showCallout(latLng, it)
                 }
@@ -100,7 +107,10 @@ class Callouts(
             val trafficInfo = trafficSignAdapter.readOpt(gson.toJson(it.properties()))
             trafficInfo?.let { sign ->
                 val callout: TrafficSignCallout =
-                    activity.layoutInflater.inflate(R.layout.traffic_sign, null) as TrafficSignCallout
+                    activity.layoutInflater.inflate(
+                        R.layout.traffic_sign,
+                        null
+                    ) as TrafficSignCallout
                 callout.fill(sign, lang)
                 return callout
             }
@@ -150,7 +160,10 @@ class Callouts(
     private fun limitCallout(latLng: LatLng, lang: Lang): FairwayLimitCallout? {
         limitAreaInfo(latLng)?.let { limit ->
             val callout: FairwayLimitCallout =
-                activity.layoutInflater.inflate(R.layout.fairway_limit_symbol, null) as FairwayLimitCallout
+                activity.layoutInflater.inflate(
+                    R.layout.fairway_limit_symbol,
+                    null
+                ) as FairwayLimitCallout
             callout.fill(limit, lang.limits)
             return callout
         }
@@ -162,7 +175,9 @@ class Callouts(
             map.projection.toScreenLocation(latLng),
             *layers.limits.toTypedArray()
         )
-        features.map { f -> limitAreaAdapter.readOpt(gson.toJson(f.properties()))?.let { return it } }
+        features.map { f ->
+            limitAreaAdapter.readOpt(gson.toJson(f.properties()))?.let { return it }
+        }
         return null
     }
 

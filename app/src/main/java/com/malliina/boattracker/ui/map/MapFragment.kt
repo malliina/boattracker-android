@@ -39,6 +39,8 @@ import kotlinx.android.synthetic.main.map_fragment.view.*
 import timber.log.Timber
 
 class MapFragment : Fragment() {
+    val app: BoatApp get() = requireActivity().application as BoatApp
+
     companion object {
         const val BoatIconSize: Float = 0.7f
         const val profileCode = 901
@@ -52,8 +54,8 @@ class MapFragment : Fragment() {
     private val style: Style? get() = map?.style
 
     private var mapState: MapState = MapState(null, null)
-    private val settings: UserSettings get() = UserSettings.instance
-    private val icons: IconsConf? get() = settings.conf?.map?.icons
+    private val userState: UserState get() = UserState.instance
+    private val icons: IconsConf? get() = app.settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
 
@@ -86,7 +88,6 @@ class MapFragment : Fragment() {
         }
         mapView = view.mapView
         mapView.onCreate(savedInstanceState)
-
         // Observer code happens on the main thread
         viewModel.user.observe(viewLifecycleOwner) { state ->
             if (args.fit) {
@@ -99,19 +100,15 @@ class MapFragment : Fragment() {
             viewModel.openSocket(state.user?.idToken, trackName)
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
-            UserSettings.instance.conf = conf
-            viewModel.user.observe(viewLifecycleOwner) { mapState ->
+            // Sets profile visible when both conf and user have been loaded
+            viewModel.user.observe(viewLifecycleOwner) {
                 view.profile.visibility = Button.VISIBLE
             }
-            if (this.map == null) {
-                mapView.getMapAsync { map ->
-                    this.map = map
-                    map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
-                        viewModel.conf.observe(viewLifecycleOwner) { conf ->
-                            callouts?.clear()
-                            callouts = Callouts(map, style, requireActivity(), conf.layers)
-                        }
-                    }
+            mapView.getMapAsync { map ->
+                this.map = map
+                map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
+                    callouts?.clear()
+                    callouts = Callouts(map, style, requireActivity(), conf, app.settings)
                 }
             }
         }
@@ -122,20 +119,20 @@ class MapFragment : Fragment() {
                 }
             }
         }
-        viewModel.profile.observe(viewLifecycleOwner) { profile ->
-            Timber.i("Using language ${profile.language}")
-            settings.profile = profile
-        }
-        view.profile.setOnClickListener { profileButton ->
-            val user = settings.user
+//        viewModel.profile.observe(viewLifecycleOwner) { profile ->
+//            Timber.i("Using language ${profile.language}")
+//            app.settings.profile = profile
+//        }
+        view.profile.setOnClickListener {
+            val user = userState.user
             if (user == null) {
                 launchLogin()
             } else {
-                val action = MapFragmentDirections.mapToProfile(settings.lang!!.appName)
+                val action = MapFragmentDirections.mapToProfile(app.settings.lang!!.appName)
                 findNavController().navigate(action)
             }
         }
-        view.center.setOnClickListener { centerButton ->
+        view.center.setOnClickListener {
 
         }
         if (args.refresh) {

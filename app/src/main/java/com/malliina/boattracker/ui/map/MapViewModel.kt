@@ -15,7 +15,7 @@ import timber.log.Timber
 
 data class MapState(val user: UserInfo?, val track: TrackName?)
 
-class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
+class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     private val mapState: MutableLiveData<MapState> by lazy {
         MutableLiveData<MapState>().also {
             // https://developers.google.com/identity/sign-in/android/backend-auth
@@ -28,23 +28,22 @@ class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
             loadConf()
         }
     }
-    private val boatUser = MutableLiveData<BoatUser>()
+//    private val boatUser = MutableLiveData<BoatUser>()
     private val google = Google.instance
-
     private var socket: BoatSocket? = null
 
     val user: LiveData<MapState> = mapState
     val conf: LiveData<ClientConf> = confData
     val coords: LiveData<CoordsData?> = coordsData
-    val profile: LiveData<BoatUser> = boatUser
+//    val profile: LiveData<BoatUser> = boatUser
 
     private fun loadProfile(token: IdToken) {
         val http = BoatClient.build(app, token)
-        uiScope.launch {
+        ioScope.launch {
             try {
                 val me = http.me()
                 settings.profile = me
-                boatUser.value = me
+//                boatUser.postValue(me)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load profile.")
             }
@@ -52,20 +51,27 @@ class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
     }
 
     private fun loadConf() {
-        val http = BoatClient.basic(app)
-        uiScope.launch {
+        ioScope.launch {
+            val cache = settings.conf
+            val isCacheHit = cache != null
+            if (isCacheHit) {
+                confData.postValue(cache)
+            }
+            val http = BoatClient.basic(app)
             try {
                 val data = http.conf()
                 settings.conf = data
-                confData.value = data
+                if (!isCacheHit) {
+                    confData.postValue(data)
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load configuration.")
             }
         }
     }
 
-    fun update(state: MapState) {
-        settings.mapState = state
+    private fun update(state: MapState) {
+        userState.mapState = state
         mapState.postValue(state)
         state.user?.idToken?.let { token ->
             loadProfile(token)
@@ -81,7 +87,7 @@ class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
         socket?.disconnect()
         val newSocket = BoatSocket.token(token, trackName, this, app.applicationContext)
         socket = newSocket
-        uiScope.launch {
+        ioScope.launch {
             try {
                 newSocket.connectWithRetry()
             } catch (e: Exception) {
@@ -102,14 +108,14 @@ class MapViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
     }
 
     fun signInSilently(ctx: Context) {
-        uiScope.launch {
+        ioScope.launch {
             try {
                 val user = google.signInSilently(ctx)
                 update(MapState(user, null))
                 Timber.i("Hello, '${user.email}'!")
             } catch (e: Exception) {
                 Timber.w(e, "No authenticated profile.")
-                mapState.value = MapState(null, null)
+                mapState.postValue(MapState(null, null))
             }
         }
     }

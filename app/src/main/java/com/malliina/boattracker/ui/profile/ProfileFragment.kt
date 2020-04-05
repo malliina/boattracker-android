@@ -54,7 +54,7 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
         }
         view.logout.setOnClickListener {
             client.signOut().addOnCompleteListener {
-                settings.clear()
+                userState.clear()
                 val action = ProfileFragmentDirections.profileToMap(refresh = true)
                 navigate(action)
             }
@@ -104,7 +104,7 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
         }
         previousLanguage = lang.language
         token?.let {
-            viewModel.openSocket(it, settings.mapState?.track)
+            viewModel.openSocket(it, userState.mapState?.track)
         }
     }
 

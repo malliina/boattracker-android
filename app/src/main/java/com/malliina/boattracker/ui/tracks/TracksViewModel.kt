@@ -15,7 +15,7 @@ import timber.log.Timber
 class TracksViewModel(app: Application) : BoatViewModel(app) {
     private val tracksData: MutableLiveData<Outcome<List<TrackRef>>> by lazy {
         MutableLiveData<Outcome<List<TrackRef>>>().also {
-            settings.token?.let { loadTracks(it) }
+            userState.token?.let { loadTracks(it) }
         }
     }
     val tracks: LiveData<Outcome<List<TrackRef>>> = tracksData

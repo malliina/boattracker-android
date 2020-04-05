@@ -13,9 +13,9 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
+import com.malliina.boattracker.BoatApp
 import com.malliina.boattracker.R
 import com.malliina.boattracker.UserInfo
-import com.malliina.boattracker.UserSettings
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.ui.profile.ProfileFragment
 import timber.log.Timber
@@ -33,8 +33,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.login_activity)
         client = Google.instance.client(this)
         findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener(this)
-        supportActionBar?.title =
-            UserSettings.instance.lang?.settings?.signIn!!
+        val lang = (application as BoatApp).settings.lang
+        supportActionBar?.title = lang?.settings?.signIn!!
     }
 
     override fun onStart() {

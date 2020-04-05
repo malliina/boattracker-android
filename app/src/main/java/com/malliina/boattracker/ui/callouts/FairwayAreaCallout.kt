@@ -48,8 +48,12 @@ class FairwayAreaCallout : BoatCallout {
                 limitLang.magnitude,
                 l.limit?.formatKmhInt()
             )
-            fillText(R.id.fairway_area_limit_name_label, limitLang.fairwayName)
-            fillText(R.id.fairway_area_limit_name_text, l.fairwayName)
+            fillOrHide(
+                R.id.fairway_area_limit_name_label,
+                R.id.fairway_area_limit_name_text,
+                limitLang.fairwayName,
+                l.fairwayName?.value
+            )
         }
 
     }
@@ -73,7 +77,11 @@ class FairwayLimitCallout : BoatCallout {
             lang.magnitude,
             data.limit?.formatKmhInt()
         )
-        fillText(R.id.fairway_limit_name_label, lang.fairwayName)
-        fillText(R.id.fairway_limit_name_text, data.fairwayName)
+        fillOrHide(
+            R.id.fairway_limit_name_label,
+            R.id.fairway_limit_name_text,
+            lang.fairwayName,
+            data.fairwayName?.value
+        )
     }
 }

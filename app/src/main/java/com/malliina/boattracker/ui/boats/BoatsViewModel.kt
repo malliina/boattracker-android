@@ -19,7 +19,7 @@ class BoatsViewModel(app: Application): BoatViewModel(app) {
     var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
 
     private val boatsData: MutableLiveData<BoatUser> = MutableLiveData<BoatUser>().also {
-        settings.token?.let {
+        userState.token?.let {
             loadBoats(it)
         }
     }

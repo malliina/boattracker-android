@@ -436,23 +436,17 @@ enum class LimitType {
 @JsonClass(generateAdapter = true)
 data class LimitAreaJson(
     val RAJOITUSTY: String,
-    val SUURUUS: String,
-    val PITUUS: String,
+    val SUURUUS: Double,
+    val PITUUS: Double?,
     val MERK_VAST: NonEmptyString?,
     val NIMI_SIJAI: NonEmptyString?,
-    val VAY_NIMISU: String,
+    val VAY_NIMISU: NonEmptyString?,
     val IRROTUS_PV: String
 ) {
-    private fun toDouble(d: String): Double = try {
-        d.toDouble()
-    } catch (e: NumberFormatException) {
-        fail("Expected double, got: '$d'.")
-    }
-
     fun toLimitArea() = LimitArea(
         RAJOITUSTY.split(", ").map { LimitType.limitType(it) },
-        toDouble(SUURUUS).kmh(),
-        if (PITUUS.isEmpty()) null else toDouble(PITUUS).meters(),
+        SUURUUS.kmh(),
+        PITUUS?.meters(),
         MERK_VAST,
         NIMI_SIJAI,
         VAY_NIMISU,
@@ -466,7 +460,7 @@ data class LimitArea(
     val length: Distance?,
     val responsible: NonEmptyString?,
     val location: NonEmptyString?,
-    val fairwayName: String,
+    val fairwayName: NonEmptyString?,
     val publishDate: String
 )
 
