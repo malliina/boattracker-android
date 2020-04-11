@@ -104,7 +104,7 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
         }
         previousLanguage = lang.language
         token?.let {
-            viewModel.openSocket(it, userState.mapState?.track)
+            viewModel.openSocket(it, userState.userTrack?.track)
         }
     }
 

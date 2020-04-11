@@ -13,11 +13,11 @@ import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-data class MapState(val user: UserInfo?, val track: TrackName?)
+data class UserTrack(val user: UserInfo?, val track: TrackName?)
 
 class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
-    private val mapState: MutableLiveData<MapState> by lazy {
-        MutableLiveData<MapState>().also {
+    private val userTrack: MutableLiveData<UserTrack> by lazy {
+        MutableLiveData<UserTrack>().also {
             // https://developers.google.com/identity/sign-in/android/backend-auth
             signInSilently(app.applicationContext)
         }
@@ -32,7 +32,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     private val google = Google.instance
     private var socket: BoatSocket? = null
 
-    val user: LiveData<MapState> = mapState
+    val user: LiveData<UserTrack> = userTrack
     val conf: LiveData<ClientConf> = confData
     val coords: LiveData<CoordsData?> = coordsData
 //    val profile: LiveData<BoatUser> = boatUser
@@ -70,9 +70,9 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
         }
     }
 
-    private fun update(state: MapState) {
-        userState.mapState = state
-        mapState.postValue(state)
+    private fun update(state: UserTrack) {
+        userState.userTrack = state
+        userTrack.postValue(state)
         state.user?.idToken?.let { token ->
             loadProfile(token)
         }
@@ -81,6 +81,14 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     override fun onCoords(newCoords: CoordsData) {
         if (newCoords.coords.isEmpty()) return
         coordsData.postValue(newCoords)
+    }
+
+    override fun onNewToken(user: UserInfo) {
+        // Is it necessary to be on UI thread when doing LiveData.value?
+        // If not, no need to launch on UI scope here.
+        uiScope.launch {
+            update(UserTrack(user, userTrack.value?.track))
+        }
     }
 
     fun openSocket(token: IdToken?, trackName: TrackName?) {
@@ -103,7 +111,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     }
 
     fun reconnect() {
-        val state = mapState.value
+        val state = userTrack.value
         openSocket(state?.user?.idToken, state?.track)
     }
 
@@ -111,11 +119,11 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
         ioScope.launch {
             try {
                 val user = google.signInSilently(ctx)
-                update(MapState(user, null))
+                update(UserTrack(user, null))
                 Timber.i("Hello, '${user.email}'!")
             } catch (e: Exception) {
                 Timber.w(e, "No authenticated profile.")
-                mapState.postValue(MapState(null, null))
+                userTrack.postValue(UserTrack(null, null))
             }
         }
     }

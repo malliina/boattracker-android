@@ -1,19 +1,12 @@
 package com.malliina.boattracker.ui.profile
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.malliina.boattracker.CoordsData
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.TrackName
-import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.*
 import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
 import com.malliina.boattracker.ui.BoatViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -51,5 +44,8 @@ class ProfileViewModel(app: Application): BoatViewModel(app), SocketDelegate {
         // Not on main thread here, therefore using postValue instead of setValue
         current.postValue(newCoords.from)
         loadState.postValue(LoadState.Loaded)
+    }
+
+    override fun onNewToken(user: UserInfo) {
     }
 }

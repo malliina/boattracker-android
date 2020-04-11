@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.Task
 import com.malliina.boattracker.Email
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.UserInfo
+import com.malliina.boattracker.UserState
 import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -47,6 +48,7 @@ class Google {
     suspend fun signInSilently(c: GoogleSignInClient): UserInfo {
         val user = c.silentSignIn().await()
         readUser(user)?.let {
+            UserState.instance.update(it)
             return it
         }
         Timber.w("Unable to read user info from account.")

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,35 +11,35 @@
         android:id="@+id/date_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceListItem"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="@dimen/date_text"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="2018-06-16"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="2018-06-16" />
 
     <TextView
         android:id="@+id/title_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceListItem"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:textSize="@dimen/date_text"
+        android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="@color/darkGray"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/date_text"
+        android:textSize="@dimen/date_text"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Evening ride"/>
+        app:layout_constraintStart_toEndOf="@id/date_text"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Evening ride" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/label_end_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:layout_constraintTop_toBottomOf="@id/date_text"
-        app:constraint_referenced_ids="date_text, title_text"/>
+        app:constraint_referenced_ids="date_text, title_text"
+        app:layout_constraintTop_toBottomOf="@id/date_text" />
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/first"
@@ -48,7 +47,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/second"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/label_end_barrier"/>
+        app:layout_constraintTop_toBottomOf="@id/label_end_barrier" />
 
     <com.malliina.boattracker.ui.StatBox
         android:id="@+id/second"
@@ -62,7 +61,20 @@
         android:id="@+id/third"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/track_more_button"
         app:layout_constraintStart_toEndOf="@id/second"
         app:layout_constraintTop_toTopOf="@id/first" />
+
+    <ImageButton
+        android:id="@+id/track_more_button"
+        android:layout_width="42dp"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/more"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_more_vert_gray_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/third"
+        app:layout_constraintTop_toTopOf="@id/third" />
 </androidx.constraintlayout.widget.ConstraintLayout>

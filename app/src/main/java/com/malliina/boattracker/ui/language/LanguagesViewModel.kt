@@ -17,7 +17,7 @@ class LanguagesViewModel(app: Application) : BoatViewModel(app) {
     val language: LiveData<Language> = languageData
 
     fun changeLanguage(to: Language) {
-        UserState.instance.token?.let { token ->
+        userState.token?.let { token ->
             val http = BoatClient.build(app, token)
             uiScope.launch {
                 try {

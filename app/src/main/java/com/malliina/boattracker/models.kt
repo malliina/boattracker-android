@@ -136,6 +136,9 @@ enum class Language(val code: String) {
 data class ChangeLanguage(val language: String)
 
 @JsonClass(generateAdapter = true)
+data class ChangeTitle(val title: TrackTitle)
+
+@JsonClass(generateAdapter = true)
 data class BoatUser(
     val id: Int,
     val username: Username,
@@ -172,6 +175,9 @@ data class TrackRef(
     val duration: Duration,
     val topPoint: CoordBody
 )
+
+@JsonClass(generateAdapter = true)
+data class TrackResponse(val track: TrackRef)
 
 @JsonClass(generateAdapter = true)
 data class TracksResponse(val tracks: List<TrackRef>)
@@ -298,7 +304,7 @@ data class ResponseException(val error: VolleyError, val req: RequestConf) :
                 val charset =
                     Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
                 val str = String(response.data, charset)
-                BoatClient.errorsAdapter.read(str)
+                BoatClient.Adapters.errors.read(str)
             } catch (e: Exception) {
                 val msg = "Unable to parse response from '$url'."
                 Timber.e(e, msg)

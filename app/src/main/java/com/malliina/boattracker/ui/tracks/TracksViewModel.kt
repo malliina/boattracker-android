@@ -3,9 +3,7 @@ package com.malliina.boattracker.ui.tracks
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.SingleError
-import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.*
 import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.ui.BoatViewModel
 import com.malliina.boattracker.ui.Outcome
@@ -31,6 +29,28 @@ class TracksViewModel(app: Application) : BoatViewModel(app) {
                 Outcome.error(SingleError.backend("Failed to load tracks."))
             }
             tracksData.postValue(outcome)
+        }
+    }
+
+    fun changeTitle(track: TrackName, to: TrackTitle) {
+        userState.token?.let { token ->
+            val http = BoatClient.build(app, token)
+            ioScope.launch {
+                try {
+                    val updated = http.changeTitle(to, track)
+                    uiScope.launch {
+                        val existing = tracksData.value?.data ?: emptyList()
+                        val idx = existing.indexOfFirst { t -> t.trackName == track }
+                        if (idx >= 0) {
+                            val newList =
+                                existing.mapIndexed { index, trackRef -> if (index == idx) updated else trackRef }
+                            tracksData.value = Outcome.success(newList)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.w(e, "Failed to change title of '$track' to '$to'.")
+                }
+            }
         }
     }
 }

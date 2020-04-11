@@ -8,8 +8,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.malliina.boattracker.R
 
 class StatBox: ConstraintLayout {
-    lateinit var labelView: TextView
-    lateinit var valueView: TextView
+    private lateinit var labelView: TextView
+    private lateinit var valueView: TextView
 
     constructor(ctx: Context): super(ctx) {
         init()

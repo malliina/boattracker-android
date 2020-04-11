@@ -53,7 +53,7 @@ class MapFragment : Fragment() {
     private var map: MapboxMap? = null
     private val style: Style? get() = map?.style
 
-    private var mapState: MapState = MapState(null, null)
+    private var mapState: UserTrack = UserTrack(null, null)
     private val userState: UserState get() = UserState.instance
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
@@ -311,27 +311,32 @@ class MapFragment : Fragment() {
     // https://www.mapbox.com/android-docs/maps/overview/
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        if (::mapView.isInitialized)
+            mapView.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        if (::mapView.isInitialized)
+            mapView.onResume()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
+        if (::mapView.isInitialized)
+            mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        if (::mapView.isInitialized)
+            mapView.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView.onDestroy()
+        if (::mapView.isInitialized)
+            mapView.onDestroy()
     }
 }
 

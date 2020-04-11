@@ -1,10 +1,7 @@
 package com.malliina.boattracker.backend
 
 import android.content.Context
-import com.malliina.boattracker.CoordsData
-import com.malliina.boattracker.FullUrl
-import com.malliina.boattracker.IdToken
-import com.malliina.boattracker.TrackName
+import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
 import com.malliina.boattracker.backend.HttpClient.Companion.Authorization
 import com.neovisionaries.ws.client.*
@@ -20,6 +17,7 @@ import kotlin.coroutines.resumeWithException
 
 interface SocketDelegate {
     fun onCoords(newCoords: CoordsData)
+    fun onNewToken(user: UserInfo)
 }
 
 @JsonClass(generateAdapter = true)
@@ -62,9 +60,9 @@ class BoatSocket(
     private val google = Google.instance.client(ctx.applicationContext)
 
     fun onMessage(message: String) {
-        when (BoatClient.eventAdapter.fromJson(message)?.event) {
+        when (BoatClient.Adapters.event.fromJson(message)?.event) {
             "coords" -> {
-                val coords = BoatClient.coordsAdapter.read(message).body
+                val coords = BoatClient.Adapters.coords.read(message).body
                 onCoords(coords)
             }
             else -> {
@@ -99,7 +97,6 @@ class BoatSocket(
         }
     }
 
-
     init {
         socket.addListener(listener)
         headers.forEach { (k, v) -> socket.addHeader(k, v) }
@@ -115,6 +112,7 @@ class BoatSocket(
                 socket.removeHeaders(Authorization)
                 socket = socket.recreate()
                 HttpClient.headers(userInfo.idToken).forEach { (k, v) -> socket.addHeader(k, v) }
+                delegate.onNewToken(userInfo)
                 connect()
             }
         }

@@ -20,7 +20,7 @@ class UserSettings(private val prefs: SharedPreferences) {
 
     var profile: BoatUser? = null
     private val languages: Languages? get() = conf?.languages
-    val userLanguage: Language? get() = profile?.language
+    private val userLanguage: Language? get() = profile?.language
     val currentLanguage: Language get() = userLanguage ?: Language.English
     val lang: Lang? get() = languages?.let { selectLanguage(currentLanguage, it) }
 
@@ -40,9 +40,9 @@ class UserSettings(private val prefs: SharedPreferences) {
         set(value) {
             cachedConf = value
             if (value == null) clear(confKey)
-            else save(value, BoatClient.confAdapter, confKey)
+            else save(value, BoatClient.Adapters.conf, confKey)
         }
-        get() = cachedConf ?: loadOpt(confKey, BoatClient.confAdapter)
+        get() = cachedConf ?: loadOpt(confKey, BoatClient.Adapters.conf)
 
     private fun <T> load(key: String, adapter: JsonAdapter<T>, default: T): T {
         return loadOpt(key, adapter) ?: default
