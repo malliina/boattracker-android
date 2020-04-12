@@ -29,9 +29,7 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
     }
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
-
     private val maxTrailLength = 100
-
     private val vesselHistory: MutableMap<Mmsi, List<Vessel>> = mutableMapOf()
 
     override fun onVessels(vessels: List<Vessel>, map: MapboxMap) {
@@ -85,8 +83,4 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
     }
 
     private fun toPoint(c: Coord) = Point.fromLngLat(c.lng, c.lat)
-
-    fun clear() {
-//        m
-    }
 }

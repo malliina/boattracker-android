@@ -1,11 +1,15 @@
 package com.malliina.boattracker.ui.callouts
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
 import com.malliina.boattracker.*
+import com.malliina.boattracker.ui.VesselInfo
+import com.malliina.boattracker.ui.map.MapFragment
 import com.malliina.boattracker.ui.map.VesselsRenderer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -34,7 +38,8 @@ class Callouts(
     val style: Style,
     private val activity: Activity,
     private val conf: ClientConf,
-    private val settings: UserSettings
+    private val settings: UserSettings,
+    private val fragment: MapFragment
 ) {
     companion object {
         const val CalloutImageName = "callout-image"
@@ -67,6 +72,8 @@ class Callouts(
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
+    private val symbolInfo = fragment.view?.findViewById<VesselInfo>(R.id.symbol_info)
+
     init {
         map.addOnMapClickListener { latLng ->
             uiScope.launch { onMapClick(latLng) }
@@ -76,22 +83,59 @@ class Callouts(
     }
 
     private suspend fun onMapClick(latLng: LatLng): Boolean {
-        val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
-        if (maybePrevious == null) {
-            settings.lang?.let { lang ->
-                val callout =
-                    pointCallout(latLng, lang) ?: marksCallout(latLng, lang) ?: areaCallout(
-                        latLng,
-                        lang
-                    ) ?: limitCallout(latLng, lang)
-                callout?.let {
-                    showCallout(latLng, it)
-                }
+        val previousSymbol = symbolInfo?.visibility == View.VISIBLE
+        if (previousSymbol) {
+            symbolInfo?.let { info ->
+                info.animate().translationY(info.height.toFloat()).alpha(0f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                            info.visibility = View.GONE
+                        }
+                    })
             }
         } else {
-            style.removeLayer(CalloutLayerId)
+            val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
+            if (maybePrevious == null) {
+                settings.lang?.let { lang ->
+                    val handled = handleSymbol(latLng, lang)
+                    if (!handled) {
+                        val callout =
+                            pointCallout(latLng, lang) ?: marksCallout(latLng, lang) ?: areaCallout(
+                                latLng,
+                                lang
+                            ) ?: limitCallout(latLng, lang)
+                        callout?.let {
+                            showCallout(latLng, it)
+                        }
+                    }
+                }
+            } else {
+                style.removeLayer(CalloutLayerId)
+            }
         }
         return true
+    }
+
+    private fun handleSymbol(latLng: LatLng, lang: Lang): Boolean {
+        val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
+        features.firstOrNull { it.geometry()?.type() == "Point" }?.let { feature ->
+            val asGson = gson.toJson(feature.properties())
+            VesselsRenderer.vesselAdapter.readOpt(asGson)?.let { vessel ->
+                symbolInfo?.let { info ->
+                    info.fill(vessel, lang)
+                    // Hack so that it animates up from the bottom also on the first render
+                    if (info.height <= 1) {
+                        info.translationY = 351f
+                    }
+                    info.visibility = View.VISIBLE
+                    Timber.i("Filled ${info.height} ${info.measuredHeight}")
+                    info.animate().translationY(0f).alpha(1f).setListener(null)
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private fun pointCallout(latLng: LatLng, lang: Lang): BoatCallout? {

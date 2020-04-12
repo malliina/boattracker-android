@@ -111,7 +111,7 @@ class MapFragment : Fragment() {
                 this.map = map
                 map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
                     callouts?.clear()
-                    callouts = Callouts(map, style, requireActivity(), conf, app.settings)
+                    callouts = Callouts(map, style, requireActivity(), conf, app.settings, this)
                 }
             }
         }

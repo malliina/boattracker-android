@@ -20,90 +20,9 @@
     app:mapbox_bl_strokeColor="@android:color/darker_gray"
     app:mapbox_bl_strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.malliina.boattracker.ui.VesselInfo
+        android:id="@+id/vessel_info"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <TextView
-            android:id="@+id/vessel_name"
-            style="@style/BigValueText"
-            android:paddingBottom="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Superstar" />
-
-        <TextView
-            android:id="@+id/vessel_destination_label"
-            style="@style/SubtitleText"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vessel_name"
-            tools:text="Destination" />
-
-        <TextView
-            android:id="@+id/vessel_destination_text"
-            style="@style/ValueText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@+id/vessel_label_barrier"
-            app:layout_constraintTop_toBottomOf="@id/vessel_name"
-            tools:text="Eesti" />
-
-        <TextView
-            android:id="@+id/vessel_speed_label"
-            style="@style/SubtitleText"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/destination_barrier"
-            tools:text="Hastighet" />
-
-        <TextView
-            android:id="@+id/vessel_speed_text"
-            style="@style/ValueText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@+id/vessel_label_barrier"
-            app:layout_constraintTop_toBottomOf="@id/destination_barrier"
-            tools:text="13.60 kn" />
-
-        <TextView
-            android:id="@+id/vessel_draft_label"
-            style="@style/SubtitleText"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vessel_speed_label"
-            tools:text="Djupgående" />
-
-        <TextView
-            android:id="@+id/vessel_draft_text"
-            style="@style/ValueText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="@id/vessel_label_barrier"
-            app:layout_constraintTop_toBottomOf="@id/vessel_speed_label"
-            tools:text="8.9 m" />
-
-        <TextView
-            android:id="@+id/vessel_time"
-            style="@style/ValueText"
-            android:paddingTop="8dp"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vessel_draft_label"
-            tools:text="12.04.2020 11:10:01" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/vessel_label_barrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="end"
-            app:constraint_referenced_ids="vessel_destination_label,vessel_speed_label,vessel_draft_label" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/destination_barrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="vessel_destination_label, vessel_destination_text" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.malliina.boattracker.ui.callouts.VesselCallout>
