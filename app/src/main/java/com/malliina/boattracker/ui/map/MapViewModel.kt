@@ -22,20 +22,20 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
             signInSilently(app.applicationContext)
         }
     }
-    private val coordsData = MutableLiveData<CoordsData?>()
+    private val coordsData = MutableLiveData<CoordsData>()
+    private val vesselsData = MutableLiveData<List<Vessel>>()
     private val confData: MutableLiveData<ClientConf> by lazy {
         MutableLiveData<ClientConf>().also {
             loadConf()
         }
     }
-//    private val boatUser = MutableLiveData<BoatUser>()
     private val google = Google.instance
     private var socket: BoatSocket? = null
 
     val user: LiveData<UserTrack> = userTrack
     val conf: LiveData<ClientConf> = confData
-    val coords: LiveData<CoordsData?> = coordsData
-//    val profile: LiveData<BoatUser> = boatUser
+    val coords: LiveData<CoordsData> = coordsData
+    val vessels: LiveData<List<Vessel>> = vesselsData
 
     private fun loadProfile(token: IdToken) {
         val http = BoatClient.build(app, token)
@@ -43,7 +43,6 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
             try {
                 val me = http.me()
                 settings.profile = me
-//                boatUser.postValue(me)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load profile.")
             }
@@ -81,6 +80,11 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     override fun onCoords(newCoords: CoordsData) {
         if (newCoords.coords.isEmpty()) return
         coordsData.postValue(newCoords)
+    }
+
+    override fun onVessels(vessels: List<Vessel>) {
+        if (vessels.isEmpty()) return
+        vesselsData.postValue(vessels)
     }
 
     override fun onNewToken(user: UserInfo) {

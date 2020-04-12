@@ -17,11 +17,9 @@ import kotlin.coroutines.resumeWithException
 
 interface SocketDelegate {
     fun onCoords(newCoords: CoordsData)
+    fun onVessels(vessels: List<Vessel>)
     fun onNewToken(user: UserInfo)
 }
-
-@JsonClass(generateAdapter = true)
-data class CoordsMessage(val body: CoordsData)
 
 @JsonClass(generateAdapter = true)
 data class EventName(val event: String)
@@ -58,24 +56,8 @@ class BoatSocket(
     }
 
     private val google = Google.instance.client(ctx.applicationContext)
-
-    fun onMessage(message: String) {
-        when (BoatClient.Adapters.event.fromJson(message)?.event) {
-            "coords" -> {
-                val coords = BoatClient.Adapters.coords.read(message).body
-                onCoords(coords)
-            }
-            else -> {
-            }
-        }
-    }
-
-    private fun onCoords(newCoords: CoordsData) {
-        Timber.i("Got ${newCoords.coords.size} coords.")
-        delegate.onCoords(newCoords)
-    }
-
     private val sf: WebSocketFactory = WebSocketFactory()
+
     // var because it's recreated on reconnects
     private var socket = sf.createSocket(url.url, 10000)
     private val listener = object : WebSocketAdapter() {
@@ -100,6 +82,21 @@ class BoatSocket(
     init {
         socket.addListener(listener)
         headers.forEach { (k, v) -> socket.addHeader(k, v) }
+    }
+
+    fun onMessage(message: String) {
+        when (BoatClient.Adapters.event.fromJson(message)?.event) {
+            "coords" -> {
+                val coords = BoatClient.Adapters.coords.read(message).body
+                delegate.onCoords(coords)
+            }
+            "vessels" -> {
+                val vessels = BoatClient.Adapters.vessels.read(message).body
+                delegate.onVessels(vessels.vessels)
+            }
+            else -> {
+            }
+        }
     }
 
     suspend fun connectWithRetry() {

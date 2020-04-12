@@ -29,6 +29,7 @@ class BoatClient(val http: HttpClient) {
         val stats: JsonAdapter<StatsResponse> = moshi.adapter(StatsResponse::class.java)
         val errors: JsonAdapter<Errors> = moshi.adapter(Errors::class.java)
         val coords: JsonAdapter<CoordsMessage> = moshi.adapter(CoordsMessage::class.java)
+        val vessels: JsonAdapter<VesselMessage> = moshi.adapter(VesselMessage::class.java)
         val event: JsonAdapter<EventName> = moshi.adapter(EventName::class.java)
         val language: JsonAdapter<ChangeLanguage> = moshi.adapter(ChangeLanguage::class.java)
         val title: JsonAdapter<ChangeTitle> = moshi.adapter(ChangeTitle::class.java)

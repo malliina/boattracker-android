@@ -5,8 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
-import com.google.gson.Gson
 import com.malliina.boattracker.*
+import com.malliina.boattracker.ui.map.VesselsRenderer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -41,7 +41,7 @@ class Callouts(
         const val CalloutLayerId = "callout-layer"
         const val CalloutSourceId = "callout-source"
 
-        val gson = Gson()
+        val gson = Json.gson
         val speedAdapter: JsonAdapter<TopSpeedInfo> = Json.moshi.adapter(TopSpeedInfo::class.java)
         val marineSymbolAdapter: JsonAdapter<MarineSymbol> =
             Json.moshi.adapter(MarineSymbol::class.java)
@@ -96,22 +96,24 @@ class Callouts(
 
     private fun pointCallout(latLng: LatLng, lang: Lang): BoatCallout? {
         val features = map.queryRenderedFeatures(map.projection.toScreenLocation(latLng))
+        val inflater = activity.layoutInflater
         features.firstOrNull { it.geometry()?.type() == "Point" }?.let {
-            val speedInfo = speedAdapter.readOpt(gson.toJson(it.properties()))
-            speedInfo?.let { info ->
+            val asGson = gson.toJson(it.properties())
+            speedAdapter.readOpt(asGson)?.let { info ->
                 val callout: TrophyCallout =
-                    activity.layoutInflater.inflate(R.layout.trophy, null) as TrophyCallout
+                    inflater.inflate(R.layout.trophy, null) as TrophyCallout
                 callout.fill(info)
                 return callout
             }
-            val trafficInfo = trafficSignAdapter.readOpt(gson.toJson(it.properties()))
-            trafficInfo?.let { sign ->
+            trafficSignAdapter.readOpt(asGson)?.let { sign ->
                 val callout: TrafficSignCallout =
-                    activity.layoutInflater.inflate(
-                        R.layout.traffic_sign,
-                        null
-                    ) as TrafficSignCallout
+                    inflater.inflate(R.layout.traffic_sign, null) as TrafficSignCallout
                 callout.fill(sign, lang)
+                return callout
+            }
+            VesselsRenderer.vesselAdapter.readOpt(asGson)?.let { vessel ->
+                val callout = inflater.inflate(R.layout.vessel_symbol, null) as VesselCallout
+                callout.fill(vessel, lang)
                 return callout
             }
         }

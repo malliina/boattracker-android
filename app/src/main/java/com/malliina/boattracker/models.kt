@@ -41,6 +41,10 @@ data class Username(val name: String) : Primitive {
     override fun toString(): String = name
 }
 
+data class Mmsi(override val value: String) : Primitive {
+    override fun toString(): String = value
+}
+
 @Parcelize
 data class TrackName(val name: String) : Primitive, Parcelable {
     override val value: String get() = name
@@ -63,23 +67,20 @@ data class BoatToken(val token: String) : Primitive {
 }
 
 data class Speed(val knots: Double) : Comparable<Speed> {
-    var inKmh = knots * knotInKmh
-    fun formatKmh(): String = "%.1f km/h".format(inKmh)
-    fun formatKmhInt(): String = "%.0f km/h".format(inKmh)
-    override fun compareTo(other: Speed): Int {
-        return compareValuesBy(this, other, { it.knots })
-    }
-
     companion object {
         const val key = "speed"
         const val knotInKmh = 1.852
         fun format(s: Speed): String = "%.2f kn".format(s.knots)
     }
 
-    fun formatted(): String = format(this)
+    var inKmh = knots * knotInKmh
+    fun formatKmh(): String = "%.1f km/h".format(inKmh)
+    fun formatKmhInt(): String = "%.0f km/h".format(inKmh)
+    fun formatKn(): String = format(this)
+    fun formatted(): String = formatKn()
 
+    override fun compareTo(other: Speed): Int = compareValuesBy(this, other, { it.knots })
     override fun toString() = formatted()
-
 }
 
 fun Double.kmh(): Speed = Speed(this / Speed.knotInKmh)
@@ -201,6 +202,34 @@ data class Coord(val lat: Double, val lng: Double) {
 @JsonClass(generateAdapter = true)
 data class CoordsData(val from: TrackRef, val coords: List<CoordBody>)
 
+@JsonClass(generateAdapter = true)
+data class CoordsMessage(val body: CoordsData)
+
+@JsonClass(generateAdapter = true)
+data class Vessel(
+    val mmsi: Mmsi,
+    val name: String,
+    val heading: Double?,
+    val shipType: Int,
+    val coord: Coord,
+    val sog: Speed,
+    val cog: Double,
+    val draft: Distance,
+    val destination: String?,
+    val eta: Double,
+    val time: Timing
+) {
+    companion object {
+        val headingKey = "heading"
+    }
+}
+
+@JsonClass(generateAdapter = true)
+data class VesselData(val vessels: List<Vessel>)
+
+@JsonClass(generateAdapter = true)
+data class VesselMessage(val body: VesselData)
+
 interface Stats {
     val label: String
     val distance: Distance
@@ -217,7 +246,7 @@ data class MonthlyStats(
     override val distance: Distance,
     override val duration: Duration,
     override val days: Long
-): Stats
+) : Stats
 
 @JsonClass(generateAdapter = true)
 data class YearlyStats(
@@ -228,7 +257,7 @@ data class YearlyStats(
     override val duration: Duration,
     override val days: Long,
     val monthly: List<MonthlyStats>
-): Stats
+) : Stats
 
 @JsonClass(generateAdapter = true)
 data class StatsResponse(val yearly: List<YearlyStats>)

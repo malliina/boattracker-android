@@ -46,6 +46,10 @@ class ProfileViewModel(app: Application): BoatViewModel(app), SocketDelegate {
         loadState.postValue(LoadState.Loaded)
     }
 
+    override fun onVessels(vessels: List<Vessel>) {
+
+    }
+
     override fun onNewToken(user: UserInfo) {
     }
 }

@@ -58,7 +58,7 @@ class MapFragment : Fragment() {
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
-
+    private var ais: VesselsRenderer? = null
     private var callouts: Callouts? = null
 
     enum class MapMode {
@@ -104,6 +104,9 @@ class MapFragment : Fragment() {
             viewModel.user.observe(viewLifecycleOwner) {
                 view.profile.visibility = Button.VISIBLE
             }
+            app.settings.lang?.let {
+                ais = VesselsRenderer(conf.layers.ais, conf.map.icons, it)
+            }
             mapView.getMapAsync { map ->
                 this.map = map
                 map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
@@ -113,10 +116,13 @@ class MapFragment : Fragment() {
             }
         }
         viewModel.coords.observe(viewLifecycleOwner) { coords ->
-            coords?.let {
-                map?.let { m ->
-                    onCoords(it, m)
-                }
+            map?.let { m ->
+                onCoords(coords, m)
+            }
+        }
+        viewModel.vessels.observe(viewLifecycleOwner) { vessels ->
+            map?.let { m ->
+                ais?.onVessels(vessels, m)
             }
         }
 //        viewModel.profile.observe(viewLifecycleOwner) { profile ->
@@ -254,7 +260,7 @@ class MapFragment : Fragment() {
                     val iconSource = GeoJsonSource(iconSourceId, latLng)
                     style?.addSource(iconSource)
                     val layerId = meta.iconLayer
-                    val symbol = SymbolLayer(layerId, iconSourceId).withProperties(
+                    val symbol = SymbolLayer(layerId, iconSource.id).withProperties(
                         PropertyFactory.iconImage(icon),
                         PropertyFactory.iconSize(BoatIconSize)
                     )
@@ -280,13 +286,11 @@ class MapFragment : Fragment() {
         }
     }
 
-    private fun topFeature(top: CoordBody): Feature {
-        return Feature.fromGeometry(top.coord.point(), trophyJson(top))
-    }
+    private fun topFeature(top: CoordBody): Feature =
+        Feature.fromGeometry(top.coord.point(), trophyJson(top))
 
     private fun trophyJson(top: CoordBody): JsonObject {
-        val str = Callouts.speedAdapter.toJson(TopSpeedInfo(top.speed, top.boatTime))
-        return Callouts.gson.fromJson(str, JsonObject::class.java)
+        return Json.toGson(TopSpeedInfo(top.speed, top.boatTime), Callouts.speedAdapter)
     }
 
     private fun clearMap() {
