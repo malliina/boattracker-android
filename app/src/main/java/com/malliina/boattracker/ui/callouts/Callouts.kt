@@ -7,6 +7,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import com.malliina.boattracker.*
 import com.malliina.boattracker.ui.VesselInfo
 import com.malliina.boattracker.ui.map.MapFragment
@@ -86,13 +88,22 @@ class Callouts(
         val previousSymbol = symbolInfo?.visibility == View.VISIBLE
         if (previousSymbol) {
             symbolInfo?.let { info ->
-                info.animate().translationY(info.height.toFloat()).alpha(0f)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator?) {
-                            super.onAnimationEnd(animation)
-                            info.visibility = View.GONE
-                        }
-                    })
+                val anim = AnimationUtils.loadAnimation(
+                    fragment.context,
+                    R.anim.slide_down
+                )
+                anim.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationRepeat(animation: Animation?) {
+                    }
+
+                    override fun onAnimationStart(animation: Animation?) {
+                    }
+
+                    override fun onAnimationEnd(animation: Animation?) {
+                        info.visibility = View.GONE
+                    }
+                })
+                info.startAnimation(anim)
             }
         } else {
             val maybePrevious = style.getLayerAs<SymbolLayer>(CalloutLayerId)
@@ -124,13 +135,10 @@ class Callouts(
             VesselsRenderer.vesselAdapter.readOpt(asGson)?.let { vessel ->
                 symbolInfo?.let { info ->
                     info.fill(vessel, lang)
-                    // Hack so that it animates up from the bottom also on the first render
-                    if (info.height <= 1) {
-                        info.translationY = 351f
-                    }
                     info.visibility = View.VISIBLE
-                    Timber.i("Filled ${info.height} ${info.measuredHeight}")
-                    info.animate().translationY(0f).alpha(1f).setListener(null)
+                    info.startAnimation(
+                        AnimationUtils.loadAnimation(fragment.context, R.anim.slide_up)
+                    )
                     return true
                 }
             }
