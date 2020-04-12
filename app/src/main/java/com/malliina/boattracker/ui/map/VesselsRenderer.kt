@@ -74,7 +74,8 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
             val layer = SymbolLayer(id, id).withProperties(
                 PropertyFactory.iconImage(icons.boat),
                 PropertyFactory.iconSize(MapFragment.BoatIconSize),
-                PropertyFactory.iconRotate(Expression.get(Vessel.headingKey))
+                PropertyFactory.iconRotate(Expression.get(Vessel.headingKey)),
+                PropertyFactory.iconRotationAlignment("map")
             )
             style.addLayer(layer)
         } else {

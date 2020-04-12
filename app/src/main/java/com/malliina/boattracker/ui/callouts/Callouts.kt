@@ -1,7 +1,6 @@
 package com.malliina.boattracker.ui.callouts
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -17,6 +16,7 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.annotations.BubbleLayout
+import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
@@ -75,6 +75,7 @@ class Callouts(
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private val symbolInfo = fragment.view?.findViewById<VesselInfo>(R.id.symbol_info)
+    private val animator = BoatAnimator(map)
 
     init {
         map.addOnMapClickListener { latLng ->
@@ -139,11 +140,28 @@ class Callouts(
                     info.startAnimation(
                         AnimationUtils.loadAnimation(fragment.context, R.anim.slide_up)
                     )
+                    animateCameraToVessel(vessel, newZoom = 12.0)
                     return true
                 }
             }
         }
         return false
+    }
+
+    private fun animateCameraToVessel(
+        vessel: Vessel,
+        newZoom: Double
+    ) {
+        val cameraPosition: CameraPosition = map.cameraPosition
+        val animatorSet = AnimatorSet()
+        Timber.i("Animating to bearing ${vessel.heading ?: vessel.cog}...")
+        animatorSet.playTogether(
+            animator.createLatLngAnimator(cameraPosition.target, vessel.coord.latLng()),
+            animator.createZoomAnimator(cameraPosition.zoom, newZoom),
+            animator.createBearingAnimator(cameraPosition.bearing, vessel.heading ?: vessel.cog)
+//            createTiltAnimator(cameraPosition.tilt, feature.getNumberProperty("tilt").doubleValue())
+        )
+        animatorSet.start()
     }
 
     private fun pointCallout(latLng: LatLng, lang: Lang): BoatCallout? {

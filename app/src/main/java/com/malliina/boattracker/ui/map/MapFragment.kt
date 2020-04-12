@@ -223,7 +223,8 @@ class MapFragment : Fragment() {
                         ?.setProperties(
                             PropertyFactory.iconRotate(
                                 Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
-                            )
+                            ),
+                            PropertyFactory.iconRotationAlignment("map")
                         )
                 }
             }
