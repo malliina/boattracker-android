@@ -31,8 +31,22 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.math.min
 
+interface MeasuredCoord {
+    val coord: Coord
+    val speed: Speed
+}
+
 @JsonClass(generateAdapter = true)
-data class TopSpeedInfo(val speed: Speed, val dateTime: String)
+data class WrappedSpeed(val speed: Speed)
+
+data class SimpleCoord(override val coord: Coord, override val speed: Speed): MeasuredCoord
+
+@JsonClass(generateAdapter = true)
+data class SpeedInfo(val speed: Speed, val dateTime: String) {
+    companion object {
+        val dateTime = "dateTime"
+    }
+}
 
 // https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
 class Callouts(
@@ -49,7 +63,8 @@ class Callouts(
         const val CalloutSourceId = "callout-source"
 
         val gson = Json.gson
-        val speedAdapter: JsonAdapter<TopSpeedInfo> = Json.moshi.adapter(TopSpeedInfo::class.java)
+        val speedAdapter: JsonAdapter<SpeedInfo> = Json.moshi.adapter(SpeedInfo::class.java)
+        val wrappedAdapter: JsonAdapter<WrappedSpeed> = Json.moshi.adapter(WrappedSpeed::class.java)
         val marineSymbolAdapter: JsonAdapter<MarineSymbol> =
             Json.moshi.adapter(MarineSymbol::class.java)
         val fairwayAreaAdapter: JsonAdapter<FairwayArea> =

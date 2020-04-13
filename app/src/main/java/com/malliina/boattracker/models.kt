@@ -7,6 +7,7 @@ import com.android.volley.toolbox.HttpHeaderParser
 import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.backend.RequestConf
 import com.malliina.boattracker.backend.read
+import com.malliina.boattracker.ui.callouts.MeasuredCoord
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.squareup.moshi.JsonClass
@@ -185,18 +186,22 @@ data class TracksResponse(val tracks: List<TrackRef>)
 
 @JsonClass(generateAdapter = true)
 data class CoordBody(
-    val coord: Coord,
+    override val coord: Coord,
     val boatTime: String,
     val boatTimeMillis: Long,
-    val speed: Speed,
+    override val speed: Speed,
     val depthMeters: Distance,
     val waterTemp: Temperature
-)
+): MeasuredCoord
 
 @JsonClass(generateAdapter = true)
 data class Coord(val lat: Double, val lng: Double) {
     fun latLng(): LatLng = LatLng(lat, lng)
     fun point(): Point = Point.fromLngLat(lng, lat)
+
+    companion object {
+        fun fromPoint(point: Point) = Coord(point.latitude(), point.longitude())
+    }
 }
 
 @JsonClass(generateAdapter = true)
@@ -220,7 +225,7 @@ data class Vessel(
     val time: Timing
 ) {
     companion object {
-        val headingKey = "heading"
+        const val headingKey = "heading"
     }
 }
 

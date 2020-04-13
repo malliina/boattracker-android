@@ -14,7 +14,7 @@ class TrophyCallout : BoatCallout {
         defStyleAttr
     )
 
-    fun fill(info: TopSpeedInfo) {
+    fun fill(info: SpeedInfo) {
         fillText(R.id.trophy_speed_text, info.speed.formatted())
         fillText(R.id.trophy_datetime_text, info.dateTime)
     }

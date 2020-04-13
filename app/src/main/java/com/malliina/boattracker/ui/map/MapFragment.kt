@@ -1,7 +1,6 @@
 package com.malliina.boattracker.ui.map
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,11 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.JsonObject
 import com.malliina.boattracker.*
-import com.malliina.boattracker.ui.callouts.Callouts
-import com.malliina.boattracker.ui.callouts.TopSpeedInfo
+import com.malliina.boattracker.ui.callouts.*
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileFragment
 import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
@@ -56,7 +55,7 @@ class MapFragment : Fragment() {
     private var mapState: UserTrack = UserTrack(null, null)
     private val userState: UserState get() = UserState.instance
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
-    private val trails: MutableMap<TrackMeta, LineString> = mutableMapOf()
+    private val trails: MutableMap<TrackMeta, FeatureCollection> = mutableMapOf()
     private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
     private var ais: VesselsRenderer? = null
     private var callouts: Callouts? = null
@@ -183,13 +182,14 @@ class MapFragment : Fragment() {
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
         val from = coords.from
-        val newPoints = coords.coords.map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
+        val newPoints = coords.coords//.map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
         val meta = TrackMeta(from.trackName)
         // Updates track
-        val lineString = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)
+        val featureColl = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)
         val trailSource = style?.getSourceAs<GeoJsonSource>(meta.trailSource)
-        trailSource?.setGeoJson(lineString)
-        val latLngs = lineString.coordinates().map { asLatLng(it) }
+        trailSource?.setGeoJson(featureColl)
+        val latLngs = extractCoords(featureColl).map { p -> asLatLng(p) }
+//        val latLngs = featureColl.coordinates().map { asLatLng(it) }
         if (newPoints.isNotEmpty()) {
             // Updates map position
             when (mapMode) {
@@ -207,25 +207,25 @@ class MapFragment : Fragment() {
                 }
                 MapMode.Follow ->
                     map.cameraPosition =
-                        CameraPosition.Builder().target(asLatLng(newPoints.last())).build()
+                        CameraPosition.Builder().target(asLatLng(newPoints.last().coord.point()))
+                            .build()
                 MapMode.Stay ->
                     Unit
             }
             // Updates boat icon
             style?.getSourceAs<GeoJsonSource>(meta.iconSource)?.let { source ->
                 newPoints.lastOrNull()?.let { last ->
-                    source.setGeoJson(last)
+                    source.setGeoJson(last.coord.point())
                 }
                 // Updates boat icon bearing
                 val lastTwo = latLngs.takeLast(2)
                 if (lastTwo.size == 2) {
-                    style?.getLayerAs<SymbolLayer>(meta.iconLayer)
-                        ?.setProperties(
-                            PropertyFactory.iconRotate(
-                                Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
-                            ),
-                            PropertyFactory.iconRotationAlignment("map")
-                        )
+                    style?.getLayerAs<SymbolLayer>(meta.iconLayer)?.setProperties(
+                        PropertyFactory.iconRotate(
+                            Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
+                        ),
+                        PropertyFactory.iconRotationAlignment("map")
+                    )
                 }
             }
             // Updates trophy
@@ -239,26 +239,26 @@ class MapFragment : Fragment() {
     private fun updateOrCreateTrail(
         meta: TrackMeta,
         topSpeed: CoordBody,
-        coords: List<Point>
-    ): LineString {
+        coords: List<CoordBody>
+    ): FeatureCollection {
         val old = trails[meta]
         return if (old == null) {
             // Adds trail
             val trailSource = meta.trailSource
-            val lineString = LineString.fromLngLats(coords)
+            val trackFeature = FeatureCollection.fromFeatures(speedFeatures(coords))
             val source = GeoJsonSource(trailSource, LineString.fromLngLats(emptyList()))
             style?.addSource(source)
             val lineLayer = LineLayer(meta.trailLayer, trailSource).withProperties(
                 PropertyFactory.lineWidth(1f),
-                PropertyFactory.lineColor(Color.BLACK)
+                PropertyFactory.lineColor(Styles.instance.trackColor)
             )
             style?.addLayer(lineLayer)
-            trails[meta] = lineString
+            trails[meta] = trackFeature
             // Adds boat icon
             coords.lastOrNull()?.let { latLng ->
                 icons?.boat?.let { icon ->
                     val iconSourceId = meta.iconSource
-                    val iconSource = GeoJsonSource(iconSourceId, latLng)
+                    val iconSource = GeoJsonSource(iconSourceId, latLng.coord.point())
                     style?.addSource(iconSource)
                     val layerId = meta.iconLayer
                     val symbol = SymbolLayer(layerId, iconSource.id).withProperties(
@@ -267,7 +267,6 @@ class MapFragment : Fragment() {
                     )
                     style?.addLayer(symbol)
                 }
-
             }
             // Adds trophy using GeoJSON manually instead of using SymbolManager in order to make
             // z-index work as desired (i.e. trophy is shown on top of trails)
@@ -280,19 +279,77 @@ class MapFragment : Fragment() {
                 )
                 style?.addLayer(symbol)
             }
-            lineString
+            trackFeature
         } else {
-            old.coordinates().addAll(coords)
-            old
+            val oldFeatures = old.features() ?: emptyList()
+            val latest = latestMeasurement(oldFeatures)
+            val latestList = if (latest == null) emptyList() else listOf(latest)
+            FeatureCollection.fromFeatures(oldFeatures + speedFeatures(latestList + coords))
+        }
+    }
+
+    fun extractCoords(coll: FeatureCollection): List<Point> {
+        val features = coll.features() ?: emptyList()
+        return features.flatMap {
+            it.geometry()?.let { geo ->
+                when (geo) {
+                    is LineString -> geo.coordinates()
+                    else -> emptyList()
+                }
+            } ?: emptyList()
+        }
+    }
+
+    private fun latestMeasurement(features: List<Feature>): SimpleCoord? {
+        features.lastOrNull()?.let { feature ->
+            val geometry = feature.geometry()
+            val lastCoord = when (geometry) {
+                is LineString -> geometry.coordinates().lastOrNull()
+                else -> null
+            }
+            val speed = feature.getNumberProperty(Speed.key)?.toDouble()
+            lastCoord?.let { p ->
+                speed?.let { s ->
+                    return SimpleCoord(Coord.fromPoint(p), Speed(s))
+                }
+            }
+        }
+        return null
+    }
+
+    private fun speedFeatures(coords: List<MeasuredCoord>): List<Feature> = when (coords.size) {
+        0 -> {
+            emptyList()
+        }
+        1 -> {
+            val single = coords.first()
+            val info = WrappedSpeed(single.speed)
+            val feature = Feature.fromGeometry(
+                LineString.fromLngLats(listOf(single.coord.point())),
+                Json.toGson(info, Callouts.wrappedAdapter)
+            )
+            listOf(feature)
+        }
+        else -> {
+            coords.zip(coords.drop(1)).map { pair ->
+                val avgSpeed = (pair.first.speed.knots + pair.second.speed.knots) / 2
+                val edge = LineString.fromLngLats(
+                    listOf(
+                        pair.first.coord.point(),
+                        pair.second.coord.point()
+                    )
+                )
+                val info = WrappedSpeed(Speed(avgSpeed))
+                Feature.fromGeometry(edge, Json.toGson(info, Callouts.wrappedAdapter))
+            }
         }
     }
 
     private fun topFeature(top: CoordBody): Feature =
         Feature.fromGeometry(top.coord.point(), trophyJson(top))
 
-    private fun trophyJson(top: CoordBody): JsonObject {
-        return Json.toGson(TopSpeedInfo(top.speed, top.boatTime), Callouts.speedAdapter)
-    }
+    private fun trophyJson(top: CoordBody): JsonObject =
+        Json.toGson(SpeedInfo(top.speed, top.boatTime), Callouts.speedAdapter)
 
     private fun clearMap() {
         map?.let { map ->
