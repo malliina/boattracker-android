@@ -111,7 +111,6 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     fun disconnect() {
         Timber.i("Disconnecting socket...")
         socket?.disconnect()
-        coordsData.postValue(null)
     }
 
     fun reconnect() {
