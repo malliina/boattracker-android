@@ -79,13 +79,11 @@ class StatsAdapter(
     override fun onBindViewHolder(th: StatHolder, position: Int) {
         val row = list[position]
         val layout = th.layout
-//        val backgroundColor = if (row is MonthlyStats) R.color.lightGray else R.color.colorWhite
-//        layout.setBackgroundColor(backgroundColor)
         layout.date_text.text = row.label
-//        layout.title_text.text =
         layout.first.fill(trackLang.distance, row.distance.formatKilometers())
         layout.second.fill(trackLang.duration, row.duration.formatted())
         layout.third.fill(trackLang.days, "${row.days}")
+        layout.track_more_button.visibility = View.GONE
     }
 
     override fun getItemCount(): Int = list.size

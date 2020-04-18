@@ -67,12 +67,13 @@
 
     <ImageButton
         android:id="@+id/track_more_button"
-        android:layout_width="42dp"
+        android:layout_width="34dp"
         android:layout_height="0dp"
         android:background="?attr/selectableItemBackground"
         android:contentDescription="@string/more"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_more_vert_gray_24dp"
+        android:alpha="0.6"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/third"
