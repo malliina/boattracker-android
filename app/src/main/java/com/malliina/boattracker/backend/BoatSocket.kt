@@ -85,6 +85,7 @@ class BoatSocket(
     }
 
     fun onMessage(message: String) {
+//        Timber.d("Message '$message'.")
         when (BoatClient.Adapters.event.fromJson(message)?.event) {
             "coords" -> {
                 val coords = BoatClient.Adapters.coords.read(message).body

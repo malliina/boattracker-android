@@ -21,7 +21,6 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -73,9 +72,6 @@ class MapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val token = BuildConfig.MapboxAccessToken
-        Timber.i("Using token %s", token)
-        Mapbox.getInstance(requireContext(), token)
         return inflater.inflate(R.layout.map_fragment, container, false)
     }
 
@@ -109,7 +105,6 @@ class MapFragment : Fragment() {
             mapView.getMapAsync { map ->
                 this.map = map
                 map.setStyle(Style.Builder().fromUri(conf.map.styleUrl)) { style ->
-                    callouts?.clear()
                     callouts = Callouts(map, style, requireActivity(), conf, app.settings, this)
                 }
             }
@@ -124,10 +119,6 @@ class MapFragment : Fragment() {
                 ais?.onVessels(vessels, m)
             }
         }
-//        viewModel.profile.observe(viewLifecycleOwner) { profile ->
-//            Timber.i("Using language ${profile.language}")
-//            app.settings.profile = profile
-//        }
         view.profile.setOnClickListener {
             val user = userState.user
             if (user == null) {
@@ -170,7 +161,6 @@ class MapFragment : Fragment() {
         super.onStart()
         (activity as AppCompatActivity).supportActionBar?.hide()
         mapView.onStart()
-        viewModel.reconnect()
     }
 
     override fun onStop() {
@@ -189,7 +179,6 @@ class MapFragment : Fragment() {
         val trailSource = style?.getSourceAs<GeoJsonSource>(meta.trailSource)
         trailSource?.setGeoJson(featureColl)
         val latLngs = extractCoords(featureColl).map { p -> asLatLng(p) }
-//        val latLngs = featureColl.coordinates().map { asLatLng(it) }
         if (newPoints.isNotEmpty()) {
             // Updates map position
             when (mapMode) {
@@ -288,7 +277,7 @@ class MapFragment : Fragment() {
         }
     }
 
-    fun extractCoords(coll: FeatureCollection): List<Point> {
+    private fun extractCoords(coll: FeatureCollection): List<Point> {
         val features = coll.features() ?: emptyList()
         return features.flatMap {
             it.geometry()?.let { geo ->
@@ -352,6 +341,8 @@ class MapFragment : Fragment() {
         Json.toGson(SpeedInfo(top.speed, top.boatTime), Callouts.speedAdapter)
 
     private fun clearMap() {
+        callouts?.clear()
+        callouts = null
         map?.let { map ->
             trails.keys.forEach { meta ->
                 style?.let { s ->
@@ -395,8 +386,9 @@ class MapFragment : Fragment() {
             mapView.onLowMemory()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        this.map = null
         if (::mapView.isInitialized)
             mapView.onDestroy()
     }
