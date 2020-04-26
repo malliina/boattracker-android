@@ -84,13 +84,14 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
     }
 
     fun clear(style: Style) {
-        style.getSourceAs<GeoJsonSource>(vesselTrailsId)?.let {
-            style.removeLayer(vesselTrailsId)
-            style.removeSource(vesselTrailsId)
-        }
-        style.getSourceAs<GeoJsonSource>(vesselPointsId)?.let {
-            style.removeLayer(vesselPointsId)
-            style.removeSource(vesselPointsId)
+        removeSourceAndLayerIfExists(vesselTrailsId, style)
+        removeSourceAndLayerIfExists(vesselPointsId, style)
+    }
+
+    private fun removeSourceAndLayerIfExists(id: String, style: Style) {
+        style.getSourceAs<GeoJsonSource>(id)?.let {
+            style.removeLayer(id)
+            style.removeSource(id)
         }
     }
 
