@@ -21,7 +21,6 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -55,15 +54,12 @@ class MapFragment : Fragment() {
     private val userState: UserState get() = UserState.instance
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, FeatureCollection> = mutableMapOf()
-    private val topSpeedMarkers: MutableMap<TrackName, ActiveMarker> = mutableMapOf()
     private var ais: VesselsRenderer? = null
     private var callouts: Callouts? = null
 
     enum class MapMode {
         Fit, Follow, Stay
     }
-
-    data class ActiveMarker(val marker: Marker, val topPoint: CoordBody)
 
     private var mapMode: MapMode = MapMode.Fit
 
@@ -91,7 +87,6 @@ class MapFragment : Fragment() {
             val trackName = args.track ?: state.track
             val email = state.user?.email ?: "no email"
             Timber.i("Got $email with track ${trackName ?: "no track"}")
-//            viewModel.openSocket(state.user?.idToken, trackName)
             viewModel.reconnect()
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
@@ -347,22 +342,18 @@ class MapFragment : Fragment() {
     private fun clearMap() {
         callouts?.clear()
         callouts = null
-        map?.let { map ->
+        style?.let { s ->
             trails.keys.forEach { meta ->
-                style?.let { s ->
-                    s.removeLayer(meta.trailLayer)
-                    s.removeSource(meta.trailSource)
-                    s.removeLayer(meta.iconLayer)
-                    s.removeSource(meta.iconSource)
-                    s.removeLayer(meta.trophyLayer)
-                    s.removeSource(meta.trophySource)
-                }
+                s.removeLayer(meta.trailLayer)
+                s.removeSource(meta.trailSource)
+                s.removeLayer(meta.iconLayer)
+                s.removeSource(meta.iconSource)
+                s.removeLayer(meta.trophyLayer)
+                s.removeSource(meta.trophySource)
+                ais?.clear(s)
             }
-            trails.clear()
-            topSpeedMarkers.values.forEach { m -> map.removeMarker(m.marker) }
-            topSpeedMarkers.clear()
-            map.clear()
         }
+        trails.clear()
     }
 
     // https://www.mapbox.com/android-docs/maps/overview/
@@ -370,7 +361,6 @@ class MapFragment : Fragment() {
         super.onPause()
         if (::mapView.isInitialized)
             mapView.onPause()
-        Timber.i("onPause")
     }
 
     override fun onResume() {

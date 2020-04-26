@@ -2,10 +2,7 @@ package com.malliina.boattracker.ui.map
 
 import android.graphics.Color
 import com.malliina.boattracker.*
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.LineString
-import com.mapbox.geojson.MultiLineString
-import com.mapbox.geojson.Point
+import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
@@ -31,6 +28,8 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val maxTrailLength = 100
     private val vesselHistory: MutableMap<Mmsi, List<Vessel>> = mutableMapOf()
+    private val vesselTrailsId = "trails-vessels"
+    private val vesselPointsId = "points-vessels"
 
     override fun onVessels(vessels: List<Vessel>, map: MapboxMap) {
         Timber.i("Rendering ${vessels.size} vessels...")
@@ -41,12 +40,11 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
         }
         map.style?.let { style ->
             uiScope.launch {
-                vessels.forEach { vessel -> updateVessel(vessel, style) }
+                updateVessels(vessels, style)
                 val trails = vesselHistory.values.map { history ->
                     LineString.fromLngLats(history.map { toPoint(it.coord) })
                 }
                 val geos = MultiLineString.fromLineStrings(trails)
-                val vesselTrailsId = "trails-vessels"
                 val trailsSrc = style.getSourceAs<GeoJsonSource>(vesselTrailsId)
                 if (trailsSrc == null) {
                     val src = GeoJsonSource(vesselTrailsId, geos)
@@ -63,15 +61,17 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
         }
     }
 
-    private fun updateVessel(vessel: Vessel, style: Style) {
-        val id = "vessel-${vessel.mmsi}"
-        val point = toPoint(vessel.coord)
-        val src = style.getSourceAs<GeoJsonSource>(id)
-        val json = Json.toGson(vessel, vesselAdapter)
-        val feature = Feature.fromGeometry(point, json)
+    private fun updateVessels(vessels: List<Vessel>, style: Style) {
+        val features = vessels.map { vessel ->
+            val point = toPoint(vessel.coord)
+            val json = Json.toGson(vessel, vesselAdapter)
+            Feature.fromGeometry(point, json)
+        }
+        val coll = FeatureCollection.fromFeatures(features)
+        val src = style.getSourceAs<GeoJsonSource>(vesselPointsId)
         if (src == null) {
-            style.addSource(GeoJsonSource(id, feature))
-            val layer = SymbolLayer(id, id).withProperties(
+            style.addSource(GeoJsonSource(vesselPointsId, coll))
+            val layer = SymbolLayer(vesselPointsId, vesselPointsId).withProperties(
                 PropertyFactory.iconImage(icons.boat),
                 PropertyFactory.iconSize(MapFragment.BoatIconSize),
                 PropertyFactory.iconRotate(Expression.get(Vessel.headingKey)),
@@ -79,7 +79,18 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
             )
             style.addLayer(layer)
         } else {
-            src.setGeoJson(feature)
+            src.setGeoJson(coll)
+        }
+    }
+
+    fun clear(style: Style) {
+        style.getSourceAs<GeoJsonSource>(vesselTrailsId)?.let {
+            style.removeLayer(vesselTrailsId)
+            style.removeSource(vesselTrailsId)
+        }
+        style.getSourceAs<GeoJsonSource>(vesselPointsId)?.let {
+            style.removeLayer(vesselPointsId)
+            style.removeSource(vesselPointsId)
         }
     }
 
