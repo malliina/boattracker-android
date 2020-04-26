@@ -45,13 +45,13 @@ class MapFragment : Fragment() {
     }
 
     private val args: MapFragmentArgs by navArgs()
+    private var isRestart = false
 
     private lateinit var mapView: MapView
     private val viewModel: MapViewModel by viewModels()
     private var map: MapboxMap? = null
     private val style: Style? get() = map?.style
 
-    private var mapState: UserTrack = UserTrack(null, null)
     private val userState: UserState get() = UserState.instance
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
     private val trails: MutableMap<TrackMeta, FeatureCollection> = mutableMapOf()
@@ -91,8 +91,8 @@ class MapFragment : Fragment() {
             val trackName = args.track ?: state.track
             val email = state.user?.email ?: "no email"
             Timber.i("Got $email with track ${trackName ?: "no track"}")
-            this.mapState = state
-            viewModel.openSocket(state.user?.idToken, trackName)
+//            viewModel.openSocket(state.user?.idToken, trackName)
+            viewModel.reconnect()
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
             // Sets profile visible when both conf and user have been loaded
@@ -161,6 +161,10 @@ class MapFragment : Fragment() {
         super.onStart()
         (activity as AppCompatActivity).supportActionBar?.hide()
         mapView.onStart()
+        if (isRestart) {
+            viewModel.reconnect()
+        }
+        isRestart = true
     }
 
     override fun onStop() {
@@ -366,6 +370,7 @@ class MapFragment : Fragment() {
         super.onPause()
         if (::mapView.isInitialized)
             mapView.onPause()
+        Timber.i("onPause")
     }
 
     override fun onResume() {
@@ -391,6 +396,7 @@ class MapFragment : Fragment() {
         this.map = null
         if (::mapView.isInitialized)
             mapView.onDestroy()
+        isRestart = false
     }
 }
 

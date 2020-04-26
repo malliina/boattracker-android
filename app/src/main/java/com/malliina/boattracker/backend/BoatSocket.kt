@@ -141,7 +141,11 @@ class BoatSocket(
         }
 
     fun disconnect() {
+        val wasOpen = socket.isOpen
         socket.removeListener(listener)
         socket.disconnect()
+        if (wasOpen) {
+            Timber.i("Disconnected from '$url'.")
+        }
     }
 }
