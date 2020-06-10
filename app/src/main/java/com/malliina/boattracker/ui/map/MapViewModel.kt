@@ -95,7 +95,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
         }
     }
 
-    fun openSocket(token: IdToken?, trackName: TrackName?) {
+    private fun openSocket(token: IdToken?, trackName: TrackName?) {
         socket?.disconnect()
         val newSocket = BoatSocket.token(token, trackName, this, app.applicationContext)
         socket = newSocket
@@ -108,14 +108,21 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
         }
     }
 
+    fun restart() {
+        reconnect(userTrack.value?.track)
+    }
+
+    fun reconnect(trackName: TrackName?) {
+        val state = userTrack.value
+        val activeState = UserTrack(state?.user, trackName ?: state?.track)
+        userState.userTrack = activeState
+//        userTrack.postValue(activeState)
+        openSocket(state?.user?.idToken, activeState.track)
+    }
+
     fun disconnect() {
         Timber.i("Disconnecting socket...")
         socket?.disconnect()
-    }
-
-    fun reconnect() {
-        val state = userTrack.value
-        openSocket(state?.user?.idToken, state?.track)
     }
 
     fun signInSilently(ctx: Context) {

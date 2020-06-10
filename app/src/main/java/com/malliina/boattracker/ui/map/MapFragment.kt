@@ -87,7 +87,7 @@ class MapFragment : Fragment() {
             val trackName = args.track ?: state.track
             val email = state.user?.email ?: "no email"
             Timber.i("Got $email with track ${trackName ?: "no track"}")
-            viewModel.reconnect()
+            viewModel.reconnect(trackName)
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
             // Sets profile visible when both conf and user have been loaded
@@ -157,7 +157,7 @@ class MapFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.hide()
         mapView.onStart()
         if (isRestart) {
-            viewModel.reconnect()
+            viewModel.restart()
         }
         isRestart = true
     }
