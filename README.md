@@ -8,5 +8,9 @@ The Android app for [BoatTracker](https://www.boat-tracker.com).
 ## Development
 
 If you get "Sign in failed." errors with error code DEVELOPER_ERROR, make sure that your SHA1 
-certificate fingerprint is added to the Firebase Console. See https://stackoverflow.com/a/44506538
-for details.
+certificate fingerprint is added to the Firebase Console. 
+
+1. See https://stackoverflow.com/a/44506538 on how to obtain the SHA1 fingerprint.
+1. Go to https://developers.google.com/identity/sign-in/android/start-integrating
+1. Select "Configure a project".
+1. Fill in the package name (com.malliina.boattracker) and the SHA1 obtained in step 1.

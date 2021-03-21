@@ -21,8 +21,7 @@ class BoatApp: Application() {
         Mapbox.getInstance(applicationContext, token)
 
         savedSettings = UserSettings.load(applicationContext)
-        AppCenter.start(this, "768ec01e-fe9c-46b2-a05a-5389fa9d148f",
-            Analytics::class.java, Crashes::class.java)
+        //AppCenter.start(this, "768ec01e-fe9c-46b2-a05a-5389fa9d148f", Analytics::class.java, Crashes::class.java)
     }
 
     class NoLogging: Timber.Tree() {
