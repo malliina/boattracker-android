@@ -354,6 +354,11 @@ data class LabelsLang(
 )
 
 @JsonClass(generateAdapter = true)
+data class AppMeta(
+    val version: String
+)
+
+@JsonClass(generateAdapter = true)
 data class Lang(
     val language: Language,
     val appName: String,
@@ -362,6 +367,7 @@ data class Lang(
     val qualityClass: String,
     val time: String,
     val comparisonLevel: String,
+    val appMeta: AppMeta,
     val specialWords: SpecialWords,
     val fairway: FairwayLang,
     val track: TrackLang,

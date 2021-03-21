@@ -1,6 +1,7 @@
 package com.malliina.boattracker.ui.profile
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -59,6 +60,7 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
                 navigate(action)
             }
         }
+
     }
 
     private fun navigate(to: NavDirections) {
@@ -75,6 +77,9 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
         view.userEmailMessage.text = "${lang.profile.signedInAs} ${user.email}"
         view.logout.text = lang.profile.logout
         view.track_summary.fillLabels(lang.track)
+        val a = requireActivity()
+        val versionName = a.packageManager.getPackageInfo(a.packageName, PackageManager.GET_ACTIVITIES).versionName
+        view.versionText.text = "${lang.appMeta.version} $versionName"
     }
 
     private fun toggleSummary(state: LoadState, parent: View) {

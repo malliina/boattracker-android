@@ -34,7 +34,7 @@ class UserSettings(private val prefs: SharedPreferences) {
         Language.English -> available.english
     }
 
-    private val confKey = "conf"
+    private val confKey = "conf2"
     private var cachedConf: ClientConf? = null
     var conf: ClientConf?
         set(value) {

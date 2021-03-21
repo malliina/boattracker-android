@@ -78,16 +78,27 @@
             android:layout_marginTop="60dp"
             android:layout_marginBottom="8dp"
             tools:text="Signed in as user@example.com" />
-        <com.google.android.material.button.MaterialButton
+        <Button
             style="@style/FilledButton"
             android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="signOutClicked"
+            android:layout_marginBottom="8dp"
             app:layout_constraintVertical_bias="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/versionText"
             tools:text="Logout"/>
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="1"
+            android:layout_marginBottom="8dp"
+            tools:text="Version 1.0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </android.widget.ScrollView>

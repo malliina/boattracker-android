@@ -4,6 +4,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorDanger">#D81B60</color>
     <color name="colorLink">#006677</color>
     <color name="iconBackground">#99FFFFFF</color>
     <color name="darkGray">#555555</color>
