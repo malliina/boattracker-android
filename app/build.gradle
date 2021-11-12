@@ -67,7 +67,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:19.2.0"
     implementation "com.google.android.material:material:1.4.0"
     implementation "com.google.firebase:firebase-core:20.0.0"
-    implementation "com.google.firebase:firebase-messaging:21.0.1"
+    implementation "com.google.firebase:firebase-messaging:23.0.0"
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0"
     implementation 'com.mapbox.maps:android:10.1.0'
@@ -75,8 +75,9 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     implementation "com.neovisionaries:nv-websocket-client:2.9"
-    implementation "com.squareup.moshi:moshi:1.12.0"
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.9.2")
+    def moshiVersion = "1.12.0"
+    implementation "com.squareup.moshi:moshi:${moshiVersion}"
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:${moshiVersion}")
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     def coroutinesVersion = "1.4.1"
@@ -85,7 +86,7 @@ dependencies {
 
     androidTestImplementation "androidx.test:runner:1.4.0"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
-    testImplementation "junit:junit:4.12"
+    testImplementation "junit:junit:4.13.2"
 }
 
 apply plugin: 'com.google.gms.google-services'
