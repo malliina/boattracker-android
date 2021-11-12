@@ -42,7 +42,7 @@ class LanguagesFragment : ResourceFragment(R.layout.languages_activity) {
             viewModel.changeLanguage(selected.language)
         }
         findNavController().currentDestination?.label = lang.profile.language
-        viewModel.language.observe(viewLifecycleOwner) { language ->
+        viewModel.language.observe(viewLifecycleOwner) { _ ->
             // Does not work: findNavController().currentDestination?.label = ...
             (activity as AppCompatActivity).supportActionBar?.title = lang.profile.language
         }

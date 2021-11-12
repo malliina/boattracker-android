@@ -2,6 +2,7 @@ package com.malliina.boattracker.push
 
 import android.content.Context
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
 import com.malliina.boattracker.PushToken
 import com.malliina.boattracker.ResponseException
@@ -30,12 +31,13 @@ class PushService(ctx: Context) {
     private val scope = CoroutineScope(Job())
     private val http = HttpClient.getInstance(ctx.applicationContext)
 
-    var isNotificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
+    var firebase: FirebaseMessaging = FirebaseMessaging.getInstance()
+    var isNotificationsEnabled: Boolean = firebase.isAutoInitEnabled
 
     fun toggleNotifications(isOn: Boolean) {
-        FirebaseMessaging.getInstance().isAutoInitEnabled = isOn
-        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener { s ->
-            val token = PushToken(s.token)
+        firebase.isAutoInitEnabled = isOn
+        firebase.token.addOnSuccessListener { t ->
+            val token = PushToken(t)
             register(token, isEnabled = isOn)
         }
     }
@@ -53,9 +55,9 @@ class PushService(ctx: Context) {
             try {
                 val response = http.post(Env.baseUrl.append(path), payload(token))
                 Timber.i("Toggled notifications to $isEnabled, response was '$response'. Token was '$token'.")
-            } catch(e: ResponseException) {
+            } catch (e: ResponseException) {
                 Timber.e(e, "HTTP errors: ${e.errors()}")
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 Timber.e(e, "Failed to toggle notifications.")
             }
         }
