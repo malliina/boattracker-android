@@ -28,6 +28,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -118,7 +119,8 @@ class MapFragment : Fragment() {
             if (user == null) {
                 launchLogin()
             } else {
-                val action = MapFragmentDirections.mapToProfile(app.settings.lang!!.appName)
+//                val action = MapFragmentDirections.mapToProfile(app.settings.lang!!.appName)
+                val action = MapFragmentDirections.mapToProfile2()
                 findNavController().navigate(action)
             }
         }
@@ -211,7 +213,7 @@ class MapFragment : Fragment() {
                         PropertyFactory.iconRotate(
                             Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
                         ),
-                        PropertyFactory.iconRotationAlignment("map")
+                        PropertyFactory.iconRotationAlignment(Property.ICON_ROTATION_ALIGNMENT_MAP)
                     )
                 }
             }

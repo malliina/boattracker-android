@@ -16,6 +16,13 @@
             app:exitAnim="@anim/out_to_down"
             app:popEnterAnim="@anim/in_from_up"
             app:popExitAnim="@anim/out_to_down" />
+        <action
+            android:id="@+id/map_to_profile2"
+            app:destination="@id/profile2"
+            app:enterAnim="@anim/in_from_down"
+            app:exitAnim="@anim/out_to_down"
+            app:popEnterAnim="@anim/in_from_up"
+            app:popExitAnim="@anim/out_to_down" />
         <argument
             android:name="track"
             android:defaultValue="@null"
@@ -31,6 +38,54 @@
             app:argType="boolean" />
     </fragment>
 
+    <fragment
+        android:id="@+id/profile2"
+        android:name="com.malliina.boattracker.ui.profile.ProfileFrag">
+        <action
+            android:id="@+id/profile2_to_tracks"
+            app:destination="@id/tracks"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile2_to_statistics"
+            app:destination="@id/statistics"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile2_to_boats"
+            app:destination="@id/boats"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile2_to_languages"
+            app:destination="@id/languages"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile2_to_attributions"
+            app:destination="@id/attributions"
+            app:enterAnim="@anim/in_from_right"
+            app:exitAnim="@anim/out_to_left"
+            app:popEnterAnim="@anim/in_from_left"
+            app:popExitAnim="@anim/out_to_right" />
+        <action
+            android:id="@+id/profile2_to_map"
+            app:destination="@id/map"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/map"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/profile"
         android:name="com.malliina.boattracker.ui.profile.ProfileFragment"
