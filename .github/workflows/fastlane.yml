@@ -32,3 +32,5 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          MapboxAccessToken: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+          MapboxDownloadsToken: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
