@@ -22,7 +22,7 @@ jobs:
           bundle exec fastlane run validate_play_store_json_key json_key:service_account_credential.json
         env:
           SERVICE_CREDENTIALS: ${{ secrets.SERVICE_CREDENTIALS }}
-      - name: Submit to Google Play Store
+      - name: Submit
         run: |
           echo "$KEYSTORE" > keystore.jks.b64
           base64 -d -i keystore.jks.b64 > keystore.jks
@@ -32,3 +32,5 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          MapboxAccessToken: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+          MapboxDownloadsToken: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
