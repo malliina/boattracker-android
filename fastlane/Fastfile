@@ -1,0 +1,41 @@
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Build APK"
+  lane :apk do
+    gradle(task: "clean assembleRelease")
+  end
+
+  desc "Submit to internal testers"
+  lane :testers do
+    gradle(task: "clean assembleRelease")
+    firebase_app_distribution(
+      app: "1:497623115973:android:dabc68f65181d77a",
+      testers: "malliina123@gmail.com",
+      release_notes: "Lots of cool stuff!",
+      service_credentials_file: "service_account_credential.json",
+      debug: true
+    )
+  end
+
+  desc "Release beta"
+  lane :beta do
+    gradle(task: "bundle", build_type: "Release")
+    upload_to_play_store(
+#       track: "alpha"
+      track: "internal"
+#       release_status: "draft"
+    )
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+    upload_to_play_store
+  end
+end

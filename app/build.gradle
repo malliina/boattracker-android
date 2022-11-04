@@ -14,7 +14,7 @@ android {
         applicationId "com.malliina.boattracker"
         minSdkVersion 28
         targetSdkVersion 33
-        versionCode 2
+        versionCode 68
         versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         def mapboxAccessToken = System.getenv("MapboxAccessToken") ?: MapboxAccessToken
