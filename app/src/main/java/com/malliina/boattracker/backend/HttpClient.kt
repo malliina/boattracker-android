@@ -23,7 +23,7 @@ class HttpClient(ctx: Context) {
         const val Authorization = "Authorization"
 
         fun headers(token: IdToken?): Map<String, String> {
-            val acceptPair = "Accept" to "application/json"
+            val acceptPair = "Accept" to "application/vnd.boat.v2+json"
             return if (token != null) mapOf(Authorization to "bearer $token", acceptPair) else mapOf(acceptPair)
         }
 
