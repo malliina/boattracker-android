@@ -14,3 +14,13 @@ certificate fingerprint is added to the Firebase Console.
 1. Go to https://developers.google.com/identity/sign-in/android/start-integrating
 1. Select "Configure a project".
 1. Fill in the package name (com.malliina.boattracker) and the SHA1 obtained in step 1.
+
+## Deployment
+
+Initial setup:
+
+1. Enable "Google Play Android Developer API".
+
+To deploy:
+
+1. GitHub Actions runs Fastlane which deploys to Google Play Store.
