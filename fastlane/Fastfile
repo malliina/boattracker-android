@@ -6,11 +6,6 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Build APK"
-  lane :apk do
-    gradle(task: "clean assembleRelease")
-  end
-
   desc "Submit to internal testers"
   lane :testers do
     gradle(task: "clean assembleRelease")
@@ -20,16 +15,6 @@ platform :android do
       release_notes: "Lots of cool stuff!",
       service_credentials_file: "service_account_credential.json",
       debug: true
-    )
-  end
-
-  desc "Release beta"
-  lane :beta do
-    gradle(task: "bundle", build_type: "Release")
-    upload_to_play_store(
-#       track: "alpha"
-      track: "internal"
-#       release_status: "draft"
     )
   end
 

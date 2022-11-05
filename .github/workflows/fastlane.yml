@@ -1,8 +1,10 @@
 name: Fastlane
+
 on:
   push:
-    branches:
-      - master
+    tags:
+      - v*
+
 jobs:
   deploy:
     runs-on: macos-12
