@@ -15,7 +15,7 @@ android {
         minSdkVersion 28
         targetSdkVersion 33
         versionCode 68
-        versionName "1.1.0"
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         def mapboxAccessToken = System.getenv("MapboxAccessToken") ?: MapboxAccessToken
         buildConfigField("String", "MapboxAccessToken", "\"${mapboxAccessToken}\"")
@@ -81,18 +81,18 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
     implementation "com.android.volley:volley:1.2.1"
-    implementation "com.google.android.gms:play-services-auth:19.2.0"
+    implementation "com.google.android.gms:play-services-auth:20.3.0"
     implementation "com.google.android.material:material:1.7.0"
-    implementation "com.google.firebase:firebase-core:20.0.0"
-    implementation "com.google.firebase:firebase-messaging:23.0.0"
-    implementation "com.jakewharton.timber:timber:4.7.1"
+    implementation "com.google.firebase:firebase-core:21.1.1"
+    implementation "com.google.firebase:firebase-messaging:23.1.0"
+    implementation "com.jakewharton.timber:timber:5.0.1"
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0"
-    implementation 'com.mapbox.maps:android:10.9.0'
+    implementation "com.mapbox.maps:android:10.9.0"
     def appCenterSdkVersion = "4.3.1"
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     implementation "com.neovisionaries:nv-websocket-client:2.9"
-    def moshiVersion = "1.13.0"
+    def moshiVersion = "1.14.0"
     implementation "com.squareup.moshi:moshi:${moshiVersion}"
     kapt("com.squareup.moshi:moshi-kotlin-codegen:${moshiVersion}")
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
