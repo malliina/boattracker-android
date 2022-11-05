@@ -26,7 +26,6 @@ jobs:
         run: |
           echo "$KEYSTORE" > keystore.jks.b64
           base64 -d -i keystore.jks.b64 > keystore.jks
-          echo "MAPBOX_DOWNLOADS_TOKEN=$MapboxDownloadsToken" >> ~/.gradle/gradle.properties
           gradle :app:assembleRelease
         env:
           KEYSTORE: ${{ secrets.KEYSTORE }}

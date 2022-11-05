@@ -49,7 +49,7 @@ repositories {
             // This should always be `mapbox` (not your username).
             username = 'mapbox'
             // Use the secret token you stored in gradle.properties as the password
-            password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
+            password = System.getenv("MapboxDownloadsToken") ?: project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
         }
     }
 }
@@ -71,7 +71,7 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:23.0.0"
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0"
-    implementation 'com.mapbox.maps:android:10.1.0'
+    implementation 'com.mapbox.maps:android:10.9.0'
     def appCenterSdkVersion = "4.3.1"
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
