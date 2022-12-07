@@ -127,6 +127,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
 
     fun signInSilently(ctx: Context) {
         ioScope.launch {
+            Timber.i("Signing in silently...")
             try {
                 val user = google.signInSilently(ctx)
                 update(UserTrack(user, null))
@@ -135,6 +136,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
                 Timber.w(e, "No authenticated profile.")
                 userTrack.postValue(UserTrack(null, null))
             }
+            Timber.i("Signing in complete...")
         }
     }
 }
