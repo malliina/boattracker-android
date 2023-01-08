@@ -63,9 +63,9 @@ repositories {
     google()
     maven {
         url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
-//        authentication() {
-//            basic(BasicAuthentication)
-//        }
+        authentication {
+            create<BasicAuthentication>("basic")
+        }
         credentials() {
             // Do not change the username below.
             // This should always be `mapbox` (not your username).
