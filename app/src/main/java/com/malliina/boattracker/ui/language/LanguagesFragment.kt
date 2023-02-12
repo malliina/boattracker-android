@@ -1,18 +1,47 @@
 package com.malliina.boattracker.ui.language
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.malliina.boattracker.Language
 import com.malliina.boattracker.R
+import com.malliina.boattracker.ui.ComposeFragment
 import com.malliina.boattracker.ui.ResourceFragment
 import kotlinx.android.synthetic.main.languages_activity.view.*
 import timber.log.Timber
+
+class ComposeLanguages : ComposeFragment() {
+    private val viewModel: LanguagesViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                LanguagesView(lang, viewModel)
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.language.observe(viewLifecycleOwner) {
+            // Does not work: findNavController().currentDestination?.label = ...
+            (activity as AppCompatActivity).supportActionBar?.title = lang.profile.language
+        }
+    }
+}
 
 class LanguagesFragment : ResourceFragment(R.layout.languages_activity) {
     private lateinit var languagesView: ListView

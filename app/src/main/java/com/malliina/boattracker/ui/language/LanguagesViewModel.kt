@@ -9,13 +9,18 @@ import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class LanguagesViewModel(app: Application) : BoatViewModel(app) {
+interface LanguagesInterface {
+    val language: LiveData<Language>
+    fun changeLanguage(to: Language)
+}
+
+class LanguagesViewModel(app: Application) : BoatViewModel(app), LanguagesInterface {
     private val languageData = MutableLiveData<Language>().apply {
         value = settings.currentLanguage
     }
-    val language: LiveData<Language> = languageData
+    override val language: LiveData<Language> = languageData
 
-    fun changeLanguage(to: Language) {
+    override fun changeLanguage(to: Language) {
         userState.token?.let { token ->
             val http = BoatClient.build(app, token)
             uiScope.launch {

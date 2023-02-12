@@ -123,7 +123,7 @@
     </fragment>
     <fragment
         android:id="@+id/languages"
-        android:name="com.malliina.boattracker.ui.language.LanguagesFragment"
+        android:name="com.malliina.boattracker.ui.language.ComposeLanguages"
         tools:layout="@layout/tracks_fragment">
         <argument
             android:name="title"
@@ -131,7 +131,7 @@
     </fragment>
     <fragment
         android:id="@+id/attributions"
-        android:name="com.malliina.boattracker.ui.attributions.AttributionsFragment"
+        android:name="com.malliina.boattracker.ui.attributions.ComposeAttributions"
         android:label="{title}"
         tools:layout="@layout/tracks_fragment">
         <argument
