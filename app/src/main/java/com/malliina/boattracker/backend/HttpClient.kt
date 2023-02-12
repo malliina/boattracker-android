@@ -33,8 +33,8 @@ class HttpClient(ctx: Context) {
             INSTANCE ?: synchronized(this) {
                 INSTANCE
                     ?: HttpClient(context).also {
-                    INSTANCE = it
-                }
+                        INSTANCE = it
+                    }
             }
     }
 
@@ -67,7 +67,7 @@ class HttpClient(ctx: Context) {
     private suspend fun makeWithRetry(conf: RequestConf): JSONObject =
         try {
             makeRequest(conf)
-        } catch(e: ResponseException) {
+        } catch (e: ResponseException) {
             if (e.isTokenExpired()) {
                 Timber.i("JWT is expired. Obtaining a new token and retrying...")
                 val userInfo = Google.instance.signInSilently(google)
@@ -84,18 +84,20 @@ class HttpClient(ctx: Context) {
         }
     }
 
-    class RequestWithHeaders(private val conf: RequestConf, cont: CancellableContinuation<JSONObject>)
-        : JsonObjectRequest(conf.method, conf.url.url, conf.payload,
-        Response.Listener { cont.resume(it) },
-        Response.ErrorListener { error ->
-            val exception = ResponseException(error, conf)
-            try {
-                val errors = exception.errors()
-                Timber.e("Request failed with errors $errors.")
-                // This try-catch is only for error logging purposes; the error must be handled by the caller later
-            } catch(e: Exception) {}
-            cont.resumeWithException(exception)
-        }) {
+    class RequestWithHeaders(private val conf: RequestConf, cont: CancellableContinuation<JSONObject>) :
+        JsonObjectRequest(
+            conf.method, conf.url.url, conf.payload,
+            Response.Listener { cont.resume(it) },
+            Response.ErrorListener { error ->
+                val exception = ResponseException(error, conf)
+                try {
+                    val errors = exception.errors()
+                    Timber.e("Request failed with errors $errors.")
+                    // This try-catch is only for error logging purposes; the error must be handled by the caller later
+                } catch (e: Exception) {}
+                cont.resumeWithException(exception)
+            }
+        ) {
         private val httpMethod = conf.method
         private val csrf =
             if (httpMethod == Method.POST || httpMethod == Method.PUT || httpMethod == Method.DELETE)
@@ -106,10 +108,12 @@ class HttpClient(ctx: Context) {
     }
 }
 
-data class RequestConf(val method: Int,
-                       val url: FullUrl,
-                       val token: IdToken?,
-                       val payload: JSONObject?) {
+data class RequestConf(
+    val method: Int,
+    val url: FullUrl,
+    val token: IdToken?,
+    val payload: JSONObject?
+) {
     companion object {
         fun get(url: FullUrl, token: IdToken?): RequestConf =
             RequestConf(Request.Method.GET, url, token, null)

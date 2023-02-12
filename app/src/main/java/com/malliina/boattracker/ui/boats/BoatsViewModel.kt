@@ -15,7 +15,7 @@ import timber.log.Timber
 /**
  * See [StackOverflow answer](https://stackoverflow.com/a/46704702)
  */
-class BoatsViewModel(app: Application): BoatViewModel(app) {
+class BoatsViewModel(app: Application) : BoatViewModel(app) {
     var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
 
     private val boatsData: MutableLiveData<BoatUser> = MutableLiveData<BoatUser>().also {
@@ -35,7 +35,7 @@ class BoatsViewModel(app: Application): BoatViewModel(app) {
             try {
                 val response = http.me()
                 boatsData.value = response
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 Timber.e(e, "Failed to load boats. Token was $token")
             }
         }

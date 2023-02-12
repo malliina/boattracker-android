@@ -39,7 +39,7 @@ interface MeasuredCoord {
 @JsonClass(generateAdapter = true)
 data class WrappedSpeed(val speed: Speed)
 
-data class SimpleCoord(override val coord: Coord, override val speed: Speed): MeasuredCoord
+data class SimpleCoord(override val coord: Coord, override val speed: Speed) : MeasuredCoord
 
 @JsonClass(generateAdapter = true)
 data class SpeedInfo(val speed: Speed, val dateTime: String) {

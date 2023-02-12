@@ -41,7 +41,8 @@ class FairwayAreaCallout : BoatCallout {
             fillText(R.id.fairway_area_limits_label, limitLang.limit)
             fillText(
                 R.id.fairway_area_limits_text,
-                l.types.joinToString { it.translate(limitLang.types) })
+                l.types.joinToString { it.translate(limitLang.types) }
+            )
             fillOrHide(
                 R.id.fairway_area_speed_limit_label,
                 R.id.fairway_area_speed_limit_text,
@@ -55,7 +56,6 @@ class FairwayAreaCallout : BoatCallout {
                 l.fairwayName?.value
             )
         }
-
     }
 }
 

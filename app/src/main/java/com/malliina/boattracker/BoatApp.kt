@@ -2,12 +2,9 @@ package com.malliina.boattracker
 
 import android.app.Application
 import com.mapbox.mapboxsdk.Mapbox
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import timber.log.Timber
 
-class BoatApp: Application() {
+class BoatApp : Application() {
     private lateinit var savedSettings: UserSettings
     val settings: UserSettings get() = savedSettings
 
@@ -21,10 +18,10 @@ class BoatApp: Application() {
         Mapbox.getInstance(applicationContext, token)
 
         savedSettings = UserSettings.load(applicationContext)
-        //AppCenter.start(this, "768ec01e-fe9c-46b2-a05a-5389fa9d148f", Analytics::class.java, Crashes::class.java)
+        // AppCenter.start(this, "768ec01e-fe9c-46b2-a05a-5389fa9d148f", Analytics::class.java, Crashes::class.java)
     }
 
-    class NoLogging: Timber.Tree() {
+    class NoLogging : Timber.Tree() {
         override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         }
     }

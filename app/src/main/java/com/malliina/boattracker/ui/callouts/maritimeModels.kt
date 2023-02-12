@@ -5,7 +5,6 @@ import com.malliina.boattracker.Json.Companion.fail
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass
 import timber.log.Timber
-import java.lang.NumberFormatException
 
 class MarineAdapter {
     @FromJson
@@ -463,7 +462,6 @@ data class LimitArea(
     val fairwayName: NonEmptyString?,
     val publishDate: String
 )
-
 
 @JsonClass(generateAdapter = true)
 data class FairwayAreaJson(

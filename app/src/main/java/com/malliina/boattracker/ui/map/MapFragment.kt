@@ -122,7 +122,6 @@ class MapFragment : Fragment() {
             }
         }
         view.center.setOnClickListener {
-
         }
         if (args.refresh) {
             viewModel.signInSilently(requireContext())
@@ -169,7 +168,7 @@ class MapFragment : Fragment() {
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
         val from = coords.from
-        val newPoints = coords.coords//.map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
+        val newPoints = coords.coords // .map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
         val meta = TrackMeta(from.trackName)
         // Updates track
         val featureColl = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)

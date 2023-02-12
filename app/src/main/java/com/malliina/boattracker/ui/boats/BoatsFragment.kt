@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +15,7 @@ import kotlinx.android.synthetic.main.boat_item.view.*
 import kotlinx.android.synthetic.main.boats_fragment.view.*
 import kotlinx.android.synthetic.main.stat_box.view.*
 
-class BoatsFragment: ResourceFragment(R.layout.boats_fragment) {
+class BoatsFragment : ResourceFragment(R.layout.boats_fragment) {
     private lateinit var boatsAdapter: BoatsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
     private val viewModel: BoatsViewModel by viewModels()
@@ -45,9 +44,9 @@ class BoatsFragment: ResourceFragment(R.layout.boats_fragment) {
     }
 }
 
-class BoatsAdapter(var boats: List<Boat>, private val lang: SettingsLang)
-    : RecyclerView.Adapter<BoatsAdapter.BoatHolder>() {
-    class BoatHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
+class BoatsAdapter(var boats: List<Boat>, private val lang: SettingsLang) :
+    RecyclerView.Adapter<BoatsAdapter.BoatHolder>() {
+    class BoatHolder(val layout: ConstraintLayout) : RecyclerView.ViewHolder(layout)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoatHolder {
         val layout = LayoutInflater.from(parent.context)

@@ -10,7 +10,7 @@ import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ProfileViewModel(app: Application): BoatViewModel(app), SocketDelegate {
+class ProfileViewModel(app: Application) : BoatViewModel(app), SocketDelegate {
     private val loadState = MutableLiveData<LoadState>().apply {
         value = LoadState.NotLoaded
     }
@@ -47,7 +47,6 @@ class ProfileViewModel(app: Application): BoatViewModel(app), SocketDelegate {
     }
 
     override fun onVessels(vessels: List<Vessel>) {
-
     }
 
     override fun onNewToken(user: UserInfo) {

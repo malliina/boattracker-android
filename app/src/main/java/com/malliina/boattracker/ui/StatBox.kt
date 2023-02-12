@@ -7,17 +7,17 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.malliina.boattracker.R
 
-class StatBox: ConstraintLayout {
+class StatBox : ConstraintLayout {
     private lateinit var labelView: TextView
     private lateinit var valueView: TextView
 
-    constructor(ctx: Context): super(ctx) {
+    constructor(ctx: Context) : super(ctx) {
         init()
     }
-    constructor(ctx: Context, attrs: AttributeSet): super(ctx, attrs) {
+    constructor(ctx: Context, attrs: AttributeSet) : super(ctx, attrs) {
         init()
     }
-    constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int): super(ctx, attrs, defStyleAttr) {
+    constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int) : super(ctx, attrs, defStyleAttr) {
         init()
     }
 

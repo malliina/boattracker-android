@@ -14,7 +14,7 @@ enum class LoadState {
     NotLoaded, Loading, Loaded
 }
 
-class TrackSummaryBox: ConstraintLayout {
+class TrackSummaryBox : ConstraintLayout {
     private lateinit var duration: StatBox
     private lateinit var distance: StatBox
     private lateinit var topSpeed: StatBox
@@ -23,13 +23,13 @@ class TrackSummaryBox: ConstraintLayout {
     private lateinit var date: StatBox
     private var state: LoadState = LoadState.NotLoaded
 
-    constructor(ctx: Context): super(ctx) {
+    constructor(ctx: Context) : super(ctx) {
         init()
     }
-    constructor(ctx: Context, attrs: AttributeSet): super(ctx, attrs) {
+    constructor(ctx: Context, attrs: AttributeSet) : super(ctx, attrs) {
         init()
     }
-    constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int): super(ctx, attrs, defStyleAttr) {
+    constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int) : super(ctx, attrs, defStyleAttr) {
         init()
     }
 

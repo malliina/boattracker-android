@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             setupActionBarWithNavController(navController())
         }
-
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

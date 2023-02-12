@@ -77,10 +77,14 @@ class BoatAnimator(val map: MapboxMap) {
             startValue: LatLng,
             endValue: LatLng
         ): LatLng {
-            latLng.latitude = (startValue.latitude
-                    + (endValue.latitude - startValue.latitude) * fraction)
-            latLng.longitude = (startValue.longitude
-                    + (endValue.longitude - startValue.longitude) * fraction)
+            latLng.latitude = (
+                startValue.latitude +
+                    (endValue.latitude - startValue.latitude) * fraction
+                )
+            latLng.longitude = (
+                startValue.longitude +
+                    (endValue.longitude - startValue.longitude) * fraction
+                )
             return latLng
         }
     }

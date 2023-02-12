@@ -47,7 +47,6 @@ class StatisticsFragment : ResourceFragment(R.layout.statistics_fragment) {
                     }
                 }
                 Status.Error -> {
-
                 }
                 Status.Loading -> {
                     ctrl.enableLoading()

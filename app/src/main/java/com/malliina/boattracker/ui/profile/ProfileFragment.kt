@@ -60,7 +60,6 @@ class ProfileFragment : ResourceFragment(R.layout.profile_fragment) {
                 navigate(action)
             }
         }
-
     }
 
     private fun navigate(to: NavDirections) {

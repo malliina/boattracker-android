@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.attribution_item.view.*
 import kotlinx.android.synthetic.main.attribution_link_item.view.*
 import kotlinx.android.synthetic.main.attributions_fragment.view.*
 
-class AttributionsFragment: ResourceFragment(R.layout.attributions_fragment) {
+class AttributionsFragment : ResourceFragment(R.layout.attributions_fragment) {
     private lateinit var attributionsAdapter: AttributionsAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -34,8 +34,8 @@ class AttributionsFragment: ResourceFragment(R.layout.attributions_fragment) {
     }
 }
 
-class AttributionsAdapter(var attributions: List<AppAttribution>): RecyclerView.Adapter<AttributionsAdapter.AttributionHolder>() {
-    class AttributionHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
+class AttributionsAdapter(var attributions: List<AppAttribution>) : RecyclerView.Adapter<AttributionsAdapter.AttributionHolder>() {
+    class AttributionHolder(val layout: ConstraintLayout) : RecyclerView.ViewHolder(layout)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AttributionHolder {
         val layout = LayoutInflater.from(parent.context)
@@ -62,8 +62,8 @@ class AttributionsAdapter(var attributions: List<AppAttribution>): RecyclerView.
     override fun getItemCount(): Int = attributions.size
 }
 
-class LinksAdapter(var links: List<Link>): RecyclerView.Adapter<LinksAdapter.LinkHolder>() {
-    class LinkHolder(val layout: ConstraintLayout): RecyclerView.ViewHolder(layout)
+class LinksAdapter(var links: List<Link>) : RecyclerView.Adapter<LinksAdapter.LinkHolder>() {
+    class LinkHolder(val layout: ConstraintLayout) : RecyclerView.ViewHolder(layout)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LinkHolder {
         val layout = LayoutInflater.from(parent.context)

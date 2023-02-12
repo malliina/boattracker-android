@@ -28,9 +28,9 @@ class VesselInfo : ConstraintLayout {
     }
 
     constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int) :
-            super(ctx, attrs, defStyleAttr) {
-        init()
-    }
+        super(ctx, attrs, defStyleAttr) {
+            init()
+        }
 
     private fun init() {
         View.inflate(context, R.layout.vessel_info, this)

@@ -2,7 +2,6 @@ package com.malliina.boattracker.ui.callouts
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import com.malliina.boattracker.Lang
 import com.malliina.boattracker.R
 import com.malliina.boattracker.Vessel
@@ -20,9 +19,9 @@ class VesselCallout : BoatCallout {
     }
 
     constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int) :
-            super(ctx, attrs, defStyleAttr) {
-        init()
-    }
+        super(ctx, attrs, defStyleAttr) {
+            init()
+        }
 
     private fun init() {
         // This NPEs for some reason, so we do it in fill instead

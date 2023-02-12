@@ -30,7 +30,8 @@ class LanguagesFragment : ResourceFragment(R.layout.languages_activity) {
         val listAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_list_item_single_choice,
-            items.map { it.title })
+            items.map { it.title }
+        )
         languagesView = view.language_list_view.apply {
             choiceMode = ListView.CHOICE_MODE_SINGLE
             adapter = listAdapter

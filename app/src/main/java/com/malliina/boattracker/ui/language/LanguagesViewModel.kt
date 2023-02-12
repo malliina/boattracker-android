@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.Language
-import com.malliina.boattracker.UserState
 import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.ui.BoatViewModel
 import kotlinx.coroutines.launch

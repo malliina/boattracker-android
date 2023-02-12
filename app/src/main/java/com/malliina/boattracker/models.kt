@@ -192,7 +192,7 @@ data class CoordBody(
     override val speed: Speed,
     val depthMeters: Distance,
     val waterTemp: Temperature
-): MeasuredCoord
+) : MeasuredCoord
 
 @JsonClass(generateAdapter = true)
 data class Coord(val lat: Double, val lng: Double) {
@@ -215,7 +215,7 @@ data class Vessel(
     val mmsi: Mmsi,
     val name: String,
     val heading: Double?,
-    val shipType: Int,
+//    val shipType: Int,
     val coord: Coord,
     val sog: Speed,
     val cog: Double,
