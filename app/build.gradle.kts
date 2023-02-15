@@ -127,6 +127,7 @@ dependencies {
     val coroutinesVersion = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

@@ -3,7 +3,7 @@ package com.malliina.boattracker
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.malliina.boattracker.backend.BoatClient
+import com.malliina.boattracker.backend.Adapters
 import com.squareup.moshi.JsonAdapter
 import timber.log.Timber
 
@@ -40,9 +40,9 @@ class UserSettings(private val prefs: SharedPreferences) {
         set(value) {
             cachedConf = value
             if (value == null) clear(confKey)
-            else save(value, BoatClient.Adapters.conf, confKey)
+            else save(value, Adapters.conf, confKey)
         }
-        get() = cachedConf ?: loadOpt(confKey, BoatClient.Adapters.conf)
+        get() = cachedConf ?: loadOpt(confKey, Adapters.conf)
 
     private fun <T> load(key: String, adapter: JsonAdapter<T>, default: T): T {
         return loadOpt(key, adapter) ?: default

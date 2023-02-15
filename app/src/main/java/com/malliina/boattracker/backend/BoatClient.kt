@@ -5,6 +5,23 @@ import com.malliina.boattracker.*
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 
+object Adapters {
+    private val moshi: Moshi = Json.moshi
+
+    val user: JsonAdapter<UserResponse> = moshi.adapter(UserResponse::class.java)
+    val conf: JsonAdapter<ClientConf> = moshi.adapter(ClientConf::class.java)
+    val track: JsonAdapter<TrackResponse> = moshi.adapter(TrackResponse::class.java)
+    val tracks: JsonAdapter<TracksResponse> = moshi.adapter(TracksResponse::class.java)
+    val stats: JsonAdapter<StatsResponse> = moshi.adapter(StatsResponse::class.java)
+    val errors: JsonAdapter<Errors> = moshi.adapter(Errors::class.java)
+    val coords: JsonAdapter<CoordsMessage> = moshi.adapter(CoordsMessage::class.java)
+    val vessels: JsonAdapter<VesselMessage> = moshi.adapter(VesselMessage::class.java)
+    val event: JsonAdapter<EventName> = moshi.adapter(EventName::class.java)
+    val language: JsonAdapter<ChangeLanguage> = moshi.adapter(ChangeLanguage::class.java)
+    val title: JsonAdapter<ChangeTitle> = moshi.adapter(ChangeTitle::class.java)
+    val message: JsonAdapter<SimpleMessage> = moshi.adapter(SimpleMessage::class.java)
+}
+
 class BoatClient(val http: HttpClient) {
     companion object {
         fun build(ctx: Context, token: IdToken): BoatClient {
@@ -18,22 +35,6 @@ class BoatClient(val http: HttpClient) {
             return BoatClient(http)
         }
 
-        private val moshi: Moshi = Json.moshi
-    }
-
-    object Adapters {
-        val user: JsonAdapter<UserResponse> = moshi.adapter(UserResponse::class.java)
-        val conf: JsonAdapter<ClientConf> = moshi.adapter(ClientConf::class.java)
-        val track: JsonAdapter<TrackResponse> = moshi.adapter(TrackResponse::class.java)
-        val tracks: JsonAdapter<TracksResponse> = moshi.adapter(TracksResponse::class.java)
-        val stats: JsonAdapter<StatsResponse> = moshi.adapter(StatsResponse::class.java)
-        val errors: JsonAdapter<Errors> = moshi.adapter(Errors::class.java)
-        val coords: JsonAdapter<CoordsMessage> = moshi.adapter(CoordsMessage::class.java)
-        val vessels: JsonAdapter<VesselMessage> = moshi.adapter(VesselMessage::class.java)
-        val event: JsonAdapter<EventName> = moshi.adapter(EventName::class.java)
-        val language: JsonAdapter<ChangeLanguage> = moshi.adapter(ChangeLanguage::class.java)
-        val title: JsonAdapter<ChangeTitle> = moshi.adapter(ChangeTitle::class.java)
-        val message: JsonAdapter<SimpleMessage> = moshi.adapter(SimpleMessage::class.java)
     }
 
     suspend fun me(): BoatUser = get("/users/me", Adapters.user).user

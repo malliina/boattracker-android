@@ -56,7 +56,6 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
             if (isCacheHit) {
                 confData.postValue(cache)
             }
-            val http = BoatClient.basic(app)
             try {
                 val data = http.conf()
                 settings.conf = data

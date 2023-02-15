@@ -19,7 +19,6 @@ class TracksViewModel(app: Application) : BoatViewModel(app) {
     val tracks: LiveData<Outcome<List<TrackRef>>> = tracksData
 
     private fun loadTracks(token: IdToken) {
-        val http = BoatClient.build(app, token)
         uiScope.launch {
             tracksData.postValue(Outcome.loading())
             val outcome = try {

@@ -21,7 +21,6 @@ class StatisticsViewModel(app: Application) : BoatViewModel(app) {
     val stats: LiveData<Outcome<StatsResponse>> = statsData
 
     private fun loadStats(token: IdToken) {
-        val http = BoatClient.build(app, token)
         ioScope.launch {
             statsData.postValue(Outcome.loading())
             val outcome = try {

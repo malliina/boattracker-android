@@ -44,7 +44,7 @@ class HttpClient(ctx: Context) {
     var token: IdToken? = null
 
     // https://jankotlin.wordpress.com/2017/10/16/volley-for-lazy-kotliniers/
-    suspend fun getData(url: FullUrl): JSONObject = makeWithRetry(RequestConf.get(url, token))
+    private suspend fun getData(url: FullUrl): JSONObject = makeWithRetry(RequestConf.get(url, token))
 
     suspend fun <T> getJson(url: FullUrl, adapter: JsonAdapter<T>): T {
         val json = getData(url)

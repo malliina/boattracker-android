@@ -4,7 +4,7 @@ import android.os.Parcelable
 import com.android.volley.NetworkResponse
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
-import com.malliina.boattracker.backend.BoatClient
+import com.malliina.boattracker.backend.Adapters
 import com.malliina.boattracker.backend.RequestConf
 import com.malliina.boattracker.backend.read
 import com.malliina.boattracker.ui.callouts.MeasuredCoord
@@ -80,7 +80,7 @@ data class Speed(val knots: Double) : Comparable<Speed> {
     fun formatKn(): String = format(this)
     fun formatted(): String = formatKn()
 
-    override fun compareTo(other: Speed): Int = compareValuesBy(this, other, { it.knots })
+    override fun compareTo(other: Speed): Int = compareValuesBy(this, other) { it.knots }
     override fun toString() = formatted()
 }
 
@@ -338,7 +338,7 @@ data class ResponseException(val error: VolleyError, val req: RequestConf) :
                 val charset =
                     Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
                 val str = String(response.data, charset)
-                BoatClient.Adapters.errors.read(str)
+                Adapters.errors.read(str)
             } catch (e: Exception) {
                 val msg = "Unable to parse response from '$url'."
                 Timber.e(e, msg)

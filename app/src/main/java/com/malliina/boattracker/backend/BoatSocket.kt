@@ -86,13 +86,13 @@ class BoatSocket(
 
     fun onMessage(message: String) {
 //        Timber.d("Message '$message'.")
-        when (BoatClient.Adapters.event.fromJson(message)?.event) {
+        when (Adapters.event.fromJson(message)?.event) {
             "coords" -> {
-                val coords = BoatClient.Adapters.coords.read(message).body
+                val coords = Adapters.coords.read(message).body
                 delegate.onCoords(coords)
             }
             "vessels" -> {
-                val vessels = BoatClient.Adapters.vessels.read(message).body
+                val vessels = Adapters.vessels.read(message).body
                 delegate.onVessels(vessels.vessels)
             }
             else -> {
