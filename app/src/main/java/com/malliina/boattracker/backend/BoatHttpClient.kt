@@ -2,12 +2,18 @@ package com.malliina.boattracker.backend
 
 import android.content.Context
 import com.malliina.boattracker.BoatUser
+import com.malliina.boattracker.ChangeLanguage
+import com.malliina.boattracker.ChangeTitle
 import com.malliina.boattracker.ClientConf
 import com.malliina.boattracker.Errors
 import com.malliina.boattracker.FullUrl
 import com.malliina.boattracker.IdToken
+import com.malliina.boattracker.Language
+import com.malliina.boattracker.SimpleMessage
 import com.malliina.boattracker.StatsResponse
+import com.malliina.boattracker.TrackName
 import com.malliina.boattracker.TrackRef
+import com.malliina.boattracker.TrackTitle
 import com.malliina.boattracker.auth.Google
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
@@ -20,6 +26,7 @@ import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import timber.log.Timber
@@ -65,7 +72,7 @@ class GoogleTokenSource(appContext: Context) : TokenSource {
 
 class BoatHttpClient(private val tokenSource: TokenSource) {
     companion object {
-        const val Accept = "Accept"
+        private const val Accept = "Accept"
         const val Authorization = "Authorization"
         private val MediaTypeJson = "application/vnd.boat.v2+json".toMediaType()
 
@@ -97,6 +104,21 @@ class BoatHttpClient(private val tokenSource: TokenSource) {
     suspend fun <T> get(path: String, adapter: JsonAdapter<T>): T {
         val request = authRequest(Env.baseUrl.append(path)).get().build()
         return execute(request, adapter)
+    }
+    suspend fun changeLanguage(to: Language): SimpleMessage =
+        put("/users/me", ChangeLanguage(to.code), Adapters.language, Adapters.message)
+    suspend fun changeTitle(to: TrackTitle, of: TrackName): TrackRef =
+        put("/tracks/$of", ChangeTitle(to), Adapters.title, Adapters.track).track
+
+    suspend fun <Req, Res> put(
+        path: String,
+        body: Req,
+        writer: JsonAdapter<Req>,
+        reader: JsonAdapter<Res>
+    ): Res = withContext(Dispatchers.IO) {
+        val url = Env.baseUrl.append(path)
+        val requestBody = writer.toJson(body).toRequestBody(MediaTypeJson)
+        execute(authRequest(url).put(requestBody).build(), reader)
     }
 
     private suspend fun <T> execute(request: Request, reader: JsonAdapter<T>): T =

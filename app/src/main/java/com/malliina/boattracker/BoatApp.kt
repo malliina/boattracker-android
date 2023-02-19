@@ -19,6 +19,7 @@ class BoatApp : Application() {
 
         val token = BuildConfig.MapboxAccessToken
         Timber.i("Using token %s", token)
+        Mapbox.getTelemetry()?.setUserTelemetryRequestState(false)
         Mapbox.getInstance(applicationContext, token)
 
         savedSettings = UserSettings.load(applicationContext)

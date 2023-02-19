@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.*
 import com.malliina.boattracker.auth.Google
-import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.backend.BoatSocket
 import com.malliina.boattracker.backend.SocketDelegate
 import com.malliina.boattracker.ui.BoatViewModel
@@ -37,8 +36,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     val coords: LiveData<CoordsData> = coordsData
     val vessels: LiveData<List<Vessel>> = vesselsData
 
-    private fun loadProfile(token: IdToken) {
-        val http = BoatClient.build(app, token)
+    private fun loadProfile() {
         ioScope.launch {
             try {
                 val me = http.me()
@@ -71,9 +69,7 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
     private fun update(state: UserTrack) {
         userState.userTrack = state
         userTrack.postValue(state)
-        state.user?.idToken?.let { token ->
-            loadProfile(token)
-        }
+        loadProfile()
     }
 
     override fun onCoords(newCoords: CoordsData) {
@@ -115,7 +111,6 @@ class MapViewModel(appl: Application) : BoatViewModel(appl), SocketDelegate {
         val state = userTrack.value
         val activeState = UserTrack(state?.user, trackName ?: state?.track)
         userState.userTrack = activeState
-//        userTrack.postValue(activeState)
         openSocket(state?.user?.idToken, activeState.track)
     }
 

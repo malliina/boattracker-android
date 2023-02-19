@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.malliina.boattracker.IdToken
 import com.malliina.boattracker.SingleError
 import com.malliina.boattracker.StatsResponse
-import com.malliina.boattracker.backend.BoatClient
 import com.malliina.boattracker.ui.BoatViewModel
 import com.malliina.boattracker.ui.Outcome
 import kotlinx.coroutines.launch
