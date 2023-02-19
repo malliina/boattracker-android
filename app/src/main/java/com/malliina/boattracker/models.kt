@@ -1,20 +1,11 @@
 package com.malliina.boattracker
 
 import android.os.Parcelable
-import com.android.volley.NetworkResponse
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.HttpHeaderParser
-import com.malliina.boattracker.backend.Adapters
-import com.malliina.boattracker.backend.RequestConf
-import com.malliina.boattracker.backend.read
 import com.malliina.boattracker.ui.callouts.MeasuredCoord
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.geometry.LatLng
 import com.squareup.moshi.JsonClass
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONException
-import timber.log.Timber
-import java.nio.charset.Charset
 import java.util.regex.Pattern
 
 interface Primitive {
@@ -141,6 +132,9 @@ data class ChangeLanguage(val language: String)
 data class ChangeTitle(val title: TrackTitle)
 
 @JsonClass(generateAdapter = true)
+data class TokenPayload(val token: PushToken, val device: String)
+
+@JsonClass(generateAdapter = true)
 data class BoatUser(
     val id: Int,
     val username: Username,
@@ -196,7 +190,7 @@ data class CoordBody(
 
 @JsonClass(generateAdapter = true)
 data class Coord(val lat: Double, val lng: Double) {
-    fun latLng(): LatLng = LatLng(lat, lng)
+//    fun latLng(): Point = LatLng(lat, lng)
     fun point(): Point = Point.fromLngLat(lng, lat)
 
     companion object {
@@ -324,30 +318,4 @@ data class Errors(val errors: List<SingleError>) {
         fun input(message: String) = single("input", message)
         fun single(key: String, message: String): Errors = Errors(listOf(SingleError(key, message)))
     }
-}
-
-data class ResponseException(val error: VolleyError, val req: RequestConf) :
-    Exception("Invalid response", error.cause) {
-    private val url = req.url
-    private val response: NetworkResponse? = error.networkResponse
-
-    fun errors(): Errors {
-        return if (response != null) {
-            val response = response
-            try {
-                val charset =
-                    Charset.forName(HttpHeaderParser.parseCharset(response.headers, "UTF-8"))
-                val str = String(response.data, charset)
-                Adapters.errors.read(str)
-            } catch (e: Exception) {
-                val msg = "Unable to parse response from '$url'."
-                Timber.e(e, msg)
-                Errors.input(msg)
-            }
-        } else {
-            Errors.single("network", "Network error from '$url'.")
-        }
-    }
-
-    fun isTokenExpired(): Boolean = errors().errors.any { e -> e.key == "token_expired" }
 }

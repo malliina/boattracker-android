@@ -12,18 +12,18 @@ import timber.log.Timber
 class TracksViewModel(app: Application) : BoatViewModel(app) {
     private val tracksData: MutableLiveData<Outcome<List<TrackRef>>> by lazy {
         MutableLiveData<Outcome<List<TrackRef>>>().also {
-            userState.token?.let { loadTracks(it) }
+            loadTracks()
         }
     }
     val tracks: LiveData<Outcome<List<TrackRef>>> = tracksData
 
-    private fun loadTracks(token: IdToken) {
+    private fun loadTracks() {
         uiScope.launch {
             tracksData.postValue(Outcome.loading())
             val outcome = try {
                 Outcome.success(http.tracks())
             } catch (e: Exception) {
-                Timber.e(e, "Failed to load tracks. Token was $token")
+                Timber.e(e, "Failed to load tracks.")
                 Outcome.error(SingleError.backend("Failed to load tracks."))
             }
             tracksData.postValue(outcome)

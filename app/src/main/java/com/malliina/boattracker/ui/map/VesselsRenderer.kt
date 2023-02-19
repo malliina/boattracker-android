@@ -1,15 +1,11 @@
 package com.malliina.boattracker.ui.map
 
-import android.graphics.Color
 import com.malliina.boattracker.*
 import com.mapbox.geojson.*
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression
-import com.mapbox.mapboxsdk.style.layers.LineLayer
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.Style
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +34,7 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
             val tail = (listOf(v) + history).take(maxTrailLength)
             vesselHistory[v.mmsi] = tail
         }
-        map.style?.let { style ->
+        map.getStyle()?.let { style ->
             uiScope.launch {
                 updateVessels(vessels, style)
                 val trails = vesselHistory.values.map { history ->
@@ -47,15 +43,16 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
                 val geos = MultiLineString.fromLineStrings(trails)
                 val trailsSrc = style.getSourceAs<GeoJsonSource>(vesselTrailsId)
                 if (trailsSrc == null) {
-                    val src = GeoJsonSource(vesselTrailsId, geos)
-                    style.addSource(src)
-                    val trailsLayer = LineLayer(vesselTrailsId, src.id).withProperties(
-                        PropertyFactory.lineWidth(1f),
-                        PropertyFactory.lineColor(Color.BLACK)
-                    )
-                    style.addLayer(trailsLayer)
+//                    val src = GeoJsonSource(vesselTrailsId, geos)
+//                    style.addSource(src)
+//                    val trailsLayer = LineLayer(vesselTrailsId, src.id)
+//                        .withProperties(
+//                        PropertyFactory.lineWidth(1f),
+//                        PropertyFactory.lineColor(Color.BLACK)
+//                    )
+//                    style.addLayer(trailsLayer)
                 } else {
-                    trailsSrc.setGeoJson(geos)
+//                    trailsSrc.setGeoJson(geos)
                 }
             }
         }
@@ -70,16 +67,16 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
         val coll = FeatureCollection.fromFeatures(features)
         val src = style.getSourceAs<GeoJsonSource>(vesselPointsId)
         if (src == null) {
-            style.addSource(GeoJsonSource(vesselPointsId, coll))
-            val layer = SymbolLayer(vesselPointsId, vesselPointsId).withProperties(
-                PropertyFactory.iconImage(icons.boat),
-                PropertyFactory.iconSize(MapFragment.BoatIconSize),
-                PropertyFactory.iconRotate(Expression.get(Vessel.headingKey)),
-                PropertyFactory.iconRotationAlignment("map")
-            )
-            style.addLayer(layer)
+//            style.addSource(GeoJsonSource(vesselPointsId, coll))
+//            val layer = SymbolLayer(vesselPointsId, vesselPointsId).withProperties(
+//                PropertyFactory.iconImage(icons.boat),
+//                PropertyFactory.iconSize(MapFragment.BoatIconSize),
+//                PropertyFactory.iconRotate(Expression.get(Vessel.headingKey)),
+//                PropertyFactory.iconRotationAlignment("map")
+//            )
+//            style.addLayer(layer)
         } else {
-            src.setGeoJson(coll)
+//            src.setGeoJson(coll)
         }
     }
 
@@ -90,8 +87,8 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
 
     private fun removeSourceAndLayerIfExists(id: String, style: Style) {
         style.getSourceAs<GeoJsonSource>(id)?.let {
-            style.removeLayer(id)
-            style.removeSource(id)
+            style.removeStyleLayer(id)
+            style.removeStyleSource(id)
         }
     }
 

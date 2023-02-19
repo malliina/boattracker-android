@@ -1,9 +1,9 @@
 package com.malliina.boattracker.backend
 
 import com.malliina.boattracker.*
-import com.squareup.moshi.adapter
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 
 @OptIn(ExperimentalStdlibApi::class)
 object Adapters {
@@ -21,4 +21,5 @@ object Adapters {
     val language: JsonAdapter<ChangeLanguage> = moshi.adapter()
     val title: JsonAdapter<ChangeTitle> = moshi.adapter()
     val message: JsonAdapter<SimpleMessage> = moshi.adapter()
+    val token: JsonAdapter<TokenPayload> = moshi.adapter()
 }

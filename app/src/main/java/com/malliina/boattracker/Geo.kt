@@ -1,6 +1,6 @@
 package com.malliina.boattracker
 
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -11,10 +11,10 @@ class Geo {
     }
 
     // // https://www.movable-type.co.uk/scripts/latlong.html
-    fun bearing(from: LatLng, to: LatLng): Double {
-        val dLon = to.longitude - from.longitude
-        val y = sin(dLon) * cos(to.latitude)
-        val x = cos(from.latitude) * sin(to.latitude) - sin(from.latitude) * cos(to.latitude) * cos(dLon)
+    fun bearing(from: Point, to: Point): Double {
+        val dLon = to.longitude() - from.longitude()
+        val y = sin(dLon) * cos(to.latitude())
+        val x = cos(from.latitude()) * sin(to.latitude()) - sin(from.latitude()) * cos(to.latitude()) * cos(dLon)
         val brng = toDeg(atan2(y, x))
         return 360 - ((brng + 360) % 360)
     }

@@ -332,11 +332,11 @@ data class TrafficSignRaw(
     val NIMIS: NonEmptyString?,
     val SIJAINTIS: NonEmptyString?,
     val SIJAINTIR: NonEmptyString?,
-    val VLM_TYYPPI: Double,
-    val VLM_LAJI: TrafficSignInfo
+//    val VLM_TYYPPI: Double,
+    val VLM_LAJI: TrafficSignInfo?
 ) {
     fun toSign() =
-        TrafficSign(NIMIR, NIMIS, SIJAINTIS, SIJAINTIR, VLM_TYYPPI, VLM_LAJI)
+        TrafficSign(NIMIR, NIMIS, SIJAINTIS, SIJAINTIR, VLM_LAJI)
 }
 
 data class TrafficSign(
@@ -344,8 +344,8 @@ data class TrafficSign(
     val nameSe: NonEmptyString?,
     val locationFi: NonEmptyString?,
     val locationSe: NonEmptyString?,
-    val signType: Double,
-    val sign: TrafficSignInfo
+//    val signType: Double,
+    val sign: TrafficSignInfo?
 ) {
     fun nameOrEmpty(lang: Language) = name(lang)?.value ?: ""
 

@@ -5,10 +5,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.malliina.boattracker.BoatApp
 import com.malliina.boattracker.PushToken
 import com.malliina.boattracker.R
 import com.malliina.boattracker.ui.map.MapFragment
@@ -17,7 +17,7 @@ import timber.log.Timber
 class FirebaseService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         Timber.i("Got token $token")
-        PushService.getInstance(application).update(PushToken(token))
+        PushService.getInstance((application as BoatApp).http).update(PushToken(token))
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -36,14 +36,12 @@ class FirebaseService : FirebaseMessagingService() {
             .setAutoCancel(true)
         val manager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel title",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            manager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            channelId,
+            "Channel title",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        manager.createNotificationChannel(channel)
         manager.notify(0, builder.build())
     }
 }

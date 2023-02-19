@@ -26,6 +26,7 @@ import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -115,10 +116,25 @@ class BoatHttpClient(private val tokenSource: TokenSource) {
         body: Req,
         writer: JsonAdapter<Req>,
         reader: JsonAdapter<Res>
+    ): Res = body(path, body, writer, reader) { req, rb -> req.put(rb) }
+
+    suspend fun <Req, Res> post(
+        path: String,
+        body: Req,
+        writer: JsonAdapter<Req>,
+        reader: JsonAdapter<Res>
+    ): Res = body(path, body, writer, reader) { req, rb -> req.post(rb) }
+
+    suspend fun <Req, Res> body(
+        path: String,
+        body: Req,
+        writer: JsonAdapter<Req>,
+        reader: JsonAdapter<Res>,
+        install: (Request.Builder, RequestBody) -> Request.Builder
     ): Res = withContext(Dispatchers.IO) {
         val url = Env.baseUrl.append(path)
         val requestBody = writer.toJson(body).toRequestBody(MediaTypeJson)
-        execute(authRequest(url).put(requestBody).build(), reader)
+        execute(install(authRequest(url), requestBody).build(), reader)
     }
 
     private suspend fun <T> execute(request: Request, reader: JsonAdapter<T>): T =
@@ -148,14 +164,13 @@ class BoatHttpClient(private val tokenSource: TokenSource) {
                 val body = response.body
                 if (response.isSuccessful) {
                     body?.let { b ->
-                        reader.fromJson(b.source())  ?: throw JsonDataException("Moshi returned null for response body from '${request.url}'.")
+                        reader.fromJson(b.source()) ?: throw JsonDataException("Moshi returned null for response body from '${request.url}'.")
                     } ?: run {
                         throw BodyException(request)
                     }
                 } else {
                     val errors = body?.let { b ->
-                        try { Adapters.errors.read(b.string()) }
-                        catch (e: Exception) { null }
+                        try { Adapters.errors.read(b.string()) } catch (e: Exception) { null }
                     }
                     errors?.let { throw ErrorsException(it, response.code, request) } ?: run {
                         throw StatusException(response.code, request)

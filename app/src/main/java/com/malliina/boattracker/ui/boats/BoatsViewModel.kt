@@ -22,7 +22,7 @@ class BoatsViewModel(app: Application) : BoatViewModel(app) {
     val boats: LiveData<BoatUser> = boatsData
 
     fun toggleNotifications(isOn: Boolean) {
-        PushService.getInstance(app).toggleNotifications(isOn)
+        PushService.getInstance(http).toggleNotifications(isOn)
     }
 
     private fun loadBoats() {
