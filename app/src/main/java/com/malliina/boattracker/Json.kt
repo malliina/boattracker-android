@@ -111,7 +111,7 @@ class PrimitiveAdapter {
     @ToJson
     fun writeLimitArea(raw: LimitArea): LimitAreaJson = fail("todo")
     @FromJson
-    fun trafficSign(raw: TrafficSignRaw): TrafficSign = raw.toSign()
+    fun trafficSign(raw: TrafficSignRaw): MinimalMarineSymbol = raw.toSign()
     @ToJson
-    fun writeTrafficSign(raw: TrafficSign): TrafficSignRaw = fail("todo")
+    fun writeTrafficSign(raw: MinimalMarineSymbol): TrafficSignRaw = fail("todo")
 }

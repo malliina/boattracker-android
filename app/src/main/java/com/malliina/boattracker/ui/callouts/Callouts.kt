@@ -53,7 +53,7 @@ data class SpeedInfo(val speed: Speed, val dateTime: String) {
 // https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
 class Callouts(
     val map: MapboxMap,
-    val annotations: ViewAnnotationManager,
+    private val annotations: ViewAnnotationManager,
     val style: Style,
     private val activity: Activity,
     private val conf: ClientConf,
@@ -74,8 +74,8 @@ class Callouts(
             Json.moshi.adapter(FairwayArea::class.java)
         val limitAreaAdapter: JsonAdapter<LimitArea> =
             Json.moshi.adapter(LimitArea::class.java)
-        val trafficSignAdapter: JsonAdapter<TrafficSign> =
-            Json.moshi.adapter(TrafficSign::class.java)
+        val trafficSignAdapter: JsonAdapter<MinimalMarineSymbol> =
+            Json.moshi.adapter(MinimalMarineSymbol::class.java)
     }
 
     private val layers = conf.layers
@@ -104,7 +104,10 @@ class Callouts(
     }
 
     private suspend fun onMapClick(latLng: Point): Boolean {
-        annotations.removeAllViewAnnotations()
+        if (annotations.annotations.isNotEmpty()) {
+            annotations.removeAllViewAnnotations()
+            return true
+        }
         val previousSymbol = symbolInfo?.visibility == View.VISIBLE
         if (previousSymbol) {
             symbolInfo?.let { info ->
@@ -143,9 +146,6 @@ class Callouts(
 //                        }
 //                    }
             }
-//            } else {
-//                Timber.i("Previous callout was on map, removing it...")
-//                style.removeStyleLayer(CalloutLayerId)
 //            }
         }
         return true
@@ -218,7 +218,10 @@ class Callouts(
                 val signs = lang.limits.signs
                 val nameOrEmpty = sign.nameOrEmpty(lang.language)
                 val info = sign.sign?.let { info -> InfoItem(lang.mark.markType, info.translate(signs.limits, signs.infos)) }
-                return PopupContent.nonEmpty(nameOrEmpty, listOf(info), null)
+                val speed = sign.limit?.let { s -> InfoItem(lang.limits.magnitude, s.formatKmhInt()) }
+                val loc = sign.location(lang.language)?.let { l -> InfoItem(lang.mark.location, l.value) }
+                val owner = InfoItem(lang.mark.owner, sign.owner)
+                return PopupContent.nonEmpty(nameOrEmpty, listOf(info, speed, loc, owner), null)
             }
             VesselsRenderer.vesselAdapter.readOpt(asGson)?.let { vessel ->
                 val destination = vessel.destination?.let { InfoItem(lang.ais.destination, it) }
@@ -232,27 +235,32 @@ class Callouts(
 
     private suspend fun parseArea(latLng: Point, lang: Lang): PopupContent? {
         val fairwayLang = lang.fairway
+        val limits = limitAreaInfo(latLng)
         query(latLng, layers.fairwayAreas).map { queried ->
             fairwayAreaAdapter.readOpt(gson.toJson(queried.feature.properties()))?.let { area ->
-                val limits = limitAreaInfo(latLng)
                 val areaItems = listOf(
                     InfoItem(fairwayLang.fairwayType, area.fairwayType.translate(fairwayLang.types)),
                     InfoItem(fairwayLang.fairwayDepth, area.fairwayDepth.formatMeters()),
                     InfoItem(fairwayLang.harrowDepth, area.harrowDepth.formatMeters()),
                 )
                 val limitItems = limits?.let { ls ->
-                    val limitLang = lang.limits
-                    listOf(
-                        InfoItem(limitLang.limit, ls.types.joinToString { it.translate(limitLang.types) }),
-                        ls.limit?.let { speed -> InfoItem(limitLang.magnitude, speed.formatKmhInt()) },
-                        ls.fairwayName?.let { n -> InfoItem(limitLang.fairwayName, n.value) }
-                    )
+                    toLimitItems(ls, lang.limits)
                 } ?: emptyList()
                 return PopupContent.nonEmpty(area.owner.value, areaItems + limitItems, null)
             }
         }
+        limits?.let { ls ->
+            return PopupContent.nonEmpty(null, toLimitItems(ls, lang.limits), null)
+        }
         return null
     }
+
+    private fun toLimitItems(ls: LimitArea, limitLang: LimitLang): List<InfoItem> =
+        listOfNotNull(
+            InfoItem(limitLang.limit, ls.types.joinToString { it.translate(limitLang.types) }),
+            ls.limit?.let { speed -> InfoItem(limitLang.magnitude, speed.formatKmhInt()) },
+            ls.fairwayName?.let { n -> InfoItem(limitLang.fairwayName, n.value) }
+        )
 
     private suspend fun limitAreaInfo(latLng: Point): LimitArea? {
         query(latLng, layers.limits).map { f ->

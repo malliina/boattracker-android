@@ -328,24 +328,29 @@ enum class TrafficSignInfo {
 // {"VAIKUTUSAL":"A","SIJAINTIR":"","SIJAINTIS":"Lauttasaaren vattuniemerannan aallonmurtajan päässä","TKLNUMERO":54.0,"VAYLALAJI":"","VLM_TYYPPI":1.0,"PATA_TYYP":53.0,"PAATOS":"","PAKO_TYYP":5.0,"OMISTAJA":"Tuntematon","NIMIS":"HKI77A","TUNNISTE":1760.0,"VLM_LAJI":6.0,"MITTAUSPVM":"19981127","LK_TEKSTIS":"","NIMIR":"","LK_TEKSTIR":"","RA_ARVO_T":"","LISATIETOS":"","LISATIETOR":"","LISAKILPI":"","IRROTUS_PV":"2018-04-29T00:50:55"}
 @JsonClass(generateAdapter = true)
 data class TrafficSignRaw(
+    val OMISTAJA: String,
     val NIMIR: NonEmptyString?,
     val NIMIS: NonEmptyString?,
     val SIJAINTIS: NonEmptyString?,
     val SIJAINTIR: NonEmptyString?,
 //    val VLM_TYYPPI: Double,
-    val VLM_LAJI: TrafficSignInfo?
+    val VLM_LAJI: TrafficSignInfo?,
+    val RA_ARVO: Double?
 ) {
+    val speed = if (VLM_LAJI == TrafficSignInfo.SpeedLimit) RA_ARVO?.kmh() else null
     fun toSign() =
-        TrafficSign(NIMIR, NIMIS, SIJAINTIS, SIJAINTIR, VLM_LAJI)
+        MinimalMarineSymbol(OMISTAJA, NIMIR, NIMIS, SIJAINTIS, SIJAINTIR, VLM_LAJI, speed)
 }
 
-data class TrafficSign(
+data class MinimalMarineSymbol(
+    val owner: String,
     val nameFi: NonEmptyString?,
     val nameSe: NonEmptyString?,
     val locationFi: NonEmptyString?,
     val locationSe: NonEmptyString?,
 //    val signType: Double,
-    val sign: TrafficSignInfo?
+    val sign: TrafficSignInfo?,
+    val limit: Speed?
 ) {
     fun nameOrEmpty(lang: Language) = name(lang)?.value ?: ""
 
