@@ -87,7 +87,7 @@
 
     <fragment
         android:id="@+id/tracks"
-        android:name="com.malliina.boattracker.ui.tracks.TracksFragment"
+        android:name="com.malliina.boattracker.ui.tracks.ComposeTracks"
         android:label="{title}"
         tools:layout="@layout/tracks_fragment">
         <action
@@ -105,7 +105,7 @@
     </fragment>
     <fragment
         android:id="@+id/statistics"
-        android:name="com.malliina.boattracker.ui.statistics.StatisticsFragment"
+        android:name="com.malliina.boattracker.ui.statistics.ComposeStatistics"
         android:label="{title}"
         tools:layout="@layout/statistics_fragment">
         <argument
@@ -114,7 +114,7 @@
     </fragment>
     <fragment
         android:id="@+id/boats"
-        android:name="com.malliina.boattracker.ui.boats.BoatsFragment"
+        android:name="com.malliina.boattracker.ui.boats.ComposeBoats"
         android:label="{title}"
         tools:layout="@layout/tracks_fragment">
         <argument

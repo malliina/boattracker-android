@@ -4,18 +4,35 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malliina.boattracker.*
+import com.malliina.boattracker.ui.ComposeFragment
 import com.malliina.boattracker.ui.Controls
 import com.malliina.boattracker.ui.ResourceFragment
 import com.malliina.boattracker.ui.Status
 import kotlinx.android.synthetic.main.statistics_fragment.view.*
 import kotlinx.android.synthetic.main.track_item.view.*
+
+class ComposeStatistics : ComposeFragment() {
+    private val viewModel: StatisticsViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            StatisticsView(viewModel, lang)
+        }
+    }
+}
 
 class StatisticsFragment : ResourceFragment(R.layout.statistics_fragment) {
     private lateinit var viewAdapter: StatsAdapter

@@ -57,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.3.2"
@@ -89,9 +90,10 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2022.12.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
+    implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.compose.material3:material3")
-
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.ui:ui-viewbinding")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
@@ -104,6 +106,7 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha04")
     val navigationVersion = "2.5.3"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")

@@ -1,10 +1,18 @@
 package com.malliina.boattracker.ui.map
 
+import android.graphics.Color
 import com.malliina.boattracker.*
 import com.mapbox.geojson.*
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.style.expressions.generated.Expression
+import com.mapbox.maps.extension.style.layers.addLayer
+import com.mapbox.maps.extension.style.layers.generated.lineLayer
+import com.mapbox.maps.extension.style.layers.generated.symbolLayer
+import com.mapbox.maps.extension.style.layers.properties.generated.IconRotationAlignment
+import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -43,16 +51,17 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
                 val geos = MultiLineString.fromLineStrings(trails)
                 val trailsSrc = style.getSourceAs<GeoJsonSource>(vesselTrailsId)
                 if (trailsSrc == null) {
-//                    val src = GeoJsonSource(vesselTrailsId, geos)
-//                    style.addSource(src)
-//                    val trailsLayer = LineLayer(vesselTrailsId, src.id)
-//                        .withProperties(
-//                        PropertyFactory.lineWidth(1f),
-//                        PropertyFactory.lineColor(Color.BLACK)
-//                    )
-//                    style.addLayer(trailsLayer)
+                    val src = geoJsonSource(vesselTrailsId) {
+                        geometry(geos)
+                    }
+                    style.addSource(src)
+                    val trailsLayer = lineLayer(vesselTrailsId, src.sourceId) {
+                        lineWidth(1.0)
+                        lineColor(Color.BLACK)
+                    }
+                    style.addLayer(trailsLayer)
                 } else {
-//                    trailsSrc.setGeoJson(geos)
+                    trailsSrc.geometry(geos)
                 }
             }
         }
@@ -67,16 +76,19 @@ class VesselsRenderer(val conf: AisLayers, val icons: IconsConf, val lang: Lang)
         val coll = FeatureCollection.fromFeatures(features)
         val src = style.getSourceAs<GeoJsonSource>(vesselPointsId)
         if (src == null) {
-//            style.addSource(GeoJsonSource(vesselPointsId, coll))
-//            val layer = SymbolLayer(vesselPointsId, vesselPointsId).withProperties(
-//                PropertyFactory.iconImage(icons.boat),
-//                PropertyFactory.iconSize(MapFragment.BoatIconSize),
-//                PropertyFactory.iconRotate(Expression.get(Vessel.headingKey)),
-//                PropertyFactory.iconRotationAlignment("map")
-//            )
-//            style.addLayer(layer)
+            val source = geoJsonSource(vesselPointsId) {
+                featureCollection(coll)
+            }
+            style.addSource(source)
+            val layer = symbolLayer(vesselPointsId, vesselPointsId) {
+                iconImage(icons.boat)
+                iconSize(MapFragment.BoatIconSize)
+                iconRotate(Expression.get(Vessel.headingKey))
+                iconRotationAlignment(IconRotationAlignment.MAP)
+            }
+            style.addLayer(layer)
         } else {
-//            src.setGeoJson(coll)
+            src.featureCollection(coll)
         }
     }
 

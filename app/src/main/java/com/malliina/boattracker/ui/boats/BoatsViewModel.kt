@@ -14,7 +14,7 @@ import timber.log.Timber
  * See [StackOverflow answer](https://stackoverflow.com/a/46704702)
  */
 class BoatsViewModel(app: Application) : BoatViewModel(app) {
-    var notificationsEnabled: Boolean = FirebaseMessaging.getInstance().isAutoInitEnabled
+    val notificationsEnabled: Boolean get() = FirebaseMessaging.getInstance().isAutoInitEnabled
 
     private val boatsData: MutableLiveData<BoatUser> = MutableLiveData<BoatUser>().also {
         loadBoats()

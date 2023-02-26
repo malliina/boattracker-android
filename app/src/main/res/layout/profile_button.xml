@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profile"
+    style="@style/IconButtonStyle"
+    android:text="@string/sliders"
+    android:layout_marginTop="40dp"/>

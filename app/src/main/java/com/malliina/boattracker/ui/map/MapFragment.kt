@@ -5,13 +5,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.JsonObject
-import com.malliina.boattracker.*
-import com.malliina.boattracker.ui.callouts.*
+import com.malliina.boattracker.BuildConfig
+import com.malliina.boattracker.Coord
+import com.malliina.boattracker.CoordBody
+import com.malliina.boattracker.CoordsData
+import com.malliina.boattracker.Geo
+import com.malliina.boattracker.IconsConf
+import com.malliina.boattracker.Json
+import com.malliina.boattracker.R
+import com.malliina.boattracker.Speed
+import com.malliina.boattracker.TrackName
+import com.malliina.boattracker.UserState
+import com.malliina.boattracker.ui.ComposeFragment
+import com.malliina.boattracker.ui.callouts.Callouts
+import com.malliina.boattracker.ui.callouts.MeasuredCoord
+import com.malliina.boattracker.ui.callouts.SimpleCoord
+import com.malliina.boattracker.ui.callouts.SpeedInfo
+import com.malliina.boattracker.ui.callouts.WrappedSpeed
 import com.malliina.boattracker.ui.login.LoginActivity
 import com.malliina.boattracker.ui.profile.ProfileFragment
 import com.mapbox.geojson.Feature
@@ -24,27 +41,22 @@ import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.ResourceOptions
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.style.layers.addLayer
 import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
+import com.mapbox.maps.extension.style.layers.generated.lineLayer
+import com.mapbox.maps.extension.style.layers.generated.symbolLayer
+import com.mapbox.maps.extension.style.layers.getLayerAs
+import com.mapbox.maps.extension.style.layers.properties.generated.IconRotationAlignment
+import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
-import kotlinx.android.synthetic.main.map_fragment.view.*
+import kotlinx.android.synthetic.main.buttons_view.view.*
 import timber.log.Timber
 
-// class ComposeMap: ComposeFragment() {
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        return super.onCreateView(inflater, container, savedInstanceState)
-//    }
-// }
-
-class MapFragment : Fragment() {
-    val app: BoatApp get() = requireActivity().application as BoatApp
-
+class MapFragment : ComposeFragment() {
     companion object {
-        const val BoatIconSize: Float = 0.7f
+        const val BoatIconSize: Double = 0.7
         const val profileCode = 901
     }
 
@@ -53,8 +65,8 @@ class MapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private val viewModel: MapViewModel by viewModels()
-    private var map: MapboxMap? = null
-    private val style: Style? get() = map?.getStyle()
+    private val map: MapboxMap get() = mapView.getMapboxMap()
+    private val style: Style? get() = map.getStyle()
 
     private val userState: UserState get() = UserState.instance
     private val icons: IconsConf? get() = app.settings.conf?.map?.icons
@@ -72,17 +84,24 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val mapView = MapView(
-            inflater.context,
+    ): View {
+        val context = inflater.context
+        val helsinki = Point.fromLngLat(24.9, 60.14)
+        val view = MapView(
+            context,
             MapInitOptions(
-                inflater.context, ResourceOptions.Builder().accessToken(BuildConfig.MapboxAccessToken).build(),
-                cameraOptions = CameraOptions.Builder().center(Point.fromLngLat(24.9, 60.14)).zoom(10.0).build()
+                context,
+                ResourceOptions.Builder().accessToken(BuildConfig.MapboxAccessToken).build(),
+                cameraOptions = CameraOptions.Builder().center(helsinki).zoom(10.0).build()
             )
         )
-        this.mapView = mapView
-        return mapView
-//        return inflater.inflate(R.layout.map_fragment, container, false)
+        view.id = R.id.map
+        mapView = view
+        val cl = ConstraintLayout(context)
+        cl.addView(view)
+        val buttons = inflater.inflate(R.layout.buttons_view, null)
+        cl.addView(buttons)
+        return cl
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -91,9 +110,6 @@ class MapFragment : Fragment() {
         if (args.fit) {
             mapMode = MapMode.Fit
         }
-        Timber.i("View is $view")
-//        mapView = view as MapView
-//        mapView.onCreate(savedInstanceState)
         // Observer code happens on the main thread
         viewModel.user.observe(viewLifecycleOwner) { state ->
             if (args.fit) {
@@ -106,40 +122,38 @@ class MapFragment : Fragment() {
         }
         viewModel.conf.observe(viewLifecycleOwner) { conf ->
             Timber.i("Conf loaded.")
-//            view.profile.visibility = Button.VISIBLE
+            view.profile.visibility = Button.VISIBLE
             app.settings.lang?.let {
                 ais = VesselsRenderer(conf.layers.ais, conf.map.icons, it)
             }
             val mapboxMap = mapView.getMapboxMap()
-            mapView.getMapboxMap().loadStyleUri(conf.map.styleUrl) { loaded ->
-                mapView.viewAnnotationManager
+            mapboxMap.loadStyleUri(conf.map.styleUrl) { loaded ->
+                Timber.i("Style loaded.")
                 callouts = Callouts(mapboxMap, mapView.viewAnnotationManager, loaded, requireActivity(), conf, app.settings, this)
             }
         }
         viewModel.coords.observe(viewLifecycleOwner) { coords ->
-            map?.let { m ->
-                onCoords(coords, m)
-            }
+            onCoords(coords, map)
         }
         viewModel.vessels.observe(viewLifecycleOwner) { vessels ->
-            map?.let { m ->
-                ais?.onVessels(vessels, m)
+            ais?.onVessels(vessels, map)
+        }
+        view.profile.setOnClickListener {
+            val user = userState.user
+            if (user == null) {
+                launchLogin()
+            } else {
+                val action = MapFragmentDirections.mapToProfile(lang.appName)
+                findNavController().navigate(action)
             }
         }
-//        view.profile.setOnClickListener {
-//            val user = userState.user
-//            if (user == null) {
-//                launchLogin()
-//            } else {
-//                val action = MapFragmentDirections.mapToProfile(app.settings.lang!!.appName)
-//                findNavController().navigate(action)
-//            }
-//        }
 //        view.center.setOnClickListener {
 //        }
         if (args.refresh) {
+            Timber.i("Signing in silently from Fragment...")
             viewModel.signInSilently(requireContext())
         }
+        Timber.i("MapFragment created")
     }
 
     private fun launchLogin() {
@@ -166,7 +180,6 @@ class MapFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         (activity as AppCompatActivity).supportActionBar?.hide()
-//        mapView.onStart()
         if (isRestart) {
             viewModel.restart()
         }
@@ -177,17 +190,18 @@ class MapFragment : Fragment() {
         viewModel.disconnect()
         clearMap()
         super.onStop()
-        mapView.onStop()
     }
 
     private fun onCoords(coords: CoordsData, map: MapboxMap) {
+        if (style == null) return
         val from = coords.from
         val newPoints = coords.coords // .map { c -> Point.fromLngLat(c.coord.lng, c.coord.lat) }
         val meta = TrackMeta(from.trackName)
         // Updates track
         val featureColl = updateOrCreateTrail(meta, coords.from.topPoint, newPoints)
         val trailSource = style?.getSourceAs<GeoJsonSource>(meta.trailSource)
-//        trailSource?.setGeoJson(featureColl)
+        val exists = style?.styleSourceExists(meta.trailSource) ?: false
+        trailSource?.featureCollection(featureColl)
         val latLngs = extractCoords(featureColl).map { p -> asLatLng(p) }
         if (newPoints.isNotEmpty()) {
             // Updates map position
@@ -213,23 +227,21 @@ class MapFragment : Fragment() {
             // Updates boat icon
             style?.getSourceAs<GeoJsonSource>(meta.iconSource)?.let { source ->
                 newPoints.lastOrNull()?.let { last ->
-//                    source.setGeoJson(last.coord.point())
+                    source.geometry(last.coord.point())
                 }
                 // Updates boat icon bearing
                 val lastTwo = latLngs.takeLast(2)
                 if (lastTwo.size == 2) {
-//                    style?.getLayerAs<SymbolLayer>(meta.iconLayer)?
-//                    .setProperties(
-//                        PropertyFactory.iconRotate(
-//                            Geo.instance.bearing(lastTwo[0], lastTwo[1]).toFloat()
-//                        ),
-//                        PropertyFactory.iconRotationAlignment(Property.ICON_ROTATION_ALIGNMENT_MAP)
-//                    )
+                    style?.getLayerAs<SymbolLayer>(meta.iconLayer)?.apply {
+                        iconRotate(Geo.instance.bearing(lastTwo[0], lastTwo[1]))
+                        iconRotationAlignment(IconRotationAlignment.MAP)
+                    }
                 }
+            } ?: run {
+                Timber.w("Unable to find source ${meta.iconSource}")
             }
             // Updates trophy
-            style?.getSourceAs<GeoJsonSource>(meta.trophySource)
-//                ?.setGeoJson(topFeature(from.topPoint))
+            style?.getSourceAs<GeoJsonSource>(meta.trophySource)?.feature(topFeature(from.topPoint))
         }
     }
 
@@ -245,39 +257,41 @@ class MapFragment : Fragment() {
             // Adds trail
             val trailSource = meta.trailSource
             val trackFeature = FeatureCollection.fromFeatures(speedFeatures(coords))
-//            val source = GeoJsonSource(trailSource, LineString.fromLngLats(emptyList()))
-//            style?.addSource(source)
-//            val lineLayer = LineLayer(meta.trailLayer, trailSource).withProperties(
-//                PropertyFactory.lineWidth(1f),
-//                PropertyFactory.lineColor(Styles.instance.trackColor)
-//            )
-//            style?.addLayer(lineLayer)
+            val source = geoJsonSource(trailSource) {
+                geometry(LineString.fromLngLats(emptyList()))
+            }
+            style?.addSource(source)
+            val lineLayer = lineLayer(meta.trailLayer, trailSource) {
+                lineWidth(1.0)
+//                lineColor(Styles.instance.trackColor)
+            }
+            style?.addLayer(lineLayer)
             trails[meta] = trackFeature
             // Adds boat icon
             coords.lastOrNull()?.let { latLng ->
                 icons?.boat?.let { icon ->
                     val iconSourceId = meta.iconSource
-//                    val iconSource = GeoJsonSource(iconSourceId, latLng.coord.point())
-//                    style?.addSource(iconSource)
-//                    val layerId = meta.iconLayer
-//                    val symbol = SymbolLayer(layerId, iconSource.id).withProperties(
-//                        PropertyFactory.iconImage(icon),
-//                        PropertyFactory.iconSize(BoatIconSize)
-//                    )
-//                    style?.addLayer(symbol)
+                    val iconSource = GeoJsonSource.Builder(iconSourceId).geometry(latLng.coord.point()).build()
+                    style?.addSource(iconSource)
+                    val layerId = meta.iconLayer
+                    val symbol = symbolLayer(layerId, iconSourceId) {
+                        iconImage(icon)
+                        iconSize(BoatIconSize)
+                    }
+                    style?.addLayer(symbol)
                 }
             }
             // Adds trophy using GeoJSON manually instead of using SymbolManager in order to make
             // z-index work as desired (i.e. trophy is shown on top of trails)
-            val feature = topFeature(topSpeed)
-//            val trophySource = GeoJsonSource(meta.trophySource, feature)
-//            style?.addSource(trophySource)
+            val trophySource = geoJsonSource(meta.trophySource) {
+                feature(topFeature(topSpeed))
+            }
+            style?.addSource(trophySource)
             icons?.trophy?.let { trophyIcon ->
-                val symbol = SymbolLayer(meta.trophyLayer, meta.trophySource)
-//                    .withProperties(
-//                    PropertyFactory.iconImage(trophyIcon)
-//                )
-//                style?.addLayer(symbol)
+                val symbol = symbolLayer(meta.trophyLayer, meta.trophySource) {
+                    iconImage(trophyIcon)
+                }
+                style?.addLayer(symbol)
             }
             trackFeature
         } else {
@@ -368,36 +382,8 @@ class MapFragment : Fragment() {
         trails.clear()
     }
 
-    // https://www.mapbox.com/android-docs/maps/overview/
-    override fun onPause() {
-        super.onPause()
-//        if (::mapView.isInitialized)
-//            mapView.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        if (::mapView.isInitialized)
-//            mapView.onResume()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-//        if (::mapView.isInitialized)
-//            mapView.onSaveInstanceState(outState)
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-//        if (::mapView.isInitialized)
-//            mapView.onLowMemory()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        this.map = null
-//        if (::mapView.isInitialized)
-//            mapView.onDestroy()
         isRestart = false
     }
 }

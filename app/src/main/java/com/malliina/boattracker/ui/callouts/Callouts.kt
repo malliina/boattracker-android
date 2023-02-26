@@ -77,7 +77,6 @@ class Callouts(
         val trafficSignAdapter: JsonAdapter<MinimalMarineSymbol> =
             Json.moshi.adapter(MinimalMarineSymbol::class.java)
     }
-
     private val layers = conf.layers
 
     private val calloutImages: MutableMap<String, Bitmap> = mutableMapOf()
@@ -182,6 +181,7 @@ class Callouts(
                 anchor(anchorPosition)
 //                            associatedFeatureId(feature.id())
             }
+            Timber.i("Adding view annotation to $annotations")
             annotations.addViewAnnotation(view, options)
         }
         return false

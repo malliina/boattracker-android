@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ import com.malliina.boattracker.Lang
 import com.malliina.boattracker.R
 import com.malliina.boattracker.TrackRef
 import com.malliina.boattracker.TrackTitle
+import com.malliina.boattracker.ui.ComposeFragment
 import com.malliina.boattracker.ui.Controls
 import com.malliina.boattracker.ui.ResourceFragment
 import com.malliina.boattracker.ui.Status
@@ -28,6 +30,28 @@ import kotlinx.android.synthetic.main.tracks_fragment.view.*
 interface TrackDelegate {
     fun onTrack(selected: TrackRef)
     fun onMore(track: TrackRef, button: ImageButton)
+}
+
+class ComposeTracks : ComposeFragment() {
+    private val viewModel: TracksViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            TracksView(viewModel, lang) { item ->
+                val action = ComposeTracksDirections.tracksToMap(
+                    refresh = false,
+                    track = item.trackName,
+                    fit = true
+                )
+                findNavController().navigate(action)
+            }
+        }
+    }
 }
 
 class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate {
@@ -71,7 +95,7 @@ class TracksFragment : ResourceFragment(R.layout.tracks_fragment), TrackDelegate
 
     // https://stackoverflow.com/a/1124988
     override fun onTrack(selected: TrackRef) {
-        val action = TracksFragmentDirections.tracksToMap(
+        val action = ComposeTracksDirections.tracksToMap(
             refresh = false,
             track = selected.trackName,
             fit = true
